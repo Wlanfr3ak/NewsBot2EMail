@@ -1,0 +1,16 @@
+# Laufzeitdaten und Geheimnisse nicht committen
+.env
+state.json
+newsbot.log
+newsbot.log.*
+downloads/
+
+# Persönliche Konfiguration (config.example.json ist die Vorlage)
+config.json
+
+__pycache__/
+*.pyc
+
+# Versehentlich angelegte Shell-Artefakte (2>nul / > %TEMP%datei)
+nul
+%TEMP%*

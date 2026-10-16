@@ -1,0 +1,43 @@
+{
+  "check_interval_minutes": 720,
+  "request_timeout_seconds": 30,
+  "user_agent": "NewsBot/1.2",
+  "email": {
+    "smtp_host": "smtp.example.com",
+    "smtp_port": 465,
+    "use_ssl": true,
+    "use_starttls": false,
+    "username": "bot@example.com",
+    "password": "env:NEWSBOT_SMTP_PASSWORD",
+    "from": "bot@example.com",
+    "to": [
+      "ich@example.com"
+    ]
+  },
+  "sites": [
+    {
+      "name": "Beispiel Changelog-Seite",
+      "url": "https://example.org/changelog",
+      "method": "hash",
+      "notes": "Meldet sich bei JEDER Inhaltsaenderung der Seite"
+    }
+  ],
+  "site_options": {
+    "mikrotik_routeros": {
+      "channels": [
+        "stable"
+      ],
+      "archive_channels": [
+        "stable",
+        "long-term",
+        "testing",
+        "development"
+      ]
+    }
+  },
+  "web": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 8321
+  }
+}

@@ -1,0 +1,2 @@
+# NewsBot benötigt keine externen Pakete - nur die Python-Standardbibliothek.
+# Diese Datei existiert nur der Vollständigkeit halber.
