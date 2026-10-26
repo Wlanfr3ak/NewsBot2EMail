@@ -752,5 +752,100 @@ class TestHPDocks(unittest.TestCase):
                 [])
 
 
+class TestTwitchDrops(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("twitch_drops")
+
+    # Mini-Fixture im Stil der GZW-Seite: Kampagnentext im Body,
+    # targetDate im Script-Payload.
+    FIXTURE = """
+    <html><body>
+    <h1>Drops on Twitch</h1>
+    <p>Time Remaining 12 Days 4 Hours 5 Min.</p>
+    <p>During the Rogue Ops Twitch Drops campaign, running from
+       October 22 to November 6, all streams count.</p>
+    <script>self.__next_f.push([1,"targetDate\\":\\"$D2026-11-06T12:59:00.000Z"])</script>
+    <script src="/_next/static/chunks/abc123.js"></script>
+    </body></html>
+    """
+
+    FIXTURE_NEU = FIXTURE.replace(
+        "Rogue Ops Twitch Drops campaign, running from\n       October 22 to November 6",
+        "Neue Drops campaign, running from\n       December 1 to December 15",
+    ).replace("2026-11-06T12:59", "2026-12-15T12:59")
+
+    def test_signature_stabil(self):
+        """Gleiche Seite, andere Countdown-Zahlen -> gleiche Signatur."""
+        a = self.mod._signature(self.FIXTURE)
+        b = self.mod._signature(
+            self.FIXTURE.replace("12 Days 4 Hours 5 Min.",
+                                 "0 Days 0 Hours 0 Min."))
+        self.assertEqual(a, b)
+
+    def test_signature_neue_kampagne(self):
+        """Anderer Kampagnen-Text oder neues targetDate -> neue Signatur."""
+        self.assertNotEqual(self.mod._signature(self.FIXTURE),
+                            self.mod._signature(self.FIXTURE_NEU))
+
+    def test_signature_script_chunks_ignoriert(self):
+        """Neue JS-Chunk-Hashes (Deploy) duerfen nicht melden."""
+        b = self.FIXTURE.replace("chunks/abc123.js", "chunks/zzz999.js")
+        self.assertEqual(self.mod._signature(self.FIXTURE),
+                         self.mod._signature(b))
+
+    def test_iso_daten_im_script(self):
+        dates, _ = self.mod._fragments(self.FIXTURE)
+        self.assertIn("2026-11-06T12:59", dates)
+
+    def test_extract_kombiniert(self):
+        with mock.patch.multiple(
+                self.mod, URLS={"https://a/": "Spiel A",
+                                "https://b/": "Spiel B"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            out = self.mod.extract("")
+            self.assertRegex(out, r"^Spiel A=[0-9a-f]{12};Spiel B=[0-9a-f]{12}$")
+
+    def test_extract_history(self):
+        with mock.patch.multiple(
+                self.mod, URLS={"https://a/": "Spiel A"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            releases = self.mod.extract_history("")
+        self.assertEqual(len(releases), 1)
+        self.assertTrue(releases[0]["version"].startswith("Spiel A="))
+
+    def test_urls_liste_und_dict(self):
+        """site_options urls: Liste (Label=Host) oder Dict url->label."""
+        d = self.mod._normalize_urls(
+            {"https://x/drops": "Mein Spiel", "https://y/": "Anderes"})
+        self.assertEqual(d, {"https://x/drops": "Mein Spiel",
+                             "https://y/": "Anderes"})
+        l = self.mod._normalize_urls(["https://twitch.game.com/"])
+        self.assertEqual(list(l.values()), ["twitch.game.com"])
+
+    def test_update_changelog(self):
+        with mock.patch.multiple(
+                self.mod, URLS={"https://a/": "Spiel A"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            out = self.mod.update_changelog(None)
+            self.assertIn("Spiel A –", out)
+            self.assertIn("Rogue Ops", out)
+            self.assertIn("2026-11-06T12:59", out)
+            # gleiche Signatur -> unveraendert
+            self.assertIsNone(self.mod.update_changelog(out))
+
+    def test_update_changelog_neue_kampagne(self):
+        with mock.patch.multiple(
+                self.mod, URLS={"https://a/": "Spiel A"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            out = self.mod.update_changelog(None)
+        with mock.patch.multiple(
+                self.mod, URLS={"https://a/": "Spiel A"},
+                _fetch=mock.Mock(return_value=self.FIXTURE_NEU)):
+            out2 = self.mod.update_changelog(out)
+        self.assertIn("Neue Drops campaign", out2)
+        self.assertIn("Rogue Ops", out2)   # alter Abschnitt bleibt
+
+
 if __name__ == "__main__":
     unittest.main()

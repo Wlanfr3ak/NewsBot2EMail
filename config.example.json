@@ -33,6 +33,11 @@
         "testing",
         "development"
       ]
+    },
+    "twitch_drops": {
+      "urls": {
+        "https://twitch.grayzonewarfare.com/": "Gray Zone Warfare"
+      }
     }
   },
   "web": {

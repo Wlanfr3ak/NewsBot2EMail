@@ -6,7 +6,7 @@ NewsBot überwacht konfigurierbare Webseiten auf neue Versionen bzw.
 Änderungen und benachrichtigt per E-Mail. Reine Python-Standardbibliothek,
 plattformübergreifend (Windows/Linux/macOS), keine externen Abhängigkeiten.
 
-**Aktuelle Version: 1.19.0** (siehe `__version__` in `newsbot.py`)
+**Aktuelle Version: 1.20.0** (siehe `__version__` in `newsbot.py`)
 
 ## Projektstruktur
 
@@ -94,6 +94,44 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 ```
 
 ## Changelog
+
+### 1.20.0 – 2026-10-26
+
+**Feature: Twitch-Drops-Modul (Issue #1) – konfigurierbare Links,
+Default Gray Zone Warfare.**
+
+- `sites/twitch_drops.py` (neu): Twitch hat keine öffentliche
+  Kampagnen-API (die Drops-Übersicht braucht Login) - daher werden
+  die Drops-Seiten der Spiele direkt beobachtet. Default:
+  `https://twitch.grayzonewarfare.com/` (Next.js-Seite, Kampagnen-
+  Countdown steckt als `targetDate` im RSC-Payload).
+- Generische Erkennung pro Seite: ISO-Zeitstempel im HTML +
+  sichtbare Sätze mit 'drop|campaign|kampagne|twitch' ->
+  sha256-Signatur (12 Zeichen). `<script>`/`<style>` werden vor der
+  Text-Extraktion entfernt (Deploy-Chunk-Hashes lösen nicht aus),
+  Countdown-Zahlen ('12 Days 4 Hours') werden neutralisiert (sonst
+  taegliche Falschmeldungen).
+- `extract()` kombiniert alle Seiten: '<label>=<hash>;…' - jede
+  Kampagnen-Aenderung (Start, Ende, neuer Name, neuer Zeitraum)
+  loest EINE Mail aus. Schlaegt ein Fetch fehl, gilt der Check als
+  fehlgeschlagen statt falsch zu melden.
+- Seiten per `site_options.twitch_drops.urls` frei waehlbar -
+  Dict `{url: label}` oder Liste von URLs (Label = Hostname).
+  In config.example.json dokumentiert.
+- `update_changelog()`: pro neuer Signatur werden die erkannten
+  Fragmente (ISO-Daten + Schluesselsaetze) unter
+  '## <label> – <hash> – <erkannt-am>' nach
+  `archive/twitch-drops_changelog.md` archiviert - nachvollziehbar,
+  welche Kampagne wann online war.
+- `extract_history()` liefert die Signatur ohne Datum (kein echtes
+  Upstream-Datum verfuegbar -> Mail zeigt 'unbekannt', korrekt).
+- `tests/test_sites.py`: `TestTwitchDrops` - Signatur-Stabilitaet
+  (Countdown/Chunk-Hashes), Kampagnenwechsel, Kombi-Wert,
+  urls-Normalisierung, Changelog inkrementell + unveraendert.
+- Betroffene Dateien: `sites/twitch_drops.py` (neu), `newsbot.py`
+  (Version), `tests/test_sites.py`, `config.example.json`,
+  `README.md`, `AGENTS.md`.
+- `__version__` auf 1.20.0.
 
 ### 1.19.0 – 2026-10-26
 
