@@ -974,5 +974,69 @@ class TestVeraCrypt(unittest.TestCase):
             self.mod.list_downloads(self.RELEASE_JSON, have, None), [])
 
 
+class TestAnytoneD890UV(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("anytone_d890uv")
+
+    FIXTURE = """
+    <a href="http://www.wouxun.us/Software/X/D890UV_V1.05.zip">x</a>
+    <a href="http://www.wouxun.us/Software/X/Change-Log-D890UV-FW-v1.05.pdf">x</a>
+    <a href="http://www.wouxun.us/Software/X/AT-D890UV-V1.03.zip">x</a>
+    <a href="/Software/X/Firmware-Update-Tool.zip">x</a>
+    <a data-open-download file_url="https://cdn/x/brochure.pdf">x</a>
+    <a href="category.php?category_id=64">nav</a>
+    """
+
+    def test_links(self):
+        links = self.mod._links("https://www.wouxun.us/x", self.FIXTURE)
+        self.assertEqual(len(links), 5)
+        # relative Links werden absolut
+        self.assertIn("https://www.wouxun.us/Software/X/"
+                      "Firmware-Update-Tool.zip", links)
+        self.assertIn("https://cdn/x/brochure.pdf", links)
+
+    def test_versions(self):
+        vs = self.mod._versions(self.mod._links(
+            "https://www.wouxun.us/x", self.FIXTURE))
+        self.assertEqual(vs, ["1.05", "1.03"])
+
+    def test_extract(self):
+        with mock.patch.multiple(
+                self.mod, SOURCES={"https://a/": "q"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            self.assertEqual(self.mod.extract(""), "1.05")
+
+    def test_extract_fehler(self):
+        with mock.patch.multiple(
+                self.mod, SOURCES={"https://a/": "q"},
+                _fetch=mock.Mock(return_value="<p>nichts</p>")):
+            with self.assertRaises(ValueError):
+                self.mod.extract("")
+
+    def test_list_downloads(self):
+        with mock.patch.multiple(
+                self.mod, SOURCES={"https://a/": "q"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            items = self.mod.list_downloads("", set(), None)
+        self.assertEqual(len(items), 5)
+        names = {i["filename"] for i in items}
+        self.assertIn("D890UV_V1.05.zip", names)
+        self.assertIn("Change-Log-D890UV-FW-v1.05.pdf", names)
+
+    def test_update_changelog_dedup(self):
+        with mock.patch.multiple(
+                self.mod, SOURCES={"https://a/": "q"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            out = self.mod.update_changelog(None)
+        self.assertIn("## Stand", out)
+        self.assertIn("D890UV_V1.05.zip", out)
+        self.assertIn("Seiten-Snapshot", out)
+        with mock.patch.multiple(
+                self.mod, SOURCES={"https://a/": "q"},
+                _fetch=mock.Mock(return_value=self.FIXTURE)):
+            self.assertIsNone(self.mod.update_changelog(out))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -6,7 +6,7 @@ NewsBot überwacht konfigurierbare Webseiten auf neue Versionen bzw.
 Änderungen und benachrichtigt per E-Mail. Reine Python-Standardbibliothek,
 plattformübergreifend (Windows/Linux/macOS), keine externen Abhängigkeiten.
 
-**Aktuelle Version: 1.22.0** (siehe `__version__` in `newsbot.py`)
+**Aktuelle Version: 1.23.0** (siehe `__version__` in `newsbot.py`)
 
 ## Projektstruktur
 
@@ -94,6 +94,41 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 ```
 
 ## Changelog
+
+### 1.23.0 – 2026-10-26
+
+**Feature: Anytone-AT-D890UV-Modul (Firmware + Komplett-Archiv).**
+
+- `sites/anytone_d890uv.py` (neu): überwacht die Firmware des
+  Anytone AT-D890UV über zwei Quellen gemeinsam:
+  - `wouxun.us/category.php?category_id=112` ('AT-D890UV Firmware
+    Updates': D890UV_V1.0x.zip, NX-DMR-Varianten,
+    Change-Log-D890UV-FW-PDFs, Anleitungen, Update-Tool) -
+    die eigentliche Versionsliste (aktuell V1.05).
+  - `anytone.net` Produktseite + Download-Liste
+    (`data-open-download`-Elemente mit `file_url`-Attribut).
+  - HINWEIS: wouxun.us antwortet auf Browser-User-Agents mit
+    406 - der NewsBot-UA geht (kein VERIFY_TLS/Tricks nötig).
+- `extract()`: höchste FW-Version aus Dateinamen
+  ('D890UV_V1.05.zip', 'AT-D890UV-V1.03.zip', 'FW-v1.05') über
+  alle Quellen; Fehler, wenn keine Version gefunden wird.
+- `list_downloads()`: lädt ALLE verlinkten Dateien beider Seiten
+  (Firmware, Change-Log-PDFs, Tools, Anleitungen - 'alle weiteren
+  Sachen') nach `downloads/anytone-d890uv/`.
+- `update_changelog()`: sobald sich die Linkliste einer Quelle
+  ändert, Abschnitt '## Stand <datum> – <hash8> (<quelle>)' mit
+  kompletter Datei-Linkliste + sichtbarem Seiten-Snapshot - die
+  Webseite selbst bleibt so archiviert (Gewünscht: 'inklusive der
+  Webseite sichern und archiviert halten').
+- `extract_history()`: alle gefundenen FW-Versionen ohne Datum
+  (Upstream liefert keins -> Mail 'Veröffentlicht: unbekannt').
+- `tests/test_sites.py`: `TestAnytoneD890UV` - Link-Extraktion
+  (relativ + file_url), Versions-Regex, extract(), Downloads,
+  Changelog-Dedup.
+- Betroffene Dateien: `sites/anytone_d890uv.py` (neu),
+  `newsbot.py` (Version), `tests/test_sites.py`, `README.md`,
+  `AGENTS.md`.
+- `__version__` auf 1.23.0.
 
 ### 1.22.0 – 2026-10-26
 
