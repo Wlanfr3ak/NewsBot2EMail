@@ -753,69 +753,134 @@ class TestHPDocks(unittest.TestCase):
 
 
 class TestTwitchDrops(unittest.TestCase):
+    """Zeitraum-Erkennung: aktiv/angekündigt/keine aus Text-Ranges
+    und ISO-Countdown-Daten."""
+
     @classmethod
     def setUpClass(cls):
         cls.mod = load_module("twitch_drops")
 
-    # Mini-Fixture im Stil der GZW-Seite: Kampagnentext im Body,
-    # targetDate im Script-Payload.
-    FIXTURE = """
-    <html><body>
-    <h1>Drops on Twitch</h1>
-    <p>Time Remaining 12 Days 4 Hours 5 Min.</p>
-    <p>During the Rogue Ops Twitch Drops campaign, running from
-       October 22 to November 6, all streams count.</p>
-    <script>self.__next_f.push([1,"targetDate\\":\\"$D2026-11-06T12:59:00.000Z"])</script>
-    <script src="/_next/static/chunks/abc123.js"></script>
-    </body></html>
-    """
+    @staticmethod
+    def _fixture(start, end, name="Rogue Ops", iso=True):
+        """GZW-artige Seite mit Zeitraum start->end (date-Objekte)."""
+        fmt = "%B %-d" if sys.platform != "win32" else "%B %#d"
+        return f"""
+        <html><body>
+        <h1>Drops on Twitch</h1>
+        <p>Time Remaining 12 Days 4 Hours 5 Min.</p>
+        <p>During the {name} Twitch Drops campaign, running from
+           {start.strftime(fmt)} to {end.strftime(fmt)}, all streams
+           count.</p>
+        <script>self.__next_f.push([1,"targetDate\\":\\"$D{
+            end}T12:59:00.000Z"])</script>
+        <script src="/_next/static/chunks/abc123.js"></script>
+        </body></html>""" if iso else f"""
+        <html><body>
+        <p>During the {name} Twitch Drops campaign, running from
+           {start.strftime(fmt)} to {end.strftime(fmt)}.</p>
+        </body></html>"""
 
-    FIXTURE_NEU = FIXTURE.replace(
-        "Rogue Ops Twitch Drops campaign, running from\n       October 22 to November 6",
-        "Neue Drops campaign, running from\n       December 1 to December 15",
-    ).replace("2026-11-06T12:59", "2026-12-15T12:59")
+    def test_ranges_en_monat_vor_tag(self):
+        from datetime import date
+        r = self.mod._ranges_en(
+            "campaign, running from October 22 to November 6")
+        self.assertEqual([(d.month, d.day) for d in r[0]],
+                         [(10, 22), (11, 6)])
 
-    def test_signature_stabil(self):
-        """Gleiche Seite, andere Countdown-Zahlen -> gleiche Signatur."""
-        a = self.mod._signature(self.FIXTURE)
-        b = self.mod._signature(
-            self.FIXTURE.replace("12 Days 4 Hours 5 Min.",
-                                 "0 Days 0 Hours 0 Min."))
-        self.assertEqual(a, b)
+    def test_ranges_en_tag_vor_monat_mit_jahr(self):
+        r = self.mod._ranges_en(
+            "22nd October 2026 at 18:00 CEST until 6th November 2026")
+        self.assertEqual([(d.year, d.month, d.day) for d in r[0]],
+                         [(2026, 10, 22), (2026, 11, 6)])
 
-    def test_signature_neue_kampagne(self):
-        """Anderer Kampagnen-Text oder neues targetDate -> neue Signatur."""
-        self.assertNotEqual(self.mod._signature(self.FIXTURE),
-                            self.mod._signature(self.FIXTURE_NEU))
+    def test_ranges_en_jahreswechsel(self):
+        """Dec -> Jan: Ende springt ins Folgejahr."""
+        r = self.mod._ranges_en(
+            "campaign, running from December 15 to January 5")
+        start, end = r[0]
+        self.assertEqual(end.year, start.year + 1)
 
-    def test_signature_script_chunks_ignoriert(self):
-        """Neue JS-Chunk-Hashes (Deploy) duerfen nicht melden."""
-        b = self.FIXTURE.replace("chunks/abc123.js", "chunks/zzz999.js")
-        self.assertEqual(self.mod._signature(self.FIXTURE),
-                         self.mod._signature(b))
+    def test_ranges_de(self):
+        r = self.mod._ranges_de("Kampagne vom 22.10.-06.11.2026")
+        self.assertEqual(r[0][1].isoformat(), "2026-11-06")
 
-    def test_iso_daten_im_script(self):
-        dates, _ = self.mod._fragments(self.FIXTURE)
-        self.assertIn("2026-11-06T12:59", dates)
+    def test_detect_aktiv(self):
+        from datetime import date, timedelta
+        today = date.today()
+        det = self.mod.detect(self._fixture(
+            today - timedelta(days=3), today + timedelta(days=5)))
+        self.assertEqual(det["status"], "aktiv")
+        self.assertEqual(det["name"], "Rogue Ops")
+        self.assertEqual(det["end"], today + timedelta(days=5))
+
+    def test_detect_angekuendigt(self):
+        from datetime import date, timedelta
+        today = date.today()
+        det = self.mod.detect(self._fixture(
+            today + timedelta(days=10), today + timedelta(days=20)))
+        self.assertEqual(det["status"], "angekündigt")
+
+    def test_detect_keine(self):
+        det = self.mod.detect("<html><body><p>Keine Kampagnen.</p>"
+                              "</body></html>")
+        self.assertEqual(det["status"], "keine")
+
+    def test_detect_nur_iso_countdown(self):
+        """Ohne Text-Zeitraum zählt ein künftiges targetDate als
+        aktiv bis dahin."""
+        from datetime import date, timedelta
+        end = date.today() + timedelta(days=7)
+        page = (f'<html><body><p>Twitch Drops</p>'
+                f'<script>"$D{end}T12:59:00.000Z"</script></body></html>')
+        det = self.mod.detect(page)
+        self.assertEqual(det["status"], "aktiv")
+        self.assertEqual(det["end"], end)
+
+    def test_detect_name_fallback(self):
+        from datetime import date, timedelta
+        today = date.today()
+        page = ("<p>campaign, running from "
+                f"{(today).strftime('%B')} 1 to {(today).strftime('%B')} 9</p>")
+        det = self.mod.detect(page)
+        self.assertIsNone(det["name"])
 
     def test_extract_kombiniert(self):
+        det = {"status": "aktiv", "name": "Ops",
+               "start": __import__("datetime").date(2026, 10, 22),
+               "end": __import__("datetime").date(2026, 11, 6),
+               "sentences": []}
         with mock.patch.multiple(
                 self.mod, URLS={"https://a/": "Spiel A",
                                 "https://b/": "Spiel B"},
-                _fetch=mock.Mock(return_value=self.FIXTURE)):
+                detect=mock.Mock(return_value=det),
+                _fetch=mock.Mock(return_value="")):
             out = self.mod.extract("")
-            self.assertRegex(out, r"^Spiel A=[0-9a-f]{12};Spiel B=[0-9a-f]{12}$")
+            self.assertEqual(
+                out, "Spiel A=aktiv:Ops (2026-10-22..2026-11-06);"
+                     "Spiel B=aktiv:Ops (2026-10-22..2026-11-06)")
 
-    def test_extract_history(self):
+    def test_extract_keine(self):
+        det = {"status": "keine", "name": None, "start": None,
+               "end": None, "sentences": []}
         with mock.patch.multiple(
                 self.mod, URLS={"https://a/": "Spiel A"},
-                _fetch=mock.Mock(return_value=self.FIXTURE)):
+                detect=mock.Mock(return_value=det),
+                _fetch=mock.Mock(return_value="")):
+            self.assertEqual(self.mod.extract(""), "Spiel A=keine")
+
+    def test_extract_history_startdatum(self):
+        from datetime import date
+        det = {"status": "aktiv", "name": "Ops",
+               "start": date(2026, 10, 22), "end": date(2026, 11, 6),
+               "sentences": []}
+        with mock.patch.multiple(
+                self.mod, URLS={"https://a/": "Spiel A"},
+                detect=mock.Mock(return_value=det),
+                _fetch=mock.Mock(return_value="")):
             releases = self.mod.extract_history("")
-        self.assertEqual(len(releases), 1)
-        self.assertTrue(releases[0]["version"].startswith("Spiel A="))
+        self.assertEqual(releases[0]["date"], "2026-10-22")
 
     def test_urls_liste_und_dict(self):
-        """site_options urls: Liste (Label=Host) oder Dict url->label."""
         d = self.mod._normalize_urls(
             {"https://x/drops": "Mein Spiel", "https://y/": "Anderes"})
         self.assertEqual(d, {"https://x/drops": "Mein Spiel",
@@ -823,28 +888,31 @@ class TestTwitchDrops(unittest.TestCase):
         l = self.mod._normalize_urls(["https://twitch.game.com/"])
         self.assertEqual(list(l.values()), ["twitch.game.com"])
 
-    def test_update_changelog(self):
+    def test_update_changelog_und_dedup(self):
+        from datetime import date, timedelta
+        today = date.today()
+        det = {"status": "aktiv", "name": "Rogue Ops",
+               "start": today - timedelta(days=3),
+               "end": today + timedelta(days=5),
+               "sentences": ["running from x to y"]}
         with mock.patch.multiple(
                 self.mod, URLS={"https://a/": "Spiel A"},
-                _fetch=mock.Mock(return_value=self.FIXTURE)):
+                detect=mock.Mock(return_value=det),
+                _fetch=mock.Mock(return_value="")):
             out = self.mod.update_changelog(None)
-            self.assertIn("Spiel A –", out)
-            self.assertIn("Rogue Ops", out)
-            self.assertIn("2026-11-06T12:59", out)
-            # gleiche Signatur -> unveraendert
+            self.assertIn("## Spiel A – Rogue Ops (", out)
+            self.assertIn("Status: aktiv", out)
+            # gleiche Kampagne -> unveraendert
             self.assertIsNone(self.mod.update_changelog(out))
 
-    def test_update_changelog_neue_kampagne(self):
+    def test_update_changelog_keine(self):
+        det = {"status": "keine", "name": None, "start": None,
+               "end": None, "sentences": []}
         with mock.patch.multiple(
                 self.mod, URLS={"https://a/": "Spiel A"},
-                _fetch=mock.Mock(return_value=self.FIXTURE)):
-            out = self.mod.update_changelog(None)
-        with mock.patch.multiple(
-                self.mod, URLS={"https://a/": "Spiel A"},
-                _fetch=mock.Mock(return_value=self.FIXTURE_NEU)):
-            out2 = self.mod.update_changelog(out)
-        self.assertIn("Neue Drops campaign", out2)
-        self.assertIn("Rogue Ops", out2)   # alter Abschnitt bleibt
+                detect=mock.Mock(return_value=det),
+                _fetch=mock.Mock(return_value="")):
+            self.assertIsNone(self.mod.update_changelog(None))
 
 
 if __name__ == "__main__":

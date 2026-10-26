@@ -6,7 +6,7 @@ NewsBot überwacht konfigurierbare Webseiten auf neue Versionen bzw.
 Änderungen und benachrichtigt per E-Mail. Reine Python-Standardbibliothek,
 plattformübergreifend (Windows/Linux/macOS), keine externen Abhängigkeiten.
 
-**Aktuelle Version: 1.20.0** (siehe `__version__` in `newsbot.py`)
+**Aktuelle Version: 1.21.0** (siehe `__version__` in `newsbot.py`)
 
 ## Projektstruktur
 
@@ -94,6 +94,47 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 ```
 
 ## Changelog
+
+### 1.21.0 – 2026-10-26
+
+**Verbesserung: Twitch-Drops erkennt jetzt Kampagnen-Status aus den
+Zeiträumen statt nur Text-Signatur.**
+
+- `sites/twitch_drops.py` neu implementiert (`detect()`): die
+  Seiten nennen den Kampagnen-Zeitraum im Text ('campaign, running
+  from October 22 to November 6', '22nd October 2026 at 18:00 CEST
+  until 6th November 2026', dt. '22.10.-06.11.') und/oder als
+  ISO-Countdown ('targetDate' im RSC-Payload). Aus allen gefundenen
+  Zeiträumen wird ein Status gebaut:
+  - `aktiv` - heute liegt in einem Zeitraum (oder ein
+    Countdown-Ende liegt in der Zukunft),
+  - `angekündigt` - Zeitraum liegt komplett in der Zukunft,
+  - `keine` - kein aktueller Zeitraum gefunden.
+- Der Vergleichswert ist jetzt selbsterklärend:
+  `Gray Zone Warfare=aktiv:Rogue Ops (2026-10-22..2026-11-06)` -
+  Kampagnenstart, Kampagnenende, neue Ankündigung und neuer
+  Kampagnenname lösen jeweils EINE Mail aus (vorher: jede
+  Textänderung). Bei mehreren überlappenden Zeiträumen (z. B.
+  Stage-Fenster innerhalb der Kampagne) gewinnt der mit dem
+  spaetesten Ende - Stage-Wechsel melden nicht.
+- Kampagnenname wird aus 'the <name> (Twitch Drops) campaign'
+  gelesen (Artikel ist Pflicht - ohne ihn griffe lazy-Matching den
+  Satzanfang). Fallback: 'Kampagne'.
+- `extract_history()` liefert den echten Kampagnen-START als Datum
+  - die Mail zeigt ihn als 'Veröffentlicht:'.
+- `update_changelog()` archiviert je Kampagne einen Abschnitt
+  '## <label> – <name> (<start>..<end>)' mit Status + Fragmenten;
+  Dedup-Key ist label|name|start (Wiederholungs-Kampagnen mit
+  gleichem Namen aber neuem Zeitraum werden erfasst).
+- Jahres-Logik: Monatsangaben ohne Jahr gelten als aktuelles Jahr,
+  end < start -> Folgejahr; ISO-Daten ~+-3 Tage an einem
+  Zeitraum-Ende werden derselben Kampagne zugeordnet.
+- `tests/test_sites.py`: `TestTwitchDrops` komplett neu -
+  Range-Parsing (en beide Richtungen, de, Jahreswechsel),
+  detect()-Stati, Kombi-Wert, Changelog-Dedup. Test-Fixtures
+  erzeugen Zeiträume relativ zu heute (datumunabhaengig).
+- `config.example.json` unveraendert (urls-Format gilt weiter).
+- `__version__` auf 1.21.0.
 
 ### 1.20.0 – 2026-10-26
 

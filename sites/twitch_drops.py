@@ -1,20 +1,22 @@
 """Seiten-Modul: Twitch Drops (GitHub-Issue #1)
 
-Überwacht Drops-Seiten von Spielen auf neue Kampagnen. Twitch
-selbst hat keine öffentliche Kampagnen-API und die
-Drops-Übersicht braucht einen Login - daher werden die
-Drops-Seiten der Spiele direkt beobachtet (Default: Gray Zone
-Warfare, twitch.grayzonewarfare.com).
+Überwacht Drops-Seiten von Spielen auf neue Kampagnen. Twitch hat
+keine öffentliche Kampagnen-API (die Drops-Übersicht braucht Login) -
+daher werden die Drops-Seiten der Spiele direkt beobachtet.
+Default: Gray Zone Warfare (twitch.grayzonewarfare.com).
 
-Erkennung (generisch, funktioniert auf beliebigen Seiten):
-- alle ISO-Zeitstempel im HTML (z. B. der Kampagnen-Countdown
-  'targetDate' im Next.js-Payload),
-- sichtbare Sätze mit 'drop'/'campaign'/'twitch' (laufende
-  Countdown-Zahlen wie '12 Days 3 Hours' werden dabei neutralisiert,
-  sonst würde jeder Check eine Änderung melden).
-Aus beidem wird eine Signatur gehasht; der Vergleichswert ist
-'<label>=<hash>;...' über alle konfigurierten Seiten - jede
-Inhaltsänderung einer Kampagnen-Sektion löst eine Mail aus.
+Erkennung (generisch): die Seiten nennen den Kampagnen-Zeitraum im
+Text ('campaign, running from October 22 to November 6', dt.
+'22.10.-06.11.') und/oder als ISO-Countdown-Datum im Seiten-Payload.
+Aus allen gefundenen Zeiträumen wird ein Status gebaut:
+  aktiv       – heute liegt in einem Zeitraum (oder Countdown-Ende
+                in der Zukunft),
+  angekündigt – ein Zeitraum liegt komplett in der Zukunft,
+  keine       – kein (mehr aktueller) Zeitraum gefunden.
+Der Vergleichswert ist '<label>=<status>:<name> (<start>..<end>);…'
+über alle konfigurierten Seiten - Kampagnenstart, -ende und neue
+Ankündigungen lösen jeweils EINE Mail aus. Als
+Veröffentlichungsdatum in der Mail gilt der Kampagnen-START.
 
 Seiten in config.json wählbar (Dict URL->Label oder Liste von URLs,
 Label = Hostname; Default = Gray Zone Warfare):
@@ -25,17 +27,16 @@ Label = Hostname; Default = Gray Zone Warfare):
     }
   }
 
-Historie: Signatur ohne echtes Datum.
-Changelog: je neuer Signatur werden die erkannten Schlusselfragmente
-(Text + ISO-Daten) nach archive/twitch-drops_changelog.md
-archiviert - so bleibt nachvollziehbar, welche Kampagne wann kam.
+Changelog: pro Kampagne ein Abschnitt
+'## <label> – <name> (<start>..<end>)' mit Status und den erkannten
+Schlusselfragmenten in archive/twitch-drops_changelog.md.
 """
 
-import hashlib
 import html as _html
 import json
 import re
 import urllib.request
+from datetime import date, timedelta
 from pathlib import Path
 
 NAME = "Twitch Drops"
@@ -57,6 +58,12 @@ def _options() -> dict:
 
 _OPTS = _options()
 
+
+def _host_label(url: str) -> str:
+    host = re.sub(r"^https?://|/$", "", url).split("/")[0]
+    return host.replace("www.", "")
+
+
 def _normalize_urls(raw) -> dict:
     """Liste ['https://…'] oder Dict {url: label} -> {url: label}."""
     if isinstance(raw, dict):
@@ -64,24 +71,46 @@ def _normalize_urls(raw) -> dict:
     return {str(u): _host_label(str(u)) for u in (raw or [])}
 
 
-def _host_label(url: str) -> str:
-    host = re.sub(r"^https?://|/$", "", url).split("/")[0]
-    return host.replace("www.", "")
-
-
 # URL -> Label; Default: Gray Zone Warfare (Issue #1).
 URLS = _normalize_urls(_OPTS.get("urls")) or {URL: "Gray Zone Warfare"}
 
-_UA = "NewsBot/1.20"
+_UA = "NewsBot/1.21"
 _SCRIPT_RE = re.compile(r"<(script|style)\b.*?</\1>", re.S | re.I)
 _TAG_RE = re.compile(r"<[^>]+>")
-_ISO_RE = re.compile(r"20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}")
-_KW_RE = re.compile(r"drop|campaign|kampagne|twitch", re.I)
-_COUNTDOWN_RE = re.compile(
-    r"\b\d+\s*(?:Days?|Hours?|Minutes?|Min\.?|Secs?\.?|Seconds?)\b", re.I)
 _WS_RE = re.compile(r"\s+")
 _SENTENCE_RE = re.compile(r"(?<=[.!?])\s+|\n+")
-_HEAD_RE = re.compile(r"^## (.+?) – ([0-9a-f]{12}) – ", re.M)
+_KW_RE = re.compile(r"drop|campaign|kampagne|twitch", re.I)
+_MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+           "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12}
+_MON = ("jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun[ei]?"
+        "|jul[y]?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?"
+        "|nov(?:ember)?|dec(?:ember)?")
+# optionaler Uhrzeit-Anhang hinter einem Datum (' at 18:00 CEST')
+_TIME_TAIL = r"(?:\s+at\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s+[A-Za-z]{2,6})?)?"
+# 'October 22 to November 6' / 'Oct 22nd – Nov 6th'
+_RANGE_EN_RE = re.compile(
+    rf"({_MON})\s+(\d{{1,2}})(?:st|nd|rd|th)?{_TIME_TAIL}"
+    rf"\s*(?:to|until|bis|–|-)\s*"
+    rf"({_MON})\s+(\d{{1,2}})(?:st|nd|rd|th)?", re.I)
+# '22nd October 2026 at 18:00 CEST until 6th November 2026'
+_RANGE_EN2_RE = re.compile(
+    rf"(\d{{1,2}})(?:st|nd|rd|th)?\s+({_MON})(?:\s+(\d{{4}}))?{_TIME_TAIL}"
+    rf"\s*(?:to|until|bis|–|-)\s*"
+    rf"(\d{{1,2}})(?:st|nd|rd|th)?\s+({_MON})(?:\s+(\d{{4}}))?", re.I)
+# '22.10.-06.11.' oder '22.10.2026-06.11.2026'
+_RANGE_DE_RE = re.compile(
+    r"\b(\d{1,2})\.(\d{1,2})\.(?:(\d{4}))?\s*(?:–|-|bis)\s*"
+    r"(\d{1,2})\.(\d{1,2})\.(?:(\d{4}))?")
+_ISO_RE = re.compile(r"(20\d{2})-(\d{2})-(\d{2})")
+# Kampagnenname: 'the Rogue Ops (Twitch Drops) campaign' oder dt.
+# 'die X Kampagne'. Der Artikel ist Pflicht, sonst griffe der lazy
+# Namensteil den Satzanfang mit ('During the Rogue Ops').
+_NAME_RE = re.compile(
+    r"(?:the |der |die |das )([A-ZÄÖÜ][\w&' -]{2,40}?)\s+"
+    r"(?:Twitch )?(?:Drops )?(?:campaign|kampagne)", re.I)
+_HEAD_RE = re.compile(
+    r"^## (.+?) – (.+?) \((?:(\d{4}-\d{2}-\d{2})|bis)", re.M)
+_TOL = timedelta(days=3)   # ISO-Datum ~ Zeitraum-Ende = gleiche Kampagne
 
 
 def _fetch(url: str) -> str:
@@ -90,77 +119,184 @@ def _fetch(url: str) -> str:
         return resp.read().decode("utf-8", "replace")
 
 
-def _fragments(page: str) -> tuple[list, list]:
-    """Relevante Signatur-Fragmente einer Seite:
-    (ISO-Zeitstempel, Keyword-Sätze) - beide sortiert, dedupliziert."""
-    dates = sorted(set(_ISO_RE.findall(page)))
-    body = _SCRIPT_RE.sub(" ", page)
-    text = _html.unescape(_WS_RE.sub(" ", _TAG_RE.sub(" ", body)))
-    sentences = []
-    for part in _SENTENCE_RE.split(text):
-        part = part.strip()
-        if not _KW_RE.search(part):
-            continue
-        part = _COUNTDOWN_RE.sub("#", part)   # Countdown-Zahlen neutralisieren
-        sentences.append(part)
-    return dates, sorted(set(sentences))
+def _month(name: str) -> int:
+    return _MONTHS[name[:3].lower()]
 
 
-def _signature(page: str) -> str:
-    """Stabiler Signatur-Hash der Kampagnen-Inhalte einer Seite."""
-    dates, sentences = _fragments(page)
-    raw = "\n".join(dates) + "\n--\n" + "\n".join(sentences)
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:12]
+def _mkdate(year: int, mon: int, day: int) -> date | None:
+    try:
+        return date(year, mon, day)
+    except ValueError:
+        return None
 
 
-def _current(text: str | None = None) -> dict[str, str]:
-    """{label: signatur} aller konfigurierten Seiten.
-
-    'text' ist die bereits geladene erste Seite (wird wiederverwendet,
-    spart einen Request)."""
-    out = {}
-    first = next(iter(URLS))
-    for url, label in URLS.items():
-        page = text if url == first and text is not None else _fetch(url)
-        out[label] = _signature(page)
+def _ranges_en(text: str) -> list[tuple[date, date]]:
+    """'October 22 to November 6' bzw. '22nd October ... until 6th
+    November 2026' -> (start, end); Jahr = aktuelles (oder explizit),
+    end < start -> Folgejahr."""
+    year = date.today().year
+    out = []
+    for m in _RANGE_EN_RE.finditer(text):
+        start = _mkdate(year, _month(m.group(1)), int(m.group(2)))
+        end = _mkdate(year, _month(m.group(3)), int(m.group(4)))
+        if start and end:
+            if end < start:
+                end = date(end.year + 1, end.month, end.day)
+            out.append((start, end))
+    for m in _RANGE_EN2_RE.finditer(text):
+        sy, ey = int(m.group(3) or year), int(m.group(6) or year)
+        start = _mkdate(sy, _month(m.group(2)), int(m.group(1)))
+        end = _mkdate(ey, _month(m.group(5)), int(m.group(4)))
+        if start and end:
+            if end < start:
+                end = date(end.year + 1, end.month, end.day)
+            out.append((start, end))
     return out
 
 
+def _ranges_de(text: str) -> list[tuple[date, date]]:
+    """'22.10.-06.11.2026' -> (start, end)."""
+    year = date.today().year
+    out = []
+    for m in _RANGE_DE_RE.finditer(text):
+        sy, ey = int(m.group(3) or year), int(m.group(6) or year)
+        start = _mkdate(sy, int(m.group(2)), int(m.group(1)))
+        end = _mkdate(ey, int(m.group(5)), int(m.group(4)))
+        if start and end:
+            if end < start:
+                end = date(end.year + 1, end.month, end.day)
+            out.append((start, end))
+    return out
+
+
+def _iso_dates(page: str) -> list[date]:
+    return [d for y, m, dd in _ISO_RE.findall(page)
+            if (d := _mkdate(int(y), int(m), int(dd)))]
+
+
+def _visible_text(page: str) -> str:
+    body = _SCRIPT_RE.sub(" ", page)
+    return _html.unescape(_WS_RE.sub(" ", _TAG_RE.sub(" ", body)))
+
+
+def _sentences(text: str) -> list[str]:
+    """Sätze mit Drops-Keywords."""
+    return [p.strip() for p in _SENTENCE_RE.split(text)
+            if _KW_RE.search(p)]
+
+
+def _campaign_name(sentences: list[str]) -> str | None:
+    """'Rogue Ops' aus 'the Rogue Ops Twitch Drops campaign'."""
+    for s in sentences:
+        m = _NAME_RE.search(s)
+        if m:
+            name = m.group(1).strip(" -")
+            if name.lower() not in ("twitch", "drops"):
+                return name
+    return None
+
+
+def detect(page: str) -> dict:
+    """Kampagnen-Status einer Seite.
+
+    Liefert {status, name, start, end, sentences} mit
+    status in {'aktiv','angekündigt','keine'}. Zeiträume kommen aus
+    Text-Ranges (en/de); ISO-Countdown-Daten ergänzen bzw. bilden
+    allein ein 'aktiv bis <datum>'-Zeitraum."""
+    text = _visible_text(page)
+    sentences = _sentences(text)
+    context = " ".join(sentences)
+    today = date.today()
+
+    periods = _ranges_en(context) + _ranges_de(context)
+    for iso in sorted(set(_iso_dates(page))):
+        # ISO-Datum ~ bekanntes Zeitraum-Ende -> gleiche Kampagne
+        if any(abs(end - iso) <= _TOL or abs(start - iso) <= _TOL
+               for start, end in periods):
+            continue
+        if iso >= today:
+            # Countdown-Ende ohne Text-Zeitraum: läuft bis dahin.
+            periods.append((today, iso))
+
+    name = _campaign_name(sentences)
+    active = [(s, e) for s, e in periods if s <= today <= e]
+    upcoming = [(s, e) for s, e in periods if s > today]
+    if active:
+        start, end = max(active, key=lambda p: p[1])
+        status = "aktiv"
+    elif upcoming:
+        start, end = min(upcoming)
+        status = "angekündigt"
+    else:
+        start = end = None
+        status = "keine"
+    return {"status": status, "name": name, "start": start,
+            "end": end, "sentences": sentences}
+
+
+def _label_value(url: str, label: str, page: str | None = None) -> str:
+    det = detect(page if page is not None else _fetch(url))
+    return _value_part(label, det)
+
+
+def _value_part(label: str, det: dict) -> str:
+    """'<label>=<status>:<name> (<start>..<end>)'."""
+    if det["status"] == "keine":
+        return f"{label}=keine"
+    span = (f"{det['start']}..{det['end']}"
+            if det["start"] else f"bis {det['end']}")
+    return (f"{label}={det['status']}:{det['name'] or 'Kampagne'} "
+            f"({span})")
+
+
 def extract(text: str) -> str:
-    """Kombinierter Wert '<label>=<hash>;…' über alle Seiten."""
-    return ";".join(f"{label}={sig}"
-                    for label, sig in _current(text).items())
+    """Kombinierter Status aller konfigurierten Seiten
+    ('text' = bereits geladene erste Seite)."""
+    first = next(iter(URLS))
+    parts = []
+    for url, label in URLS.items():
+        parts.append(_label_value(
+            url, label, text if url == first else None))
+    return ";".join(parts)
 
 
 def extract_history(text: str) -> list[dict]:
-    """Eine Zeile je Seite (kein echtes Upstream-Datum)."""
-    return [{"version": f"{label}={sig}", "date": None}
-            for label, sig in _current(text).items()]
+    """Je Seite eine Zeile; Datum = Kampagnen-Start (echtes Datum)."""
+    first = next(iter(URLS))
+    releases = []
+    for url, label in URLS.items():
+        det = detect(text if url == first else _fetch(url))
+        releases.append({"version": _value_part(label, det),
+                         "date": det["start"].isoformat()
+                         if det["start"] else None})
+    return releases
 
 
 def update_changelog(existing: str | None) -> str | None:
-    """Je neuer Signatur werden die erkannten Fragmente
-    (ISO-Daten + Keyword-Sätze) als Abschnitt
-    '## <label> – <hash> – <erkannt-am>' oben eingefügt.
+    """Pro erkannter Kampagne ein Abschnitt
+    '## <label> – <name> (<start>..<end>)' mit Status + den
+    erkannten Schlusselfragmenten; neue Zeiträume landen oben.
     Rückgabe: kompletter neuer Inhalt oder None (unverändert)."""
-    have = {m[1] for m in _HEAD_RE.findall(existing or "")}
+    have = {"|".join(m) for m in _HEAD_RE.findall(existing or "")}
     parts = [p.strip() for p in re.split(r"(?m)^(?=## )", existing or "")
              if p.strip()]
     new_sections = []
-    from datetime import date
-    today = date.today().isoformat()
     for url, label in URLS.items():
-        page = _fetch(url)
-        sig = _signature(page)
-        if sig in have:
+        det = detect(_fetch(url))
+        name = det["name"] or "Kampagne"
+        span = (f"{det['start']}..{det['end']}" if det["start"]
+                else f"bis {det['end'] or '?'}")
+        if det["status"] == "keine":
             continue
-        dates, sentences = _fragments(page)
-        body = ([f"- `{d}`" for d in dates]
-                + ([""] if dates and sentences else [])
-                + [f"- {s}" for s in sentences][:40])
+        key = (f"{label}|{name}|"
+               f"{det['start'].isoformat() if det['start'] else ''}")
+        if key in have:
+            continue
+        body = [f"Status: {det['status']} (Zeitraum {span})",
+                f"Seite: {url}"]
+        body += ["", *[f"- {s}" for s in det["sentences"][:40]]]
         new_sections.append(
-            f"## {label} – {sig} – {today}\n\n"
-            + ("\n".join(body) or "_Keine Fragmente._"))
+            f"## {label} – {name} ({span})\n\n" + "\n".join(body))
     if not new_sections:
         return None
     return "\n\n".join(new_sections + parts)
