@@ -635,5 +635,122 @@ class TestGitLab(unittest.TestCase):
             self.assertIsNone(self.mod.update_changelog(existing))
 
 
+class TestHPDocks(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("hp_docks")
+
+    OSVER_FIXTURE = json.dumps({"data": {"osAvailablePlatformsAnsOS": {
+        "osPlatforms": [{"osVersions": [
+            {"id": "ARM_ID", "name": "Windows 11 Version 25H2 auf ARM (64 Bit)"},
+            {"id": "GEN_ID", "name": "Windows 11"},
+            {"id": "H2_ID", "name": "Windows 11 Version 26H2 (64 Bit)"},
+        ]}]}}})
+
+    DRIVERS_FIXTURE = json.dumps({"data": {"softwareTypes": [{
+        "accordionName": "Dockingstationen-Firmware und Treiber",
+        "softwareDriversList": [
+            {"latestVersionDriver": {
+                "title": "Alle Dockingstationen - Ethernet-Treiber",
+                "version": "11.22"},
+             "previousVersionOfDriversList": []},
+            {"latestVersionDriver": {
+                "title": "HP USB-C Dockingstation G5 - Firmware",
+                "version": "1.0.26.0 Rev.A",
+                "releaseDateString": "Nov 20, 2025",
+                "fileUrl": "https://ftp.hp.com/pub/softpaq/x/sp165907.exe",
+                "fileSize": "8.6 MB",
+                "detailInformation": {
+                    "description": "<p>Paket mit dem Installer.</p>",
+                    "fixesAndEnhancements":
+                        "<body>- Fix eins. - Fix zwei.</body>"}},
+             "previousVersionOfDriversList": [{
+                "version": "1.0.25.0 Rev.C",
+                "releaseDateString": "Jul 18, 2025",
+                "fileUrl": "https://ftp.hp.com/pub/softpaq/x/sp161510.exe",
+                "fileSize": "13.7 MB"}]},
+        ]}]}})
+
+    def _patch_docks(self, mod):
+        """_os_tms_id und _fetch mocken: zwei Docks mit Fixture-Daten."""
+        products = {"1": "Dock Eins", "2": "Dock Zwei"}
+        def fake_fetch(url, payload=None):
+            if "osVersionData" in url:
+                return self.OSVER_FIXTURE
+            return self.DRIVERS_FIXTURE
+        return mock.patch.multiple(
+            mod, PRODUCTS=products, _fetch=mock.Mock(side_effect=fake_fetch))
+
+    def test_os_tms_id_generisch_bevorzugt(self):
+        mod = self.mod
+        with mock.patch.object(mod, "_fetch",
+                               return_value=self.OSVER_FIXTURE):
+            self.assertEqual(mod._os_tms_id("1"), "GEN_ID")
+
+    def test_os_tms_id_fallback_nicht_arm(self):
+        fixture = json.dumps({"data": {"osAvailablePlatformsAnsOS": {
+            "osPlatforms": [{"osVersions": [
+                {"id": "ARM_ID", "name": "Windows 11 on ARM (64-bit)"},
+                {"id": "H2_ID", "name": "Windows 11 Version 26H2"}]}]}}})
+        with mock.patch.object(self.mod, "_fetch", return_value=fixture):
+            self.assertEqual(self.mod._os_tms_id("1"), "H2_ID")
+
+    def test_extract_kombiniert(self):
+        with self._patch_docks(self.mod):
+            self.assertEqual(
+                self.mod.extract(""),
+                "Dock Eins=1.0.26.0 Rev.A;Dock Zwei=1.0.26.0 Rev.A")
+
+    def test_extract_kein_firmware(self):
+        """Kein Firmware-Eintrag -> ValueError."""
+        leer = json.dumps({"data": {"softwareTypes": []}})
+        def fake_fetch(url, payload=None):
+            if "osVersionData" in url:
+                return self.OSVER_FIXTURE
+            return leer
+        with mock.patch.multiple(self.mod, PRODUCTS={"1": "Dock"},
+                                 _fetch=mock.Mock(side_effect=fake_fetch)):
+            with self.assertRaises(ValueError):
+                self.mod.extract("")
+
+    def test_extract_history_mit_prev(self):
+        with self._patch_docks(self.mod):
+            releases = self.mod.extract_history("")
+        self.assertIn({"version": "1.0.26.0 Rev.A",
+                       "date": "2025-11-20"}, releases)
+        self.assertIn({"version": "1.0.25.0 Rev.C",
+                       "date": "2025-07-18"}, releases)
+
+    def test_iso_date(self):
+        self.assertEqual(self.mod._iso_date("Nov 20, 2025"), "2025-11-20")
+        self.assertIsNone(self.mod._iso_date("bald"))
+
+    def test_update_changelog(self):
+        with self._patch_docks(self.mod):
+            out = self.mod.update_changelog(None)
+        self.assertIn("## Dock Eins: 1.0.26.0 Rev.A – 2025-11-20", out)
+        self.assertIn("- Fix eins.", out)
+        self.assertIn("- Fix zwei.", out)
+        self.assertIn("sp165907.exe", out)
+
+    def test_update_changelog_unveraendert(self):
+        existing = ("## Dock Eins: 1.0.26.0 Rev.A – 2025-11-20\n\nx\n\n"
+                    "## Dock Zwei: 1.0.26.0 Rev.A – 2025-11-20\n\ny")
+        with self._patch_docks(self.mod):
+            self.assertIsNone(self.mod.update_changelog(existing))
+
+    def test_list_downloads(self):
+        with self._patch_docks(self.mod):
+            items = self.mod.list_downloads("", set(), None)
+        self.assertEqual(len(items), 2)
+        self.assertIn("sp165907.exe", items[0]["url"])
+        self.assertIn("sp165907", items[0]["filename"])
+        with self._patch_docks(self.mod):
+            self.assertEqual(
+                self.mod.list_downloads(
+                    "", {items[0]["filename"], items[1]["filename"]}, None),
+                [])
+
+
 if __name__ == "__main__":
     unittest.main()

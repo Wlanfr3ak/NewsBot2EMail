@@ -6,7 +6,7 @@ NewsBot überwacht konfigurierbare Webseiten auf neue Versionen bzw.
 Änderungen und benachrichtigt per E-Mail. Reine Python-Standardbibliothek,
 plattformübergreifend (Windows/Linux/macOS), keine externen Abhängigkeiten.
 
-**Aktuelle Version: 1.18.0** (siehe `__version__` in `newsbot.py`)
+**Aktuelle Version: 1.19.0** (siehe `__version__` in `newsbot.py`)
 
 ## Projektstruktur
 
@@ -94,6 +94,44 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 ```
 
 ## Changelog
+
+### 1.19.0 – 2026-10-26
+
+**Feature: HP-Docks-Modul (Issue #2) – USB-C Dock G5 + 100W G6.**
+
+- `sites/hp_docks.py` (neu): überwacht die Dock-Firmware beider
+  Produkte aus dem Issue (OIDs 27767206 = USB-C Dock G5,
+  2102849106 = USB-C 100W G6) über die API hinter support.hp.com
+  (`wcc-services/swd-v2`): `osVersionData?productOid=` liefert die
+  OS-IDs, `POST driverDetails` mit `productSeriesOid` die
+  Softwareliste (Titel, Version, Datum, ftp.hp.com-URL,
+  Vorgängerversionen, fixesAndEnhancements-HTML).
+  - WICHTIG: das generische 'Windows 11'-osTMS liefert die volle
+    `previousVersionOfDriversList`; konkrete Builds (26H2, 25H2)
+    zeigen oft nur die neueste Version.
+  - Die SRS-Empfehlungs-API (workforceexperience.hp.com,
+    Plattform 8870, Kategorie Dock) hinkt bei Dock-Firmware
+    hinterher (zeigte 1.0.25.0, obwohl sp165907 mit 1.0.26.0 live
+    war) und die HPIA-CABs sind LZX-gepackt (kein Stdlib) -
+    daher die Treiberseiten-API.
+  - `extract()` kombiniert beide Docks:
+    'HP USB-C Dock G5=1.0.26.0 Rev.A;HP USB-C 100W G6 Dock=1.3.16.0 Rev.A'.
+  - `extract_history()`: aktuelle + alle Vorgängerversionen je Dock
+    mit echtem Datum ('Nov 20, 2025' -> '2025-11-20').
+  - `update_changelog()`: Abschnitte '## <dock>: <version> – <datum>'
+    mit Beschreibung + Fixes als Bullet-Liste + Download-Link;
+    Kopfzeilenformat nutzt ':' vor der Version, weil die Version
+    selbst Leerzeichen enthält.
+  - `list_downloads()`: lädt das Firmware-.exe
+    (spXXXXXX.exe, ~9-15 MB) je Dock nach downloads/hp-usb-c-docks/.
+  - `PRODUCTS` per `site_options.hp_docks.products` überschreibbar
+    (OID -> Anzeigename).
+- `tests/test_sites.py`: `TestHPDocks` - osTMS-Auswahl (generisch
+  bevorzugt, ARM-Fallback), kombiniertes extract(), Historie mit
+  Vorgängern, Changelog-Abschnitte, Downloads/`have`-Filter.
+- Betroffene Dateien: `sites/hp_docks.py` (neu), `newsbot.py`
+  (Version), `tests/test_sites.py`, `README.md`, `AGENTS.md`.
+- `__version__` auf 1.19.0.
 
 ### 1.18.0 – 2026-10-26
 

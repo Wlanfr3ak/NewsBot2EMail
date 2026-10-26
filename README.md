@@ -119,6 +119,7 @@ geloggt und übersprungen, ohne den Lauf abzubrechen.
 | `jellyfin_desktop.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-x64-.exe |
 | `php.py` | 4 Zweige kombiniert (8.5/8.4/8.3/8.2) | echte Daten | ChangeLog-8.php | – |
 | `gitlab.py` | 3 Zweige kombiniert (Top-3 Minors) | Tag-Daten | Release-Notes-Feed | – |
+| `hp_docks.py` | 2 Docks kombiniert (G5 + G6) | echte Daten | Treiberseiten-API | Firmware-.exe |
 
 ## Überwachungsmethoden
 
