@@ -6,7 +6,7 @@ NewsBot überwacht konfigurierbare Webseiten auf neue Versionen bzw.
 Änderungen und benachrichtigt per E-Mail. Reine Python-Standardbibliothek,
 plattformübergreifend (Windows/Linux/macOS), keine externen Abhängigkeiten.
 
-**Aktuelle Version: 1.21.0** (siehe `__version__` in `newsbot.py`)
+**Aktuelle Version: 1.22.0** (siehe `__version__` in `newsbot.py`)
 
 ## Projektstruktur
 
@@ -94,6 +94,30 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 ```
 
 ## Changelog
+
+### 1.22.0 – 2026-10-26
+
+**Feature: VeraCrypt-Modul.**
+
+- `sites/veracrypt.py` (neu): überwacht das neueste stabile Release
+  über die GitHub-Releases-API (`veracrypt/VeraCrypt`, Tag
+  `VeraCrypt_X.Y.Z` -> `X.Y.Z`; aktuell 1.26.30).
+  - `extract_history()`: alle stabilen GitHub-Releases mit
+    `published_at`-Datum (Drafts/Prereleases gefiltert).
+  - `update_changelog()`: Release-Bodies (Markdown) inkrementell
+    nach `archive/veracrypt_changelog.md`.
+  - `list_downloads()`: `veracrypt-<v>-sha256sum.txt` (zuerst, fuer
+    die Hash-Verifikation via `_verify_download`) + ein
+    Windows-Installer - 'VeraCrypt Setup x.exe' hat Vorrang vor
+    `VeraCrypt.Portable.x.exe`. Keine .sig/dmg/deb/rpm/AppImage/
+    Source-Pakete.
+- `tests/test_sites.py`: `TestVeraCrypt` - extract() aus
+  Release-JSON (inkl. Fehlerfall bei fremdem Tag),
+  list_downloads()-Filter (nur sha256sum + Windows-exe),
+  Setup-Vorrang, `have`-Respekt.
+- Betroffene Dateien: `sites/veracrypt.py` (neu), `newsbot.py`
+  (Version), `tests/test_sites.py`, `README.md`, `AGENTS.md`.
+- `__version__` auf 1.22.0.
 
 ### 1.21.0 – 2026-10-26
 

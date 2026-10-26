@@ -121,6 +121,7 @@ geloggt und übersprungen, ohne den Lauf abzubrechen.
 | `gitlab.py` | 3 Zweige kombiniert (Top-3 Minors) | Tag-Daten | Release-Notes-Feed | – |
 | `hp_docks.py` | 2 Docks kombiniert (G5 + G6) | echte Daten | Treiberseiten-API | Firmware-.exe |
 | `twitch_drops.py` | Drops-Kampagnen (konfigurierbare Links) | Kampagnen-Start | Zeitraum + Status | – |
+| `veracrypt.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-Installer + sha256 |
 
 ## Überwachungsmethoden
 

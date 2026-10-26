@@ -915,5 +915,64 @@ class TestTwitchDrops(unittest.TestCase):
             self.assertIsNone(self.mod.update_changelog(None))
 
 
+class TestVeraCrypt(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("veracrypt")
+
+    RELEASE_JSON = json.dumps({
+        "tag_name": "VeraCrypt_1.26.30",
+        "published_at": "2026-10-24T15:12:03Z",
+        "assets": [
+            {"name": "veracrypt-1.26.30-sha256sum.txt",
+             "browser_download_url": "https://x/sum.txt"},
+            {"name": "veracrypt-1.26.30-sha512sum.txt",
+             "browser_download_url": "https://x/sum512.txt"},
+            {"name": "VeraCrypt.Portable.1.26.30.exe",
+             "browser_download_url": "https://x/portable.exe"},
+            {"name": "VeraCrypt.Portable.1.26.30.exe.sig",
+             "browser_download_url": "https://x/portable.sig"},
+            {"name": "VeraCrypt_1.26.30.dmg",
+             "browser_download_url": "https://x/mac.dmg"},
+            {"name": "veracrypt-1.26.30-Debian-13-amd64.deb",
+             "browser_download_url": "https://x/deb.deb"},
+            {"name": "VeraCrypt_1.26.30_Source.zip",
+             "browser_download_url": "https://x/src.zip"},
+        ]})
+
+    def test_extract(self):
+        self.assertEqual(self.mod.extract(self.RELEASE_JSON), "1.26.30")
+
+    def test_extract_fehler(self):
+        with self.assertRaises(ValueError):
+            self.mod.extract(json.dumps({"tag_name": "v9.9"}))
+
+    def test_list_downloads_nur_sha256_und_installer(self):
+        """sha256sum zuerst + ein Windows-exe (kein dmg/deb/sig/sha512)."""
+        items = self.mod.list_downloads(self.RELEASE_JSON, set(), None)
+        self.assertEqual(
+            [i["filename"] for i in items],
+            ["veracrypt-1.26.30-sha256sum.txt",
+             "VeraCrypt.Portable.1.26.30.exe"])
+
+    def test_list_downloads_setup_bevorzugt(self):
+        """'VeraCrypt Setup x.exe' hat Vorrang vor Portable."""
+        data = json.loads(self.RELEASE_JSON)
+        data["assets"].append(
+            {"name": "VeraCrypt Setup 1.26.30.exe",
+             "browser_download_url": "https://x/setup.exe"})
+        items = self.mod.list_downloads(json.dumps(data), set(), None)
+        self.assertIn("VeraCrypt Setup 1.26.30.exe",
+                      [i["filename"] for i in items])
+        self.assertNotIn("VeraCrypt.Portable.1.26.30.exe",
+                         [i["filename"] for i in items])
+
+    def test_list_downloads_have(self):
+        have = {"veracrypt-1.26.30-sha256sum.txt",
+                "VeraCrypt.Portable.1.26.30.exe"}
+        self.assertEqual(
+            self.mod.list_downloads(self.RELEASE_JSON, have, None), [])
+
+
 if __name__ == "__main__":
     unittest.main()
