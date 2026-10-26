@@ -6,7 +6,7 @@ NewsBot überwacht konfigurierbare Webseiten auf neue Versionen bzw.
 Änderungen und benachrichtigt per E-Mail. Reine Python-Standardbibliothek,
 plattformübergreifend (Windows/Linux/macOS), keine externen Abhängigkeiten.
 
-**Aktuelle Version: 1.16.0** (siehe `__version__` in `newsbot.py`)
+**Aktuelle Version: 1.18.0** (siehe `__version__` in `newsbot.py`)
 
 ## Projektstruktur
 
@@ -94,6 +94,96 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 ```
 
 ## Changelog
+
+### 1.18.0 – 2026-10-26
+
+**Features: PHP-Modul (4 Zweige kombiniert, Issue #3), GitLab-Modul;
+Mail zeigt echtes Veröffentlichungsdatum + Projekt-Link.**
+
+- `sites/php.py` (neu): überwacht die vier aktiven Hauptversionen
+  8.5/8.4/8.3/8.2 GEMEINSAM über die offizielle Release-JSON
+  (`php.net/releases/index.php?json&version=8&max=300`). Der
+  Vergleichswert ist kombiniert
+  (`8.5=8.5.12;8.4=8.4.27;8.3=8.3.36;8.2=8.2.35`) - ein neues Release
+  in irgendeinem Zweig löst eine Mail aus. RCs/Betas werden
+  gefiltert; ein Zweig, der komplett aus dem JSON fällt (EOL),
+  ändert den Wert ebenfalls (gewolltes Signal). `BRANCHES` per
+  `site_options.php.branches` überschreibbar.
+  - `extract_history()`: alle Releases der Zweige mit ISO-Datum
+    ('21 Oct 2026' -> '2026-10-21').
+  - `update_changelog()`: `ChangeLog-8.php` (~750 KB) wird pro
+    Version in Markdown überführt ('- **Komponente:**' mit
+    eingerückten Unterpunkten, Links bleiben klickbar);
+    Security-Releases bekommen '(Security Release)' im Titel.
+    Inkrementell nach `archive/php_changelog.md`.
+  - Keine Downloads (Tarballs/Windows-Builds unerwünscht).
+- `sites/gitlab.py` (neu): überwacht die drei neuesten Minor-Zweige
+  über die öffentliche Tags-API von gitlab.com (Releases-API ist
+  anonym gesperrt, Tags-API liefert Name + committed_date).
+  Kombinierter Wert `19.5=19.5.1;19.4=19.4.3;19.3=19.3.6` - meldet
+  auch Backport-Patches auf ältere Zweige (GitLab patcht aktuell +
+  2 Minors zurück). `BRANCHES` per `site_options.gitlab.branches`
+  überschreibbar.
+  - `extract_history()`: alle stabilen `-ee`-Tags (RCs gefiltert).
+  - `update_changelog()`: Minor-Releases (X.Y.0) bekommen die
+    Feature-Liste aus dem Atom-Feed
+    `docs.gitlab.com/releases/releases.xml`; Patch-Releases einen
+    Verweis auf die Release-Übersicht + Tag.
+- `newsbot.py`, Mail-Format (`build_change_mail`):
+  - Neu `Veröffentlicht:`-Zeile mit dem ECHTEN Upstream-Datum aus
+    `extract_history()` (Helfer `_released_on()`); bei kombinierten
+    Werten werden nur die geänderten Teilversionen datiert
+    ('8.5.12: 2026-10-21'). Ohne History-Daten 'unbekannt'.
+  - Die Scriptlaufzeit heißt jetzt korrekt `Erkannt:` (vorher
+    missverständlich 'Zeitpunkt').
+  - Footer: `NewsBot v<x>` + Link auf
+    https://github.com/Wlanfr3ak/NewsBot2EMail.
+  - `check_site()` liefert im Retry-Fall (Mail-Pending) jetzt auch
+    `releases`, damit Retry-Mails das Datum zeigen; neuer Helfer
+    `_extract_history()` dedupliziert den Hook-Aufruf.
+- `tests/test_sites.py`: `TestPHP` + `TestGitLab` - kombinierte
+  extract()-Werte, Branch-Filter/RC-Filter, ISO-Datums-Parsing,
+  Changelog-Archiv inkl. Inkrement und 'unverändert'-Fall.
+- `tests/test_newsbot.py`: Mail-Tests für `Veröffentlicht:`
+  (einzeln + kombiniert + 'unbekannt'), `Erkannt:`, Repo-Link,
+  Version im Footer.
+- Betroffene Dateien: `sites/php.py` (neu), `sites/gitlab.py` (neu),
+  `newsbot.py`, `tests/test_sites.py`, `tests/test_newsbot.py`,
+  `README.md`, `AGENTS.md`.
+- `__version__` auf 1.18.0.
+
+### 1.17.0 – 2026-10-23
+
+**Feature: Zwei Jellyfin-Module (Server + Desktop-Client, je nur die
+normale Windows-x64-.exe).**
+
+- `sites/jellyfin_server.py` (neu): überwacht das neueste stabile
+  Server-Release über die GitHub-Releases-API
+  (`jellyfin/jellyfin/releases/latest`, Tag `vX.Y` -> `X.Y`; aktuell
+  12.3). Die GitHub-Releases tragen keine Assets - der Installer liegt
+  auf repo.jellyfin.org unter dem versionierten Pfad
+  `/files/server/windows/stable/v{version}/amd64/`:
+  `DOWNLOADS` lädt `jellyfin_{version}_windows-x64.exe` (~200 MB).
+  Portable Zip und ARM64 werden nicht geladen; Hash-Dateien gibt es
+  auf dem Repo-Server nicht (nur MD5 in der Web-Liste).
+- `sites/jellyfin_desktop.py` (neu): überwacht den Desktop-Client
+  (früher 'Jellyfin Media Player', Repo `jellyfin/jellyfin-desktop`;
+  aktuell 1.12.0) ebenfalls über `releases/latest`. Downloads via
+  `list_downloads()`: aus dem Release-JSON das Asset mit Endung
+  `-windows-x64.exe` - schließt `-windows-x64-legacy.exe` (alte
+  Windows-Versionen) und `-windows-x86.exe` aus und übersteht eine
+  mögliche künftige Umbenennung der Assets (media-player -> desktop).
+- Beide Module: `extract_history()` liefert alle stabilen
+  GitHub-Releases mit `published_at`-Datum (Drafts/Prereleases werden
+  gefiltert); `update_changelog()` archiviert die Release-Bodies
+  (bereits Markdown) inkrementell unter `archive/<slug>_changelog.md`.
+- `tests/test_sites.py`: `TestJellyfin` - extract() aus Release-JSON
+  für beide Module, `list_downloads()`-Filter (nur x64.exe, kein
+  legacy/x86/dmg) und `have`-Respekt.
+- Betroffene Dateien: `sites/jellyfin_server.py` (neu),
+  `sites/jellyfin_desktop.py` (neu), `newsbot.py` (Version),
+  `tests/test_sites.py`, `README.md`, `AGENTS.md`.
+- `__version__` auf 1.17.0.
 
 ### 1.16.0 – 2026-10-16
 

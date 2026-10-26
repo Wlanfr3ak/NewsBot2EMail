@@ -404,5 +404,236 @@ class TestDiverseModule(unittest.TestCase):
         self.assertIsNone(mod._release_date("keinschema"))
 
 
+class TestJellyfin(unittest.TestCase):
+    """Gemeinsame Basis der beiden Jellyfin-Module: Version kommt aus
+    dem tag_name des GitHub-Release-JSON."""
+
+    RELEASE_JSON = json.dumps({"tag_name": "v12.3",
+                               "published_at": "2026-10-23T00:30:06Z"})
+
+    def test_server_extract(self):
+        mod = load_module("jellyfin_server")
+        self.assertEqual(mod.extract(self.RELEASE_JSON), "12.3")
+        with self.assertRaises(ValueError):
+            mod.extract(json.dumps({}))
+
+    def test_desktop_extract(self):
+        mod = load_module("jellyfin_desktop")
+        self.assertEqual(mod.extract(self.RELEASE_JSON), "12.3")
+        with self.assertRaises(ValueError):
+            mod.extract(json.dumps({}))
+
+    def test_desktop_list_downloads_nur_x64(self):
+        """Nur die normale windows-x64.exe - kein legacy, kein x86."""
+        mod = load_module("jellyfin_desktop")
+        text = json.dumps({"assets": [
+            {"name": "JellyfinMediaPlayer-1.12.0-windows-x64-legacy.exe",
+             "browser_download_url": "https://x/legacy.exe"},
+            {"name": "JellyfinMediaPlayer-1.12.0-windows-x64.exe",
+             "browser_download_url": "https://x/normal.exe"},
+            {"name": "JellyfinMediaPlayer-1.12.0-windows-x86.exe",
+             "browser_download_url": "https://x/x86.exe"},
+            {"name": "JellyfinMediaPlayer-1.12.0.dmg",
+             "browser_download_url": "https://x/mac.dmg"}]})
+        items = mod.list_downloads(text, set(), None)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["url"], "https://x/normal.exe")
+        self.assertEqual(items[0]["filename"],
+                         "JellyfinMediaPlayer-1.12.0-windows-x64.exe")
+
+    def test_desktop_list_downloads_have(self):
+        """Bereits vorhandene Dateien werden nicht erneut gelistet."""
+        mod = load_module("jellyfin_desktop")
+        name = "JellyfinMediaPlayer-1.12.0-windows-x64.exe"
+        text = json.dumps({"assets": [
+            {"name": name, "browser_download_url": "https://x/a.exe"}]})
+        self.assertEqual(mod.list_downloads(text, {name}, None), [])
+
+
+class TestPHP(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("php")
+
+    # Ausschnitt aus php.net/releases/index.php?json&version=8
+    FIXTURE = json.dumps({
+        "8.5.12": {"date": "21 Oct 2026", "tags": ["security"],
+                   "source": [{"filename": "php-8.5.12.tar.gz"}]},
+        "8.4.27": {"date": "21 Oct 2026", "tags": ["security"],
+                   "source": [{"filename": "php-8.4.27.tar.gz"}]},
+        "8.3.36": {"date": "21 Oct 2026", "tags": [],
+                   "source": [{"filename": "php-8.3.36.tar.gz"}]},
+        "8.2.35": {"date": "21 Oct 2026", "tags": [],
+                   "source": [{"filename": "php-8.2.35.tar.gz"}]},
+        "8.5.11": {"date": "24 Sep 2026", "tags": ["security"],
+                   "source": [{"filename": "php-8.5.11.tar.gz"}]},
+        "8.1.33": {"date": "03 Jul 2025", "tags": [],
+                   "source": [{"filename": "php-8.1.33.tar.gz"}]},
+        "8.6.0RC1": {"date": "30 Oct 2026", "tags": [],
+                     "source": [{"filename": "php-8.6.0rc1.tar.gz"}]},
+    })
+
+    def test_extract_kombiniert(self):
+        self.assertEqual(self.mod.extract(self.FIXTURE),
+                         "8.5=8.5.12;8.4=8.4.27;8.3=8.3.36;8.2=8.2.35")
+
+    def test_extract_branch_fehlt(self):
+        """Ein Zweig ohne Release fällt raus, killt aber nicht den Rest."""
+        data = json.dumps({"8.5.1": {"date": "x"}, "8.4.1": {"date": "x"}})
+        self.assertEqual(self.mod.extract(data), "8.5=8.5.1;8.4=8.4.1")
+
+    def test_extract_fehler(self):
+        with self.assertRaises(ValueError):
+            self.mod.extract(json.dumps({"7.4.33": {"date": "x"}}))
+
+    def test_extract_history(self):
+        releases = self.mod.extract_history(self.FIXTURE)
+        versions = [r["version"] for r in releases]
+        # nur die 4 überwachten Zweige, stabile Versionen
+        self.assertNotIn("8.1.33", versions)
+        self.assertNotIn("8.6.0RC1", versions)
+        self.assertEqual(releases[0],
+                         {"version": "8.5.12", "date": "2026-10-21"})
+
+    def test_iso_date(self):
+        self.assertEqual(self.mod._iso_date("21 Oct 2026"), "2026-10-21")
+        self.assertIsNone(self.mod._iso_date("bald"))
+        self.assertIsNone(self.mod._iso_date(None))
+
+    CHANGELOG_FIXTURE = """
+<section class="version" id="8.5.12"><!-- {{{ 8.5.12 -->
+<h3>Version 8.5.12</h3>
+<b><time class='releasedate' datetime='2026-10-22'>22 Oct 2026</time></b>
+<ul><li>Core:
+<ul>
+  <li>Fixed bug <a href="https://github.com/php/php-src/issues/1">GH-1</a> (Beschreibung).</li>
+</ul></li>
+<li>Standard:
+<ul>
+  <li>Fix <a href="https://github.com/php/php-src/issues/2">GH-2</a>.</li>
+</ul></li></ul>
+</section>
+<section class="version" id="8.4.27">
+<h3>Version 8.4.27</h3>
+<b><time class='releasedate' datetime='2026-10-22'>22 Oct 2026</time></b>
+<ul><li>Core:
+<ul><li>Fixed X.</li></ul></li></ul>
+</section>
+<section class="version" id="8.1.33">
+<h3>Version 8.1.33</h3>
+<b><time class='releasedate' datetime='2025-07-03'>03 Jul 2025</time></b>
+<ul><li>Core:<ul><li>alt</li></ul></li></ul>
+</section>
+"""
+
+    def test_update_changelog(self):
+        def fake_fetch(url):
+            if "ChangeLog" in url:
+                return self.CHANGELOG_FIXTURE
+            return self.FIXTURE   # Release-JSON für Security-Tags
+        with mock.patch.object(self.mod, "_fetch", side_effect=fake_fetch):
+            out = self.mod.update_changelog(None)
+        self.assertIn("## 8.5.12 – 2026-10-22 (Security Release)", out)
+        self.assertIn("## 8.4.27 – 2026-10-22", out)
+        self.assertNotIn("## 8.1.33", out)      # nicht überwachter Zweig
+        self.assertIn("- **Core:**", out)
+        self.assertIn("Fixed bug [GH-1](https://github.com/php/php-src/issues/1)", out)
+
+    def test_update_changelog_inkrementell(self):
+        existing = "## 8.5.12 – 2026-10-22\n\nalt\n"
+        def fake_fetch(url):
+            if "ChangeLog" in url:
+                return self.CHANGELOG_FIXTURE
+            return self.FIXTURE
+        with mock.patch.object(self.mod, "_fetch", side_effect=fake_fetch):
+            out = self.mod.update_changelog(existing)
+        self.assertTrue(out.startswith("## 8.4.27"))
+        self.assertIn("alt", out)
+        # schon vorhandene Sektion nicht duplizieren
+        self.assertEqual(out.count("## 8.5.12"), 1)
+
+    def test_update_changelog_unveraendert(self):
+        existing = ("## 8.5.12 – 2026-10-22\n\nx\n\n"
+                    "## 8.4.27 – 2026-10-22\n\ny")
+        def fake_fetch(url):
+            if "ChangeLog" in url:
+                return self.CHANGELOG_FIXTURE
+            return self.FIXTURE
+        with mock.patch.object(self.mod, "_fetch", side_effect=fake_fetch):
+            self.assertIsNone(self.mod.update_changelog(existing))
+
+
+class TestGitLab(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("gitlab")
+
+    TAGS_FIXTURE = json.dumps([
+        {"name": "v19.5.1-ee",
+         "commit": {"committed_date": "2026-10-20T23:00:49.000+00:00"}},
+        {"name": "v19.4.3-ee",
+         "commit": {"committed_date": "2026-10-20T23:07:57.000+00:00"}},
+        {"name": "v19.3.6-ee",
+         "commit": {"committed_date": "2026-10-20T23:15:49.000+00:00"}},
+        {"name": "v19.2.9-ee",
+         "commit": {"committed_date": "2026-10-20T17:18:17.000+00:00"}},
+        {"name": "v19.5.0-ee",
+         "commit": {"committed_date": "2026-10-15T00:37:08.000+00:00"}},
+        {"name": "v19.6.0-rc1-ee",
+         "commit": {"committed_date": "2026-10-14T19:43:39.000+00:00"}},
+        {"name": "v19.5.0-rc43-ee",
+         "commit": {"committed_date": "2026-10-13T12:08:07.000+00:00"}},
+    ])
+
+    def test_extract_top3(self):
+        """Top-3 Minor-Zweige; 19.2 fällt raus, RCs werden ignoriert."""
+        self.assertEqual(self.mod.extract(self.TAGS_FIXTURE),
+                         "19.5=19.5.1;19.4=19.4.3;19.3=19.3.6")
+
+    def test_extract_fehler(self):
+        with self.assertRaises(ValueError):
+            self.mod.extract(json.dumps([]))
+
+    def test_extract_history(self):
+        releases = self.mod.extract_history(self.TAGS_FIXTURE)
+        versions = [r["version"] for r in releases]
+        self.assertNotIn("19.5.0-rc43", versions)
+        self.assertEqual(releases[0],
+                         {"version": "19.5.1", "date": "2026-10-20"})
+        # semver-absteigend sortiert
+        self.assertLess(versions.index("19.4.3"), versions.index("19.3.6"))
+
+    FEED_FIXTURE = """<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<entry><title>GitLab 19.5 release notes</title>
+<link href="https://docs.gitlab.com/releases/19/gitlab-19-5-released/" rel="alternate"/>
+<updated>2026-10-15T00:00:00Z</updated>
+<content type="html"><![CDATA[<p>Intro</p>
+<h3 id="a">Feature A</h3><h3 id="b">Feature B</h3>]]></content></entry>
+</feed>"""
+
+    def test_update_changelog(self):
+        def fake_fetch(url):
+            return self.FEED_FIXTURE if "releases.xml" in url \
+                else self.TAGS_FIXTURE
+        with mock.patch.object(self.mod, "_fetch", side_effect=fake_fetch):
+            out = self.mod.update_changelog(None)
+        self.assertIn("## 19.5.0 – 2026-10-15", out)
+        self.assertIn("- Feature A", out)
+        self.assertIn("gitlab-19-5-released", out)
+        self.assertIn("## 19.5.1 – 2026-10-20", out)
+        self.assertIn("Patch-Release", out)
+
+    def test_update_changelog_unveraendert(self):
+        existing = "\n\n".join(
+            f"## {v} – 2026-10-20\n\nx" for v in
+            ("19.5.1", "19.4.3", "19.3.6", "19.2.9", "19.5.0"))
+        def fake_fetch(url):
+            return self.FEED_FIXTURE if "releases.xml" in url \
+                else self.TAGS_FIXTURE
+        with mock.patch.object(self.mod, "_fetch", side_effect=fake_fetch):
+            self.assertIsNone(self.mod.update_changelog(existing))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -452,7 +452,7 @@ class TestChangeMail(unittest.TestCase):
         subject, body = newsbot.build_change_mail([c])
         self.assertIn("Testseite", subject)
         self.assertIn("2.0", subject)
-        self.assertIn("Vorher:     1.0", body)
+        self.assertIn("Vorher:         1.0", body)
         self.assertIn("Hinweis", body)
 
     def test_mehrere(self):
@@ -462,6 +462,37 @@ class TestChangeMail(unittest.TestCase):
         subject, body = newsbot.build_change_mail([c1, c2])
         self.assertIn("2 Änderungen", subject)
         self.assertIn("(erster Check)", body)
+
+    def test_veroeffentlicht_und_erkannt(self):
+        """Die Mail zeigt das Release-Datum, nicht die Scriptlaufzeit."""
+        c = {"site": _site(), "old": "1.0", "new": "2.0",
+             "releases": [{"version": "2.0", "date": "2026-10-20"},
+                          {"version": "1.0", "date": "2026-01-01"}]}
+        subject, body = newsbot.build_change_mail([c])
+        self.assertIn("Veröffentlicht: 2026-10-20", body)
+        self.assertIn("Erkannt:", body)
+        self.assertNotIn("Zeitpunkt", body)
+        self.assertIn("https://github.com/Wlanfr3ak/NewsBot2EMail", body)
+        self.assertIn(f"NewsBot v{newsbot.__version__}", body)
+
+    def test_veroeffentlicht_kombiniert(self):
+        """Kombinierter Wert (PHP/GitLab): nur die geänderten Zweige."""
+        c = {"site": _site(),
+             "old": "8.5=8.5.11;8.4=8.4.27",
+             "new": "8.5=8.5.12;8.4=8.4.27",
+             "releases": [{"version": "8.5.12", "date": "2026-10-21"},
+                          {"version": "8.4.27", "date": "2026-10-21"},
+                          {"version": "8.5.11", "date": "2026-09-24"}]}
+        subject, body = newsbot.build_change_mail([c])
+        self.assertIn("Veröffentlicht: 8.5.12: 2026-10-21", body)
+        self.assertNotIn("8.5.11: 2026-09-24", body)
+        # 8.4.27 unverändert -> nicht nochmal datiert
+        self.assertNotIn("8.4.27:", body)
+
+    def test_veroeffentlicht_unbekannt(self):
+        c = {"site": _site(), "old": "a", "new": "b"}
+        subject, body = newsbot.build_change_mail([c])
+        self.assertIn("Veröffentlicht: unbekannt", body)
 
 
 if __name__ == "__main__":

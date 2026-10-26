@@ -35,7 +35,7 @@ from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-__version__ = "1.16.0"
+__version__ = "1.18.0"
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
@@ -633,6 +633,26 @@ def send_email(cfg: dict, subject: str, body: str) -> None:
             smtp.send_message(msg)
 
 
+def _released_on(c: dict) -> str:
+    """Veröffentlichungsdatum der neuen Version(en) aus
+    extract_history().
+
+    Bei kombinierten Werten ('8.4=8.4.27;8.3=8.3.36;…') werden nur
+    die Teilversionen gezeigt, die gegenüber 'old' neu sind - so ist
+    klar, welcher Zweig gepatcht wurde. Ohne extract_history:
+    'unbekannt'."""
+    new = c.get("new") or ""
+    old = c.get("old") or ""
+    found = []
+    for rel in c.get("releases") or []:
+        version, date = rel.get("version"), rel.get("date")
+        if not version or not date:
+            continue
+        if version in new and version not in old:
+            found.append(date if version == new else f"{version}: {date}")
+    return ", ".join(dict.fromkeys(found)) or "unbekannt"
+
+
 def build_change_mail(changes: list[dict]) -> tuple[str, str]:
     if len(changes) == 1:
         c = changes[0]
@@ -648,18 +668,20 @@ def build_change_mail(changes: list[dict]) -> tuple[str, str]:
     for c in changes:
         site = c["site"]
         lines += [
-            f"  Seite:      {site['name']}",
-            f"  URL:        {site['url']}",
-            f"  Vorher:     {c['old'] or '(erster Check)'}",
-            f"  Jetzt:      {c['new']}",
-            f"  Zeitpunkt:  {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}",
+            f"  Seite:          {site['name']}",
+            f"  URL:            {site['url']}",
+            f"  Vorher:         {c['old'] or '(erster Check)'}",
+            f"  Jetzt:          {c['new']}",
+            f"  Veröffentlicht: {_released_on(c)}",
+            f"  Erkannt:        {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}",
         ]
         if site.get("notes"):
-            lines.append(f"  Hinweis:    {site['notes']}")
+            lines.append(f"  Hinweis:        {site['notes']}")
         lines.append("")
     lines += [
         "--",
         f"NewsBot v{__version__}",
+        "https://github.com/Wlanfr3ak/NewsBot2EMail",
     ]
     return subject, "\n".join(lines)
 
@@ -667,6 +689,17 @@ def build_change_mail(changes: list[dict]) -> tuple[str, str]:
 # ---------------------------------------------------------------------------
 # Check-Zyklus
 # ---------------------------------------------------------------------------
+
+def _extract_history(site: dict, text: str) -> list | None:
+    """extract_history() des Moduls, fehlertolerant."""
+    if callable(site.get("extract_history")):
+        try:
+            return site["extract_history"](text)
+        except Exception as exc:
+            log.warning("extract_history für %s fehlgeschlagen: %s",
+                        site["name"], exc)
+    return None
+
 
 def check_site(site: dict, cfg: dict, state: dict) -> dict | None:
     """Prüft eine Seite.
@@ -698,20 +731,18 @@ def check_site(site: dict, cfg: dict, state: dict) -> dict | None:
         log.info("%-30s unverändert (%s)", name, new_value)
         return None
 
+    text = decode_body(body, headers)
+
     if pending and new_value == pending:
         # Schon erkannt & in der Historie, aber die Mail steht noch aus.
+        # 'releases' mitgeben, damit die Mail das Veröffentlichungsdatum
+        # zeigen kann.
         log.info("%-30s Benachrichtigung ausstehend: %s", name, pending)
         return {"site": site, "old": old_value, "new": pending,
                 "kind": "retry", "history_done": True,
-                "text": decode_body(body, headers)}
+                "releases": _extract_history(site, text), "text": text}
 
-    text = decode_body(body, headers)
-    releases = None
-    if callable(site.get("extract_history")):
-        try:
-            releases = site["extract_history"](text)
-        except Exception as exc:
-            log.warning("extract_history für %s fehlgeschlagen: %s", name, exc)
+    releases = _extract_history(site, text)
 
     if old_value is None and pending is None:
         # Erster Check: Baseline setzen, keine Mail schicken.

@@ -115,6 +115,10 @@ geloggt und übersprungen, ohne den Lauf abzubrechen.
 | `notepadpp.py` | neueste Version | GitHub-Daten | Versionsseiten | x64-Installer |
 | `blossomos.py` | Online-Edition | Datum = Version | – | ISO + Hash-JSON |
 | `python_org.py` | neueste Version | – | – | – |
+| `jellyfin_server.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-x64-Installer |
+| `jellyfin_desktop.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-x64-.exe |
+| `php.py` | 4 Zweige kombiniert (8.5/8.4/8.3/8.2) | echte Daten | ChangeLog-8.php | – |
+| `gitlab.py` | 3 Zweige kombiniert (Top-3 Minors) | Tag-Daten | Release-Notes-Feed | – |
 
 ## Überwachungsmethoden
 
