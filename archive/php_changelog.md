@@ -1,0 +1,6052 @@
+# Changelog: PHP
+
+Quelle: https://www.php.net/ChangeLog-8.php
+Stand: 26.10.2026 06:53
+
+---
+
+## 8.5.12 – 2026-10-22 (Security Release)
+
+- **Core:**
+  - Fixed [GHSA-w8hw-w9fx-j79w](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w), [GHSA-6wmf-4rv5-p3rp](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp) (Avoid state corruption via bailout).
+  - Fixed bug [GH-23644](https://github.com/php/php-src/issues/23644) (Optimizer leaves a constant-vs-constant comparison unfolded, crashing the VM in zval_undefined_cv).
+  - Fixed OSS-Fuzz 532353396 (assertion failure with static type).
+  - Fix [GH-23662](https://github.com/php/php-src/issues/23662) (Avoid NAN warning in print_r()).
+  - Fix [GH-21999](https://github.com/php/php-src/issues/21999): GC inconsistency with lazy object, var_dump(), and object comparison.
+  - Fixed OSS-Fuzz #536440507 (Immutable class incorrect assertion).
+  - Fixed AVX being reported as supported when the OS has not enabled AVX state.
+  - Fixed [GH-23980](https://github.com/php/php-src/issues/23980) (ZEND_ASSERT violation @ ZEND_INCLUDE_OR_EVAL).
+  - Fixed use-after-free when a dl()-loaded extension declares a frameless function and a later request calls it.
+  - Fixed System V shared memory emulation for Windows attaching segments past the end of their mapping.
+  - Fixed exception thrown by destructor during GC in a Fiber not being rethrown into the frame that triggered the GC.
+- **BCMath:**
+  - Fixed BcMath\Number results that truncate to zero keeping a negative sign and comparing less than zero.
+- **BZ2:**
+  - Fixed double close of the descriptor and use-after-free of the inner stream when bzopen() is given a stream resource.
+- **CLI:**
+  - Fix [GH-22567](https://github.com/php/php-src/issues/22567) (Windows ZTS CLI SAPI should refresh its TSRMLS cache during request activation).
+  - Fixed bug [GH-23764](https://github.com/php/php-src/issues/23764) (Built-in server leaks a file descriptor on every HEAD request for a static file).
+  - Fixed crash in the built-in server when a client is reset before being accepted.
+  - Fixed the built-in server truncating an error page and leaking its unsent part after a partial socket write.
+- **DOM:**
+  - Fixed use-after-free when re-constructing a DOMXPath whose php:function registrations are freed while still reachable from the cycle collector.
+  - Fixed Dom\HTMLDocument::getElementById() not finding ids of SVG and MathML elements.
+  - Fixed Dom\HTMLDocument giving attributes the namespace of their element when a fragment is parsed with an xlink, xml or xmlns context element.
+  - Fixed bug [GH-23887](https://github.com/php/php-src/issues/23887) (Dom\HTMLCollection::namedItem() assertion failure, hang, or missed first element).
+  - Fixed DOMXPath and Dom\XPath losing the context node and in-scope namespaces of an evaluation after a php:function() callback evaluated another expression on the same object.
+- **FFI:**
+  - Fixed crashes with FFI callbacks created from __call() trampolines and array callables whose object is released.
+- **FTP:**
+  - Fixed bug [GH-23619](https://github.com/php/php-src/issues/23619) (cryptic error on servers that don't support TLS session resumption on data connection).
+- **GD:**
+  - Fixed undefined behavior with GD2 images with `INT_MAX`-sized chunks.
+  - Fixed undefined behavior with GIFs with problematic LZW compression data.
+- **Intl:**
+  - Fixed cloning IntlDateFormatter and MessageFormatter losing PHP-side state such as dateType, timeType, calendar and the message pattern.
+  - Fixed a crash when converting with a cloned UConverter that uses toUCallback/fromUCallback.
+  - Fixed Collator attribute and strength methods not rejecting an unconstructed Collator.
+  - Fixed crash in intl_error_set_custom_msg() without an active call frame.
+  - Fixed grapheme_strstr() and grapheme_stristr() returning incorrect substrings when supplementary characters precede the match.
+  - Fixed grapheme_strstr() and grapheme_strpos() missing canonically equivalent matches, and grapheme searches reporting ICU errors for empty haystacks.
+  - Fixed grapheme_strrpos() and grapheme_strripos() skipping overlapping matches when using a negative offset.
+  - Fixed IntlDateFormatter::parse(), localtime() and parseToCalendar() treating the offset as UTF-16 code units instead of bytes.
+- **Lexbor:**
+  - Merge patches lexbor/lexbor@8a14bc0 and lexbor/lexbor@f67ce4b, fixing a heap buffer overflow in :lexbor-contains() parsing and buffer overflows in malformed decode replay.
+  - Merge patches lexbor/lexbor@859f100, lexbor/lexbor@a36e09a, lexbor/lexbor@b0f7412, lexbor/lexbor@1b215a8, lexbor/lexbor@385afff, lexbor/lexbor@e6c068f, lexbor/lexbor@327a8b6, lexbor/lexbor@917742f and lexbor/lexbor@e89c258, fixing dropped usernames containing an at sign, uninitialized memory in IDNA buffer growth, the encoding of a space before a query or fragment in an opaque path, a query or fragment lost after a dot segment in a path, replacement file drive paths, the output encoding used for percent-encoding, the URLSearchParams tail pointer and fragment serialization without a query.
+- **MBString:**
+  - Fixed bug [GH-23106](https://github.com/php/php-src/issues/23106) (mb_strpos() reads past the end of a haystack ending in a truncated UTF-8 sequence).
+  - Fixed mbstring functions emitting surrogates in UTF-8 output and flagging it as valid UTF-8.
+- **MySQLi:**
+  - Fix [GH-22854](https://github.com/php/php-src/issues/22854): Fixed failed assertion when accessing mysqli property after failed reconnection.
+- **MySQLnd:**
+  - Fixed field_count not resetting on OK packet.
+  - Fixed memory leak when closing a prepared statement after its connection was killed.
+- **Opcache:**
+  - Fixed OSS-Fuzz #546798343 (Heap-buffer-overflow in optimizer with FCCs and inlining).
+  - Fixed bug [GH-23693](https://github.com/php/php-src/issues/23693) (Tracing JIT produces wrong results for a guard on a loop-invariant addition).
+  - Fixed OSS-Fuzz #5674034779193344 (Read of uninitialized memory in is_cacheable_stream_path()).
+  - Fix zend_analyze_calls() call_stack buffer overrun.
+  - Fixed bug [GH-23628](https://github.com/php/php-src/issues/23628) (Tracing JIT reads undefined property slots of lazy proxy objects instead of forwarding to the real instance).
+  - Fixed bug [GH-23679](https://github.com/php/php-src/issues/23679) (Tracing JIT writes a parent private property into a child's shadowing public property).
+  - Fix multiple incorrect DCE due to unsound escape analysis.
+  - Fixed bug [GH-24063](https://github.com/php/php-src/issues/24063) (OPcache optimizer folds `$cond ? -0.0 : 0.0` into a single `-0.0` constant).
+  - Fixed crash when a file cache is reused with a different set of extensions declaring frameless functions.
+  - Fixed bug [GH-23991](https://github.com/php/php-src/issues/23991) (JIT generates invalid IR for multiple recursive calls).
+  - Fix SCCP evaluation of isset()/empty() on dimension of non-escaping object.
+  - Fixed bug [GH-20890](https://github.com/php/php-src/issues/20890) (Segfault in zval_undefined_cv with non-simple property hook with minimal tracing JIT).
+- **OpenSSL:**
+  - Fixed stream_socket_enable_crypto() leaving the socket non-blocking after a handshake timeout.
+  - Fixed feof() on a TLS stream staying false after a close_notify on Windows.
+- **PCNTL:**
+  - Fixed pcntl_signal_dispatch() dropping the queued signals when it runs while an exception is pending.
+  - Fixed pcntl_signal_dispatch() dropping the signals queued behind a handler that throws.
+  - Fixed bug [GH-23986](https://github.com/php/php-src/issues/23986) (/proc/self paths resolve to the parent process after pcntl_fork()).
+- **PDO:**
+  - Fixed PDOStatement::getColumnMeta() reading out of bounds for an invalid column index.
+  - Fixed PDOStatement::bindColumn() registering a binding for a column name that is not in the result set.
+  - Fixed PDOStatement::execute() leaving the previous result available after a failed execution.
+  - Fixed a use-after-free when bindValue()/execute()/closeCursor() is called from a bound parameter's __toString() during execute().
+  - Fixed bug [GH-23962](https://github.com/php/php-src/issues/23962) (Destroying a persistent PDO instance rolls back a transaction still in use by another instance).
+  - Fixed PDO::setAttribute() installing a PDO::ATTR_STATEMENT_CLASS class whose constructor arguments it rejects.
+  - Fixed PDO::ATTR_STATEMENT_CLASS constructor_args type errors reporting "array given" regardless of the value passed.
+  - Fixed PDOStatement::bindParam() and bindColumn() leaking the driver options value.
+  - Fixed PDOStatement not reporting its bound parameters and columns to the cycle collector.
+  - Fixed PDOStatement::setFetchMode() not applying changes atomically.
+- **PDO_DBLIB:**
+  - Fixed bug [GH-23741](https://github.com/php/php-src/issues/23741) (segfault after a failed query inside a PDO transaction). Errors raised by beginTransaction(), commit(), rollBack() and lastInsertId() are now reported instead of being dropped.
+- **PDO_Firebird:**
+  - Fixed bug [GH-23758](https://github.com/php/php-src/issues/23758) (PDO_Firebird returns null for non-null empty BLOBs).
+- **PGSQL:**
+  - Fixed pg_lo_write() rejecting data containing null bytes.
+  - Removed pg_service(), unavailable with any released libpq.
+- **Readline:**
+  - Fixed a heap over-read in the interactive shell prompt when cli.prompt is set to an empty string.
+- **Reflection:**
+  - Fixed bug [GH-23842](https://github.com/php/php-src/issues/23842) (ReflectionProperty::skipLazyInitialization() copies invalid constant defaults with OPcache).
+- **Session:**
+  - Fixed session_start() continuing after a failed create_sid() when session.use_strict_mode rejects the supplied ID.
+  - Fixed exceptions from user-defined create_sid() handlers being replaced by return-value validation errors.
+- **SimpleXML:**
+  - Fixed reconstructing a SimpleXMLElement freeing a child element that another variable still references.
+- **SOAP:**
+  - Fixed bug [GH-22895](https://github.com/php/php-src/issues/22895) (Heap use-after-free while encoding a Traversable with an illegal key).
+  - Fixed memory leak when load_wsdl_ex() failed to load.
+- **SQLite:**
+  - Fixed a crash when SQLite3::close() is called from a userland callback.
+- **Standard:**
+  - Fixed sha1_file() returning a digest for incomplete data after a stream read failure.
+  - Fixed iptcembed() corrupting JPEG headers when called recursively from an output handler.
+  - Fixed proc_open() leaking descriptor zero when descriptor setup fails.
+  - Fixed three Windows-only proc_open() defects: an uninitialized PROCESS_INFORMATION, an indeterminate comspec pointer after a failed lookup, and an unchecked CreateFileA() failure.
+  - Fix persistent stream context lifetime during shutdown (Levi Morrison)
+  - Fix wordwrap() ignoring an existing break at the end of the string (Nicolas Grekas)
+  - Fixed convert.quoted-printable-decode decoding lowercase hex digits to the wrong byte.
+  - Fixed chown() and lchown() failing to resolve user names in ZTS builds when getpwnam_r() needs a larger buffer.
+- **Tidy:**
+  - Fixed a use-after-free when a tidyNode is used after its document is reparsed.
+- **Zlib:**
+  - Fixed inflate_init() dropping the preset dictionary for raw streams with a non-default window.
+
+## 8.5.11 – 2026-09-24 (Security Release)
+
+- **BCMath:**
+  - Fixed out-of-bounds read in bc_is_zero_for_scale() when scale exceeds n_scale.
+- **Core:**
+  - Fixed out-of-bounds reads during automatic UTF-16/32 encoding detection.
+  - Fixed bug [GH-15375](https://github.com/php/php-src/issues/15375) (Nested "yield from" skips items after a valid() or next() call on the inner generator).
+  - Fixed bug [GH-23232](https://github.com/php/php-src/issues/23232) (lone namespace separator asks the autoloader for an empty class name).
+  - Fixed bug [GH-23301](https://github.com/php/php-src/issues/23301) (Nested "yield from" yields a value twice when the middle generator delegates again).
+- **DOM:**
+  - Fixed NamedNodeMap::getNamedItemNS() with an empty URI not matching the null namespace in spec-following mode.
+  - Fixed stale getElementsByClassName() and other node list caches after className/classList writes and attribute removals.
+  - Fixed a use-after-free when cloning a DOMNameSpaceNode after DOMDocument::xinclude().
+  - Fixed a crash in DOMXPath when a php:function callback receives a nodeset and a later callback returns a node from another document.
+  - Fixed bug [GH-23331](https://github.com/php/php-src/issues/23331) (UAF when node_list_unlink() skips attribute children that still have a live wrapper).
+  - Fixed a use-after-free when Dom\Element::setAttributeNS() replaces the value of an attribute whose child still has a live wrapper.
+- **GD:**
+  - Fixed imageaffinematrixget() and imageaffinematrixconcat() reporting the wrong argument in error messages.
+- **FPM:**
+  - Fixed bug [GH-19320](https://github.com/php/php-src/issues/19320) (FPM UID and GID overflow).
+  - Fixed [GHSA-62xp-839h-2637](https://github.com/php/php-src/security/advisories/GHSA-62xp-839h-2637) (IPv6 ACL bypass in FastCGI listen.allowed_clients due to partial address comparison). (CVE-2026-91768)
+- **Intl:**
+  - Fixed grapheme_strpos() and grapheme_strrpos() with an empty needle returning UTF-16 offsets instead of grapheme offsets.
+  - Fixed a memory leak when dumping IntlCalendar instances.
+  - Fixed a memory leak when iterating IntlBreakIterator::getPartsIterator() results.
+  - Fixed a double-free when IntlGregorianCalendar construction fails after the ICU constructor adopts the TimeZone.
+  - Fixed bug [GH-23094](https://github.com/php/php-src/issues/23094) (NumberFormatter parsing offsets use UTF-16 positions for UTF-8 strings).
+  - Fixed Locale::parseLocale() reading past a trailing '-' or '_'.
+  - Fixed grapheme_str_split() treating UBRK_DONE as a byte index.
+  - Fixed a leak in Locale::getKeywords() when a keyword value cannot be read.
+  - Fixed a use-after-free when IntlRuleBasedBreakIterator is constructed from compiled rules.
+- **MBString:**
+  - Fixed mb_ereg_replace() emitting a NUL or out-of-bounds bytes in the replacement when a \k<name> backref has no closing delimiter.
+- **MySQLnd:**
+  - Fixed [GHSA-r6x9-5r99-36j7](https://github.com/php/php-src/security/advisories/GHSA-r6x9-5r99-36j7) (Various packet overreads in mysqlnd wire protocol). (CVE-2025-1218)
+- **ODBC:**
+  - Fixed odbc_field_len(), odbc_field_scale() and odbc_field_type() returning uninitialized memory when SQLColAttribute fails.
+- **Opcache:**
+  - Fixed opcache.protect_memory race under ZTS.
+  - Fixed a tracing JIT crash when compiling a side trace for a method of a class that could not be stored in the inheritance cache.
+  - Fixed a crash when the huge page SHM remap discarded mappings outside the reserved address range.
+- **OpenSSL:**
+  - Fixed [GHSA-vvx9-73fr-5jjx](https://github.com/php/php-src/security/advisories/GHSA-vvx9-73fr-5jjx) (TLS hostname verification falls back to CN after SAN mismatch). (CVE-2026-91769)
+  - Fixed [GHSA-xr7j-rvgx-xq5p](https://github.com/php/php-src/security/advisories/GHSA-xr7j-rvgx-xq5p) (Heap buffer overflow in php_openssl_matches_wildcard_name() on crafted server certificate wildcard CN). (CVE-2026-91767)
+- **PDO:**
+  - Fixed a leak when a persistent connection failed a liveness check with no other live PDO handle.
+- **PDO_PGSQL:**
+  - Fixed PDO::CURSOR_SCROLL statements failing under lazy fetching (PDO::ATTR_PREFETCH => 0).
+- **PDO Sqlite:**
+  - Fixed bug [GH-20214](https://github.com/php/php-src/issues/20214) (PDO::FETCH_DEFAULT unexpected behavior with PDOStatement::setFetchMode).
+- **Phar:**
+  - Fixed bug [GH-23418](https://github.com/php/php-src/issues/23418) (Use-after-free when looking up mounted directories).
+  - Fixed bug [GH-23477](https://github.com/php/php-src/issues/23477) (Memory leak on duplicate native Phar manifest entries).
+  - Fixed [GHSA-j3wh-g957-2m85](https://github.com/php/php-src/security/advisories/GHSA-j3wh-g957-2m85) (Integer overflow in phar_tar_number() allowing TAR archive entry injection). (CVE-2026-6103)
+- **Readline:**
+  - Fixed the interactive shell not waiting for the pager process to exit.
+- **SOAP:**
+  - Fixed WSDL cache corruption when a soap:header defines headerfaults.
+  - Fixed stack overflow when parsing a WSDL with self-referential schema groups or attributeGroups.
+  - Fixed [GHSA-rgrp-mwpx-f6rm](https://github.com/php/php-src/security/advisories/GHSA-rgrp-mwpx-f6rm) (Unbounded recursion in server-side cleanup_xml_node()). (CVE-2026-91765)
+  - Fixed [GHSA-cj93-vc83-wgqv](https://github.com/php/php-src/security/advisories/GHSA-cj93-vc83-wgqv) (Integer overflow to buffer overflow in SOAP HTTP parsing). (CVE-2025-14181)
+- **Standard:**
+  - Fixed a segfault when a stream filter callback unsets StreamBucket::$data before re-attaching the bucket.
+  - Fixed [GHSA-7875-c8px-7q5f](https://github.com/php/php-src/security/advisories/GHSA-7875-c8px-7q5f) (Out-of-bounds read in the HTTP stream wrapper when following a redirect with an empty Location header). (CVE-2026-93682)
+  - Fixed read buffer compaction in php_stream_filter_flush().
+  - Fixed bug [GH-22410](https://github.com/php/php-src/issues/22410) (Incorrect float behavior with large numbers).
+  - Fixed [GH-23338](https://github.com/php/php-src/issues/23338) (fsockopen()/pfsockopen() ValueError reported wrong argument number for $timeout).
+  - Fixed bug [GH-23576](https://github.com/php/php-src/issues/23576) (Next index for array returned from array_keys() is wrong).
+  - Fixed [GHSA-88hq-2827-7pg6](https://github.com/php/php-src/security/advisories/GHSA-88hq-2827-7pg6) (Out-of-bounds read in convert.* stream filters when line-break-chars contains NUL). (CVE-2026-92842)
+  - Fixed [GHSA-fpwc-w8rq-cr92](https://github.com/php/php-src/security/advisories/GHSA-fpwc-w8rq-cr92) (Cross-origin credential leak in HTTP stream wrapper redirects). (CVE-2026-91766)
+- **SimpleXML:**
+  - Fixed writing to a dimension of the object returned by attributes() not creating the attribute.
+  - Fixed child elements of the element returned by SimpleXMLElement::addChild() not being accessible by property name when namespaces are involved.
+- **Windows:**
+  - Fixed [GHSA-9f67-6fw4-hpfp](https://github.com/php/php-src/security/advisories/GHSA-9f67-6fw4-hpfp) (Reserved device names are not rejected before file and stream I/O). (CVE-2026-17545)
+- **Zip:**
+  - Fixed bug [GH-17787](https://github.com/php/php-src/issues/17787) (ZipArchive stream stops reading early when the archive is freed while the stream is still open).
+  - Fixed bug [GH-23276](https://github.com/php/php-src/issues/23276) (ZipArchive subclass storing its own stream cannot be garbage collected).
+- **SAPI:**
+  - Fixed fuzzer targets failing to build in isolation.
+  - Fixed returns uninitialized value on LiteSpeed lsapi SAPI (Go Kudo)
+
+## 8.5.10 – 2026-08-27
+
+- **Core:**
+  - Fixed bug [GH-22782](https://github.com/php/php-src/issues/22782) (Const expr FCC crashes under preloading).
+  - Fixed bug [GH-23088](https://github.com/php/php-src/issues/23088) (Stack overflow when comparing deeply nested arrays).
+- **Date:**
+  - Fixed leak on double DatePeriod::__construct() call.
+- **DOM:**
+  - Fixed bug [GH-23116](https://github.com/php/php-src/issues/23116) (Stack overflow when normalizing a deeply nested DOMDocument).
+  - Fixed bug [GH-23117](https://github.com/php/php-src/issues/23117) (Stack overflow when normalizing a deeply nested Dom\XMLDocument).
+  - Fixed bug [GH-22825](https://github.com/php/php-src/issues/22825) (DOMElement::setAttribute() fails silently when the DTD declares a default value for the attribute).
+  - Fixed bug [GH-23120](https://github.com/php/php-src/issues/23120) (Stack overflow when comparing deeply nested DOM nodes with DOMNode::isEqualNode()).
+- **Exif:**
+  - Fixed exif_read_data() allocating a HEIF meta box larger than the file it came from.
+- **Intl:**
+  - Fixed IntlListFormatter::__construct() leaving stale global error state after successful calls.
+- **Opcache:**
+  - Fixed [GH-22693](https://github.com/php/php-src/issues/22693) (DT_TEXTREL in JIT-generated TLS access on x86_64).
+  - Fixed bug [GH-22763](https://github.com/php/php-src/issues/22763) (JIT fails to clear ZREG_TYPE_ONLY after setting reg).
+  - Fixed bug [GH-22857](https://github.com/php/php-src/issues/22857) (Function JIT emits wrong code for FETCH_OBJ_FUNC_ARG on a property hook getter, losing register-held variables).
+  - Fixed bug [GH-22916](https://github.com/php/php-src/issues/22916) (Preserve parent regs in zend_jit_deoptimizer_start()).
+- **OpenSSL:**
+  - Fix missing error check on invalid alpn protocols.
+- **MBString:**
+  - Fixed bug [GH-22779](https://github.com/php/php-src/issues/22779) (mb_strrpos() returns the wrong position for a negative offset in a non-UTF-8 encoding).
+  - Fixed bug [GH-21036](https://github.com/php/php-src/issues/21036) (mb_ereg_search_getregs() crashes after mb_eregi() invalidates the regex cache).
+- **PCRE:**
+  - Fixed bug [GH-21134](https://github.com/php/php-src/issues/21134) (Crash with \C + UTF-8). Using \C in UTF-8 patterns is now forbidden.
+- **PDO_ODBC:**
+  - Fixed bug [GH-23016](https://github.com/php/php-src/issues/23016) (NULL values in long columns come back as garbage binary strings).
+- **PDO_PGSQL:**
+  - Fixed several lazy fetch (PDO::ATTR_PREFETCH => 0) defects: an infinite loop when cleaning up a fetch left in a COPY, a use-after-free when a statement with emulated or disabled prepares is destroyed, a connection left busy for the next fetch, and rows delivered from a result another statement took over.
+- **Reflection:**
+  - Fixed bug [GH-22905](https://github.com/php/php-src/issues/22905) (Reflection exception messages truncate on null bytes).
+  - Fixed ReflectionProperty::isLazy() and skipLazyInitialization() using the parent slot when a child class hooks an inherited property.
+  - Fixed segfault in ReflectionMethod::createFromMethodName() on an uninstantiable subclass.
+- **Session:**
+  - Fix corruption in mod_mm.
+  - Fixed bug [GH-23043](https://github.com/php/php-src/issues/23043) (broken session id code can cause zend_mm_heap corrupted).
+- **SimpleXML:**
+  - Fixed integer element offsets that cannot resolve aliasing an existing element.
+  - Fixed segfault when comparing uninitialized SimpleXMLElement instances.
+- **Sockets:**
+  - Fixed socket_set_option() validation error messages for UDP_SEGMENT and SO_LINGER options.
+  - Fixed various memory related issues in ext/sockets.
+- **SQLite:**
+  - Fix leak when trying to close db if blob stream is still open.
+- **Standard:**
+  - Fixed bug [GH-23111](https://github.com/php/php-src/issues/23111) (Stack overflow in array_walk_recursive() with deeply nested arrays).
+  - Fixed bug [GH-23113](https://github.com/php/php-src/issues/23113) (Stack overflow in array_replace_recursive() with deeply nested arrays).
+  - Fixed bug [GH-23115](https://github.com/php/php-src/issues/23115) (Stack overflow in compact() with deeply nested arrays).
+- **Streams:**
+  - Fixed bug [GH-15836](https://github.com/php/php-src/issues/15836) (Use-after-free when a user stream filter accesses $this->stream during the close flush).
+- **XSL:**
+  - Fixed use-after-free when a DOMDocument subclass __clone() retains the stylesheet copy made by XSLTProcessor::importStylesheet().
+
+## 8.5.9 – 2026-07-30 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-22290](https://github.com/php/php-src/issues/22290) (AST pretty printing does not correctly handle strings containing NUL).
+  - Fixed bug [GH-22206](https://github.com/php/php-src/issues/22206) (missing return in global register detection).
+  - Lock unmodified readonly properties for modification after clone-with.
+- **BCMath:**
+  - Fixed [GHSA-x692-q9x7-8c3f](https://github.com/php/php-src/security/advisories/GHSA-x692-q9x7-8c3f) (Out-of-bounds write in bccomp()). (CVE-2026-17544)
+- **Calendar:**
+  - Fixed bug [GH-22602](https://github.com/php/php-src/issues/22602) (gregoriantojd() and juliantojd() integer overflow with INT_MAX year).
+- **Date:**
+  - Update timelib to 2022.17.
+  - Fixed bug [GH-19803](https://github.com/php/php-src/issues/19803) (Parsing a string with a single white space does create an error).
+  - Fixed Unix timestamps in February of the year 0 are misparsed with @-notation.
+  - Fixed bug [GH-11310](https://github.com/php/php-src/issues/11310) (__debugInfo does nothing on userland classes extending Date classes).
+- **DBA:**
+  - Fixed OOB read on malformed length field in dba flatfile handler.
+- **DOM:**
+  - Fixed bug [GH-22570](https://github.com/php/php-src/issues/22570) (Stack overflow when serializing a deeply nested Dom\XMLDocument).
+  - Fixed getElementsByClassName() item() returning the wrong element on random access.
+- **Exif:**
+  - Fixed bug [GH-11020](https://github.com/php/php-src/issues/11020) (exif_read_data() emits a spurious "Illegal IFD size" warning when an IFD is not followed by a next-IFD offset).
+- **GD:**
+  - Upgrade libgd. (CVE-2026-9672)
+- **Hash:**
+  - Fixed bug [GH-18173](https://github.com/php/php-src/issues/18173) (ext/hash relies on implementation-defined malloc alignment).
+- **ODBC:**
+  - Fixed bug [GH-22668](https://github.com/php/php-src/issues/22668) (Heap buffer over-read when a column value exceeds the driver-reported display size).
+- **Opcache:**
+  - Fixed bug [GH-22158](https://github.com/php/php-src/issues/22158) (Tracing JIT dispatches the observer begin handler through the wrong run_time_cache slot on megamorphic calls).
+  - Fixed bug [GH-22443](https://github.com/php/php-src/issues/22443) (Tracing JIT SIGSEGV on megamorphic dynamic calls from an undereferenced run_time_cache map_ptr offset).
+  - Fixed bug [GH-21770](https://github.com/php/php-src/issues/21770) (Infinite recursion in property hook getter in opcache preloaded trait).
+- **OpenSSL:**
+  - Fixed timeout for supplemental read at end of a blocking stream in SSL stream wrapper.
+- **Intl:**
+  - Fixed Locale::lookup() and locale_lookup() to return NULL instead of the fallback locale when a language tag cannot be canonicalized.
+  - Fixed memory leaks when calling Collator::__construct() or Spoofchecker::__construct() twice.
+  - Fixed memory leak when calling IntlListFormatter::__construct() twice.
+  - Fixed IntlChar methods leaving stale global error state after successful calls.
+- **PDO_ODBC:**
+  - Fixed bug [GH-20726](https://github.com/php/php-src/issues/20726) (Crash with ODBC connection pooling when the DSN carries no credentials).
+  - Fixed bug [GH-22667](https://github.com/php/php-src/issues/22667) (Heap buffer over-read when a column value exceeds the driver-reported display size).
+  - Fixed bug [GH-22666](https://github.com/php/php-src/issues/22666) (Heap buffer overflow when an output parameter value is longer than the declared maxlen).
+  - Fixed bug [GH-22665](https://github.com/php/php-src/issues/22665) (Out-of-bounds write when the ODBC driver reports a diagnostic message length beyond the error buffer).
+- **PGSQL:**
+  - Fixed [GHSA-7qpv-r5mr-78m4](https://github.com/php/php-src/security/advisories/GHSA-7qpv-r5mr-78m4) (SQL injection via E'...' backslash breakout). (CVE-2026-17543)
+- **Phar:**
+  - Fixed inconsistent handling of the magic ".phar" directory. Paths such as "/.phar" remain protected, while non-magic paths that merely start with ".phar" are handled consistently across file and directory creation, copying, ArrayAccess, stream lookup, directory iteration and extraction.
+  - Fixed [GHSA-vc5h-9ppw-p5f3](https://github.com/php/php-src/security/advisories/GHSA-vc5h-9ppw-p5f3) (Crash via recursive symlinks). (CVE-2026-7260)
+- **PHPDBG:**
+  - Fixed bug [GH-17387](https://github.com/php/php-src/issues/17387) (Trivial crash in phpdbg lexer).
+  - Fixed fleaked lowercased lookup keys in phpdbg_resolve_opline_break.
+  - Fixed off-by-one in phpdbg_safe_class_lookup() causing class lookups to always fail during phpdbg's signal-safe interruption path.
+- **Reflection:**
+  - Fixed bug [GH-22324](https://github.com/php/php-src/issues/22324) (Ignore leading namespace separator in ReflectionParameter::__construct()).
+  - Fixed bug [GH-22441](https://github.com/php/php-src/issues/22441) (ReflectionClass::hasProperty() and getProperty() ignore dynamic properties shadowing a private parent property).
+  - Fixed bug [GH-22658](https://github.com/php/php-src/issues/22658) (ReflectionConstant::__toString() with a string value with null bytes truncates output).
+  - Fixed bug [GH-22683](https://github.com/php/php-src/issues/22683) (Reflection(Class)Constant::__toString() should not warn on NAN conversions).
+  - Fixed bug [GH-22681](https://github.com/php/php-src/issues/22681) (Reflection*::__toString() truncates on null bytes).
+- **Session:**
+  - Fixed bug [GH-21314](https://github.com/php/php-src/issues/21314) (Different session garbage collector behavior between PHP 8.3 and PHP 8.5).
+- **SPL:**
+  - Fix	class_parents for classes with leading slash in non-autoload mode.
+  - Ignore leading back-slash in class_parents(), class_implements(), and class_uses().
+  - Fixed bug [GH-16217](https://github.com/php/php-src/issues/16217) (SplFileObject::fputcsv() on an uninitialized object segfaults).
+- **Standard:**
+  - Fixed bug [GH-22395](https://github.com/php/php-src/issues/22395) (base_convert() outputs at most 64 characters).
+  - Fixed bug [GH-22678](https://github.com/php/php-src/issues/22678) (Use-after-free in array_multisort() when the comparator mutates the array being sorted).
+- **URI:**
+  - Fixed behavior of Uri\WhatWg\Url wither methods with regards to empty opaque hosts.
+  - Fixed bug [GH-22628](https://github.com/php/php-src/issues/22628) (Percent-encoding of caret in WHATWG URL paths is not performed).
+  - Fixed bug [GH-22629](https://github.com/php/php-src/issues/22629) (WHATWG Validation error incorrect with empty host and non-empty userinfo).
+- **Zip:**
+  - Fixed bug [GH-22649](https://github.com/php/php-src/issues/22649) (ZipArchive::setCommentName() and setCommentIndex() could crash after overwriting an entry and resetting its inherited unchanged comment).
+  - Fixed bug [GH-21705](https://github.com/php/php-src/issues/21705) (ZipArchive::getFromIndex() ignores ZipArchive::FL_UNCHANGED for deleted entries).
+
+## 8.5.8 – 2026-07-02 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-22280](https://github.com/php/php-src/issues/22280) (Incorrect compile error for goto to label preceding try/finally block).
+  - Fixed bug [GH-22112](https://github.com/php/php-src/issues/22112) (Assertion when error handler throws during NaN to bool/string coercion).
+- **BCMath:**
+  - Fixed issues with oversized allocations and signed overflow in bcround() and BcMath\Number::round().
+- **Date:**
+  - Fix incorrect recurrence check of DatePeriod::createFromISO8601String().
+- **Exif:**
+  - Read correct value for single and double tags.
+- **GD:**
+  - Fixed bug [GH-22121](https://github.com/php/php-src/issues/22121) (Double free in gdImageSetStyle() after overflow-triggered early return).
+- **Intl:**
+  - Fix incorrect argument positions for invalid start/end arguments in transliterator_transliterate().
+  - Fixed IntlTimeZone::getDisplayName() to synchronize object error state for invalid display types.
+- **Lexbor:**
+  - Merge patch c3a6847.
+- **Opcache:**
+  - Fixed bug [GH-22265](https://github.com/php/php-src/issues/22265) (Another tailcall vm_interrupt bug).
+  - Fixed bug [GH-20469](https://github.com/php/php-src/issues/20469) (Unsafe inheritance cache replay with reentrant autoloading).
+  - Fixed bug [GH-21972](https://github.com/php/php-src/issues/21972) (Corrupted variable type when a typed by-value return contains a reference wrapper).
+- **OpenSSL:**
+  - Fixed bug [GH-22187](https://github.com/php/php-src/issues/22187) (Memory corruption (zend_mm_heap corrupted) in openssl_encrypt with AES-WRAP-PAD). (CVE-2026-14355)
+- **Phar:**
+  - Fixed a bypass of the magic ".phar" directory protection in Phar::addEmptyDir() for paths starting with "/.phar", while allowing non-magic directory names that merely share the ".phar" prefix.
+- **Reflection:**
+  - Preserve class-name case in ReflectionClass::getProperty() error messages and autoloading.
+- **SOAP:**
+  - Fixed bug [GH-22218](https://github.com/php/php-src/issues/22218) (SoapServer::handle() crash on $_SERVER not being an array).
+  - Fixed bug [GH-22285](https://github.com/php/php-src/issues/22285) (Soap server requires the raw input to be passed to $server->handle).
+- **Sqlite:**
+  - Fix error checks for column retrieval.
+- **URI:**
+  - Add LEXBOR_STATIC to CFLAGS_URI on Windows so ext/uri does not see LXB_API as __declspec(dllimport) when linked statically into PHP.
+  - Clean error logs before each Uri\WhatWg\Url wither call so that errors from previous wither calls are not returned the next time a UrlValidationError is thrown.
+- **Zip:**
+  - Fixed error-related memory leaks.
+- **Zlib:**
+  - Fixed memory leak if deflate initialization fails and there is a dict.
+  - Fixed memory leak in inflate_add().
+
+## 8.5.7 – 2026-06-04
+
+- **CLI:**
+  - Fixed bug [GH-21901](https://github.com/php/php-src/issues/21901) (Stale getopt() optional value).
+- **Date:**
+  - Fixed bug [GH-18422](https://github.com/php/php-src/issues/18422) (int overflow in php_date_llabs).
+- **DOM:**
+  - Fixed bug [GH-22077](https://github.com/php/php-src/issues/22077) (UAF in custom XPath function).
+- **Opcache:**
+  - Fixed tracing JIT crash when a VM interrupt is handled during an observed user function call.
+  - Fixed bug [GH-21746](https://github.com/php/php-src/issues/21746) (Segfault with tracing JIT).
+  - Fixed bug [GH-22004](https://github.com/php/php-src/issues/22004) (Assertion failure at ext/opcache/jit/zend_jit_trace.c).
+  - Fixed tailcall VM crash when a VM interrupt is handled from a VM helper.
+- **OpenSSL:**
+  - Fix compatibility issues with OpenSSL 4.0.
+- **Standard:**
+  - Fixed bug [GH-21689](https://github.com/php/php-src/issues/21689) (version_compare() incorrectly handles versions ending with a dot).
+- **URI:**
+  - Fixed CVE-2026-44927 (In uriparser before 1.0.2, there is pointer difference truncation to int in various places). (CVE-2026-44927)
+  - Fixed CVE-2026-44928 (In uriparser before 1.0.2, the function family EqualsUri can misclassify two unequal URIs as equal). (CVE-2026-44928)
+
+## 8.5.6 – 2026-05-07 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-19983](https://github.com/php/php-src/issues/19983) (GC assertion failure with fibers, generators and destructors).
+  - Fixed ZEND_API mismatch on zend_ce_closure forward decl for Windows+Clang.
+  - Fixed bug [GH-21504](https://github.com/php/php-src/issues/21504) (Incorrect RC-handling for ZEND_EXT_STMT op1).
+  - Fixed bug [GH-21478](https://github.com/php/php-src/issues/21478) (Forward property operations to real instance for initialized lazy proxies).
+  - Fixed bug [GH-21605](https://github.com/php/php-src/issues/21605) (Missing addref for Countable::count()).
+  - Fixed bug [GH-21699](https://github.com/php/php-src/issues/21699) (Assertion failure in shutdown_executor when resolving self::/parent::/static:: callables if the error handler throws).
+  - Fixed bug [GH-21603](https://github.com/php/php-src/issues/21603) (Missing addref for __unset).
+  - Fixed bug [GH-21760](https://github.com/php/php-src/issues/21760) (Trait with class constant name conflict against enum case causes SEGV).
+- **CLI:**
+  - Fixed bug [GH-21754](https://github.com/php/php-src/issues/21754) (`--rf` command line option with a method triggers ext/reflection deprecation warnings).
+- **Curl:**
+  - Add support for brotli and zstd on Windows.
+- **DOM:**
+  - Fixed [GHSA-4jhr-8w89-j733](https://github.com/php/php-src/security/advisories/GHSA-4jhr-8w89-j733) and [GH-21566](https://github.com/php/php-src/issues/21566) (Dom\XMLDocument::C14N() emits duplicate xmlns declarations after setAttributeNS()). (CVE-2026-7263)
+- **FPM:**
+  - Fixed [GHSA-7qg2-v9fj-4mwv](https://github.com/php/php-src/security/advisories/GHSA-7qg2-v9fj-4mwv) (XSS within status endpoint). (CVE-2026-6735)
+- **Iconv:**
+  - Fixed bug [GH-17399](https://github.com/php/php-src/issues/17399) (iconv memory leak on bailout).
+- **Lexbor:**
+  - Upgrade to lexbor v2.7.0.
+- **MBString:**
+  - Fixed [GHSA-wm6j-2649-pv75](https://github.com/php/php-src/security/advisories/GHSA-wm6j-2649-pv75) (Null pointer dereference in php_mb_check_encoding() via mb_ereg_search_init()). (CVE-2026-7259)
+  - Fixed [GHSA-74r9-qxhc-fx53](https://github.com/php/php-src/security/advisories/GHSA-74r9-qxhc-fx53) (Out-of-bounds access in mbfl_name2encoding_ex()). (CVE-2026-6104)
+- **Opcache:**
+  - Fixed bug [GH-21158](https://github.com/php/php-src/issues/21158) (JIT: Assertion jit->ra[var].flags & (1<<0) failed in zend_jit_use_reg).
+  - Fixed bug [GH-21593](https://github.com/php/php-src/issues/21593) (Borked function JIT JMPNZ smart branch).
+  - Fixed bug [GH-21460](https://github.com/php/php-src/issues/21460) (COND optimization regression).
+  - Fixed faulty returns out of zend_try block in zend_jit_trace().
+- **OpenSSL:**
+  - Fix memory leak regression in openssl_pbkdf2().
+  - Fix a bunch of memory leaks and crashes on edge cases.
+- **PDO_Firebird:**
+  - Fixed [GHSA-w476-322c-wpvm](https://github.com/php/php-src/security/advisories/GHSA-w476-322c-wpvm) (SQL injection via NUL bytes in quoted strings). (CVE-2025-14179)
+- **PDO_PGSQL:**
+  - Fixed bug [GH-21683](https://github.com/php/php-src/issues/21683) (pdo_pgsql throws with ATTR_PREFETCH=0 on empty result set).
+- **Phar:**
+  - Restore is_link handler in phar_intercept_functions_shutdown.
+  - Fixed bug [GH-21797](https://github.com/php/php-src/issues/21797) (phar: NULL dereference in Phar::webPhar() when SCRIPT_NAME is absent from SAPI environment).
+  - Fix memory leak in Phar::offsetGet().
+  - Fix memory leak in phar_add_file().
+  - Fixed bug [GH-21799](https://github.com/php/php-src/issues/21799) (phar: propagate phar_stream_flush return value from phar_stream_close).
+  - Fix memory leak in phar_verify_signature() when md_ctx is invalid.
+- **Random:**
+  - Fixed bug [GH-21731](https://github.com/php/php-src/issues/21731) (Random\Engine\Xoshiro256StarStar::__unserialize() accepts all-zero state).
+- **Session:**
+  - Fixed memory leak when session GC callback return a refcounted value.
+- **SOAP:**
+  - Fixed [GHSA-85c2-q967-79q5](https://github.com/php/php-src/security/advisories/GHSA-85c2-q967-79q5) (Stale SOAP_GLOBAL(ref_map) pointer with Apache Map). (CVE-2026-6722)
+  - Fixed [GHSA-m33r-qmcv-p97q](https://github.com/php/php-src/security/advisories/GHSA-m33r-qmcv-p97q) (Use-after-free after header parsing failure with SOAP_PERSISTENCE_SESSION). (CVE-2026-7261)
+  - Fixed [GHSA-hmxp-6pc4-f3vv](https://github.com/php/php-src/security/advisories/GHSA-hmxp-6pc4-f3vv) (Broken Apache map value NULL check). (CVE-2026-7262)
+- **SPL:**
+  - Fixed bug [GH-21499](https://github.com/php/php-src/issues/21499) (RecursiveArrayIterator getChildren UAF after parent free).
+  - Fix concurrent iteration and deletion issues in SplObjectStorage.
+- **Sqlite3:**
+  - Fixed wrong free list comparator pointer type.
+- **Standard:**
+  - Fixed [GHSA-96wq-48vp-hh57](https://github.com/php/php-src/security/advisories/GHSA-96wq-48vp-hh57) (Signed integer overflow of char array offset). (CVE-2026-7568)
+  - Fixed [GHSA-m8rr-4c36-8gq4](https://github.com/php/php-src/security/advisories/GHSA-m8rr-4c36-8gq4) (Consistently pass unsigned char to ctype.h functions). (CVE-2026-7258)
+- **Streams:**
+  - Fixed bug [GH-21468](https://github.com/php/php-src/issues/21468) (Segfault in file_get_contents w/ a https URL and a proxy set). (CVE-2026-12184)
+- **URI:**
+  - Fixed CVE-2026-42371 (uriparser before 1.0.1 has numeric truncation in text range comparison). (CVE-2026-42371)
+
+## 8.5.5 – 2026-04-09
+
+- **Core:**
+  - Fixed bug [GH-20672](https://github.com/php/php-src/issues/20672) (Incorrect property_info sizing for locally shadowed trait properties).
+  - Fixed bugs [GH-20875](https://github.com/php/php-src/issues/20875), [GH-20873](https://github.com/php/php-src/issues/20873), [GH-20854](https://github.com/php/php-src/issues/20854) (Propagate IN_GET guard in get_property_ptr_ptr for lazy proxies).
+- **Bz2:**
+  - Fix truncation of total output size causing erroneous errors.
+- **DOM:**
+  - Fixed bug [GH-21486](https://github.com/php/php-src/issues/21486) (Dom\HTMLDocument parser mangles xml:space and xml:lang attributes).
+- **FFI:**
+  - Fixed resource leak in FFI::cdef() onsymbol resolution failure.
+- **GD:**
+  - Fixed bug [GH-21431](https://github.com/php/php-src/issues/21431) (phpinfo() to display libJPEG 10.0 support).
+- **Opcache:**
+  - Fixed bug [GH-21052](https://github.com/php/php-src/issues/21052) (Preloaded constant erroneously propagated to file-cached script).
+  - Fixed bug [GH-20838](https://github.com/php/php-src/issues/20838) (JIT compiler produces wrong arithmetic results).
+  - Fixed bug [GH-21267](https://github.com/php/php-src/issues/21267) (JIT tracing: infinite loop on FETCH_OBJ_R with IS_UNDEF property in polymorphic context).
+  - Fixed bug [GH-21395](https://github.com/php/php-src/issues/21395) (uaf in jit).
+- **OpenSSL:**
+  - Fixed bug [GH-21083](https://github.com/php/php-src/issues/21083) (Skip private_key_bits validation for EC/curve-based keys).
+  - Fix missing error propagation for BIO_printf() calls.
+- **PCNTL:**
+  - Fixed signal handler installation on AIX by bumping the storage size of the num_signals global.
+- **PCRE:**
+  - Fixed re-entrancy issue on php_pcre_match_impl, php_pcre_replace_impl, php_pcre_split_impl, and php_pcre_grep_impl.
+- **Phar:**
+  - Fixed bug [GH-21333](https://github.com/php/php-src/issues/21333) (use after free when unlinking entries during iteration of a compressed phar).
+- **SNMP:**
+  - Fixed bug [GH-21336](https://github.com/php/php-src/issues/21336) (SNMP::setSecurity() undefined behavior with NULL arguments).
+- **SOAP:**
+  - Fixed Set-Cookie parsing bug wrong offset while scanning attributes.
+- **SPL:**
+  - Fixed bug [GH-21454](https://github.com/php/php-src/issues/21454) (missing write lock validation in SplHeap).
+- **Standard:**
+  - Fixed bug [GH-20906](https://github.com/php/php-src/issues/20906) (Assertion failure when messing up output buffers).
+  - Fixed bug [GH-20627](https://github.com/php/php-src/issues/20627) (Cannot identify some avif images with getimagesize).
+- **Sysvshm:**
+  - Fix memory leak in shm_get_var() when variable is corrupted.
+- **XSL:**
+  - Fix [GH-21357](https://github.com/php/php-src/issues/21357) (XSLTProcessor works with DOMDocument, but fails with Dom\XMLDocument).
+  - Fixed bug [GH-21496](https://github.com/php/php-src/issues/21496) (UAF in dom_objects_free_storage).
+
+## 8.5.4 – 2026-03-12
+
+- **Core:**
+  - Fixed bug [GH-21029](https://github.com/php/php-src/issues/21029) (zend_mm_heap corrupted on Aarch64, LTO builds).
+  - Fixed bug [GH-21059](https://github.com/php/php-src/issues/21059) (Segfault when preloading constant AST closure).
+  - Fixed bug [GH-21072](https://github.com/php/php-src/issues/21072) (Crash on (unset) cast in constant expression).
+  - Fix deprecation now showing when accessing null key of an array with JIT.
+  - Fixed bug [GH-20657](https://github.com/php/php-src/issues/20657) (Assertion failure in zend_lazy_object_get_info triggered by setRawValueWithoutLazyInitialization() and newLazyGhost()).
+  - Fixed bug [GH-20504](https://github.com/php/php-src/issues/20504) (Assertion failure in zend_get_property_guard when accessing properties on Reflection LazyProxy via isset()).
+  - Fixed OSS-Fuzz #478009707 (Borked assign-op/inc/dec on untyped hooked property backing value).
+  - Fixed bug [GH-21215](https://github.com/php/php-src/issues/21215) (Build fails with -std=).
+  - Fixed bug [GH-13674](https://github.com/php/php-src/issues/13674) (Build system installs libtool wrappers when using slibtool).
+- **Curl:**
+  - Don't truncate length.
+- **Date:**
+  - Fixed bug [GH-20936](https://github.com/php/php-src/issues/20936) (DatePeriod::__set_state() cannot handle null start).
+  - Fix timezone offset with seconds losing precision.
+- **DOM:**
+  - Fixed bug [GH-21077](https://github.com/php/php-src/issues/21077) (Accessing Dom\Node::baseURI can throw TypeError).
+  - Fixed bug [GH-21097](https://github.com/php/php-src/issues/21097) (Accessing Dom\Node properties can can throw TypeError).
+- **LDAP:**
+  - Fixed bug [GH-21262](https://github.com/php/php-src/issues/21262) (ldap_modify() too strict controls argument validation makes it impossible to unset attribute).
+- **MBString:**
+  - Fixed bug [GH-21223](https://github.com/php/php-src/issues/21223); mb_guess_encoding no longer crashes when passed huge list of candidate encodings (with 200,000+ entries).
+- **Opcache:**
+  - Fixed bug [GH-20718](https://github.com/php/php-src/issues/20718) ("Insufficient shared memory" when using JIT on Solaris).
+  - Fixed bug [GH-21227](https://github.com/php/php-src/issues/21227) (Borked SCCP of array containing partial object).
+- **OpenSSL:**
+  - Fix a bunch of leaks and error propagation.
+- **Windows:**
+  - Fixed compilation with clang (missing intrin.h include).
+
+## 8.5.3 – 2026-02-12
+
+- **Core:**
+  - Fixed bug [GH-20806](https://github.com/php/php-src/issues/20806) (preserve_none feature compatiblity with LTO).
+  - Fixed bug [GH-20767](https://github.com/php/php-src/issues/20767) (build failure with musttail/preserve_none feature on macOs).
+  - Fixed bug [GH-20837](https://github.com/php/php-src/issues/20837) (NULL dereference when calling ob_start() in shutdown function triggered by bailout in php_output_lock_error()).
+  - Fix OSS-Fuzz #471533782 (Infinite loop in GC destructor fiber).
+  - Fix OSS-Fuzz #472563272 (Borked block_pass JMP[N]Z optimization).
+  - Fixed bug [GH-20914](https://github.com/php/php-src/issues/20914) (Internal enums can be cloned and compared).
+  - Fix OSS-Fuzz #474613951 (Leaked parent property default value).
+  - Fixed bug [GH-20895](https://github.com/php/php-src/issues/20895) (ReflectionProperty does not return the PHPDoc of a property if it contains an attribute with a Closure).
+  - Fixed bug [GH-20766](https://github.com/php/php-src/issues/20766) (Use-after-free in FE_FREE with GC interaction).
+  - Fix OSS-Fuzz #471486164 (Broken by-ref assignment to uninitialized hooked backing value).
+  - Fix OSS-Fuzz #438780145 (Nested finally with repeated return type check may uaf).
+  - Fixed bug [GH-20905](https://github.com/php/php-src/issues/20905) (Lazy proxy bailing __clone assertion).
+  - Fixed bug [GH-20479](https://github.com/php/php-src/issues/20479) (Hooked object properties overflow).
+- **Date:**
+  - Update timelib to 2022.16.
+- **DOM:**
+  - Fixed [GH-21041](https://github.com/php/php-src/issues/21041) (Dom\HTMLDocument corrupts closing tags within scripts).
+- **MbString:**
+  - Fixed bug [GH-20833](https://github.com/php/php-src/issues/20833) (mb_str_pad() divide by zero if padding string is invalid in the encoding).
+  - Fixed bug [GH-20836](https://github.com/php/php-src/issues/20836) (Stack overflow in mb_convert_variables with recursive array references).
+- **Opcache:**
+  - Fixed bug [GH-20818](https://github.com/php/php-src/issues/20818) (Segfault in Tracing JIT with object reference).
+- **OpenSSL:**
+  - Fix memory leaks when sk_X509_new_null() fails.
+  - Fix crash when in openssl_x509_parse() when i2s_ASN1_INTEGER() fails.
+  - Fix crash in openssl_x509_parse() when X509_NAME_oneline() fails.
+- **Phar:**
+  - Fixed bug [GH-20882](https://github.com/php/php-src/issues/20882) (buildFromIterator breaks with missing base directory).
+- **PGSQL:**
+  - Fixed INSERT/UPDATE queries building with PQescapeIdentifier() and possible UB.
+- **Readline:**
+  - Fixed bug [GH-18139](https://github.com/php/php-src/issues/18139) (Memory leak when overriding some settings via readline_info()).
+- **SPL:**
+  - Fixed bug [GH-20856](https://github.com/php/php-src/issues/20856) (heap-use-after-free in SplDoublyLinkedList iterator when modifying during iteration).
+- **Standard:**
+  - Fixed bug [#74357](https://bugs.php.net/74357) (lchown fails to change ownership of symlink with ZTS) (Jakub Zelenka)
+  - Fixed bug [GH-20843](https://github.com/php/php-src/issues/20843) (var_dump() crash with nested objects) (David Carlier)
+
+## 8.5.2 – 2026-01-15
+
+- **Core:**
+  - Fix OSS-Fuzz #465488618 (Wrong assumptions when dumping function signature with dynamic class const lookup default argument).
+  - Fixed bug [GH-20695](https://github.com/php/php-src/issues/20695) (Assertion failure in normalize_value() when parsing malformed INI input via parse_ini_string()).
+  - Fixed bug [GH-20714](https://github.com/php/php-src/issues/20714) (Uncatchable exception thrown in generator).
+  - Fixed bug [GH-20352](https://github.com/php/php-src/issues/20352) (UAF in php_output_handler_free via re-entrant ob_start() during error deactivation).
+  - Fixed bug [GH-20745](https://github.com/php/php-src/issues/20745) ("Casting out of range floats to int" applies to strings).
+- **DOM:**
+  - Fixed bug [GH-20722](https://github.com/php/php-src/issues/20722) (Null pointer dereference in DOM namespace node cloning via clone on malformed objects).
+  - Fixed bug [GH-20444](https://github.com/php/php-src/issues/20444) (Dom\XMLDocument::C14N() seems broken compared to DOMDocument::C14N()).
+- **EXIF:**
+  - Fixed bug [GH-20631](https://github.com/php/php-src/issues/20631) (Integer underflow in exif HEIF parsing when pos.size < 2).
+- **Intl:**
+  - Fix leak in umsg_format_helper().
+- **LDAP:**
+  - Fix memory leak in ldap_set_options().
+- **Lexbor:**
+  - Fixed bug [GH-20668](https://github.com/php/php-src/issues/20668) (\Uri\WhatWg\Url::withHost() crashes (SEGV) for URLs using the file: scheme).
+- **Mbstring:**
+  - Fixed bug [GH-20674](https://github.com/php/php-src/issues/20674) (mb_decode_mimeheader does not handle separator).
+- **PCNTL:**
+  - Fixed bug with pcntl_getcpuaffinity() on solaris regarding invalid process ids handling.
+- **Phar:**
+  - Fixed bug [GH-20732](https://github.com/php/php-src/issues/20732) (Phar::LoadPhar undefined behavior when reading fails).
+  - Fix SplFileInfo::openFile() in write mode.
+  - Fix build on legacy OpenSSL 1.1.0 systems.
+  - Fixed bug [#74154](https://bugs.php.net/74154) (Phar extractTo creates empty files).
+- **Session:**
+  - Fix support for MM module.
+- **Sqlite3:**
+  - Fixed bug [GH-20699](https://github.com/php/php-src/issues/20699) (SQLite3Result fetchArray return array|false, null returned).
+- **Standard:**
+  - Fix error check for proc_open() command.
+  - Fix memory leak in mail() when header key is numeric.
+  - Fixed bug [GH-20582](https://github.com/php/php-src/issues/20582) (Heap Buffer Overflow in iptcembed).
+- **URI:**
+  - Fixed bug [GH-20771](https://github.com/php/php-src/issues/20771) (Assertion failure when getUnicodeHost() returns empty string).
+- **Zlib:**
+  - Fix OOB gzseek() causing assertion failure.
+
+## 8.5.1 – 2025-12-18 (Security Release)
+
+- **Core:**
+  - Sync all boost.context files with release 1.86.0.
+  - Fixed bug [GH-20435](https://github.com/php/php-src/issues/20435) (SensitiveParameter doesn't work for named argument passing to variadic parameter).
+  - Fixed bug [GH-20546](https://github.com/php/php-src/issues/20546) (preserve_none attribute configure check on macOs issue).
+  - Fixed bug [GH-20286](https://github.com/php/php-src/issues/20286) (use-after-destroy during userland stream_close()).
+- **Bz2:**
+  - Fix assertion failures resulting in crashes with stream filter object parameters.
+- **DOM:**
+  - Fix memory leak when edge case is hit when registering xpath callback.
+  - Fixed bug [GH-20395](https://github.com/php/php-src/issues/20395) (querySelector and querySelectorAll requires elements in $selectors to be lowercase).
+  - Fix missing NUL byte check on C14NFile().
+- **Fibers:**
+  - Fixed bug [GH-20483](https://github.com/php/php-src/issues/20483) (ASAN stack overflow with fiber.stack_size INI small value).
+- **Intl:**
+  - Fixed bug [GH-20426](https://github.com/php/php-src/issues/20426) (Spoofchecker::setRestrictionLevel() error message suggests missing constants).
+- **Lexbor:**
+  - Fixed bug [GH-20501](https://github.com/php/php-src/issues/20501) (\Uri\WhatWg\Url lose host after calling withPath() or withQuery()).
+  - Fixed bug [GH-20502](https://github.com/php/php-src/issues/20502) (\Uri\WhatWg\Url crashes (SEGV) when parsing malformed URL due to Lexbor memory corruption).
+- **LibXML:**
+  - Fix some deprecations on newer libxml versions regarding input buffer/parser handling.
+- **MySQLnd:**
+  - Fixed bug [GH-20528](https://github.com/php/php-src/issues/20528) (Regression breaks mysql connexion using an IPv6 address enclosed in square brackets).
+- **Opcache:**
+  - Fixed bug [GH-20329](https://github.com/php/php-src/issues/20329) (opcache.file_cache broken with full interned string buffer).
+- **PDO:**
+  - Fixed bug [GH-20553](https://github.com/php/php-src/issues/20553) (PDO::FETCH_CLASSTYPE ignores $constructorArgs in PHP 8.5.0).
+  - Fixed [GHSA-8xr5-qppj-gvwj](https://github.com/php/php-src/security/advisories/GHSA-8xr5-qppj-gvwj) (PDO quoting result null deref). (CVE-2025-14180)
+- **Phar:**
+  - Fixed bug [GH-20442](https://github.com/php/php-src/issues/20442) (Phar does not respect case-insensitiveness of __halt_compiler() when reading stub).
+  - Fix broken return value of fflush() for phar file entries.
+  - Fix assertion failure when fseeking a phar file out of bounds.
+- **PHPDBG:**
+  - Fixed ZPP type violation in phpdbg_get_executable() and phpdbg_end_oplog().
+- **SPL:**
+  - Fixed bug [GH-20614](https://github.com/php/php-src/issues/20614) (SplFixedArray incorrectly handles references in deserialization).
+- **Standard:**
+  - Fix memory leak in array_diff() with custom type checks.
+  - Fixed bug [GH-20583](https://github.com/php/php-src/issues/20583) (Stack overflow in http_build_query via deep structures).
+  - Fixed [GHSA-www2-q4fc-65wf](https://github.com/php/php-src/security/advisories/GHSA-www2-q4fc-65wf) (Null byte termination in dns_get_record()).
+  - Fixed [GHSA-h96m-rvf9-jgm2](https://github.com/php/php-src/security/advisories/GHSA-h96m-rvf9-jgm2) (Heap buffer overflow in array_merge()). (CVE-2025-14178)
+  - Fixed [GHSA-3237-qqm7-mfv7](https://github.com/php/php-src/security/advisories/GHSA-3237-qqm7-mfv7) (Information Leak of Memory in getimagesize). (CVE-2025-14177)
+- **URI:**
+  - Fixed bug [GH-20366](https://github.com/php/php-src/issues/20366) (ext/uri incorrectly throws ValueError when encountering null byte).
+  - Fixed CVE-2025-67899 (uriparser through 0.9.9 allows unbounded recursion and stack consumption).
+- **XML:**
+  - Fixed bug [GH-20439](https://github.com/php/php-src/issues/20439) (xml_set_default_handler() does not properly handle special characters in attributes when passing data to callback).
+- **Zip:**
+  - Fix crash in property existence test.
+  - Don't truncate return value of zip_fread() with user sizes.
+- **Zlib:**
+  - Fix assertion failures resulting in crashes with stream filter object parameters.
+
+## 8.5.0 – 2025-11-20
+
+- **Core:**
+  - Added the #[\NoDiscard] attribute to indicate that a function's return value is important and should be consumed.
+  - Added the (void) cast to indicate that not using a value is intentional.
+  - Added get_error_handler(), get_exception_handler() functions.
+  - Added support for casts in constant expressions.
+  - Added the pipe (|>) operator.
+  - Added the #[\DelayedTargetValidation] attribute to delay target errors for internal attributes from compile time to runtime.
+  - Added support for `final` with constructor property promotion.
+  - Added support for configuring the URI parser for the FTP/FTPS as well as the SSL/TLS stream wrappers as described in https://wiki.php.net/rfc/url_parsing_api#plugability.
+  - Added PHP_BUILD_PROVIDER constant.
+  - Added PHP_BUILD_DATE constant.
+  - Added support for Closures and first class callables in constant expressions.
+  - Add support for backtraces for fatal errors.
+  - Add clone-with support to the clone() function.
+  - Add RFC 3986 and WHATWG URL compliant APIs for URL parsing and manipulation (kocsismate, timwolla)
+  - Fixed AST printing for immediately invoked Closure.
+  - Properly handle __debugInfo() returning an array reference.
+  - Properly handle reference return value from __toString().
+  - Improved error message of UnhandledMatchError for zend.exception_string_param_max_len=0.
+  - Fixed bug [GH-15753](https://github.com/php/php-src/issues/15753) and [GH-16198](https://github.com/php/php-src/issues/16198) (Bind traits before parent class).
+  - Fixed bug [GH-17951](https://github.com/php/php-src/issues/17951) (memory_limit is not always limited by max_memory_limit).
+  - Fixed bug [GH-20183](https://github.com/php/php-src/issues/20183) (Stale EG(opline_before_exception) pointer through eval).
+  - Fixed bug [GH-20113](https://github.com/php/php-src/issues/20113) (Missing new Foo(...) error in constant expressions).
+  - Fixed bug [GH-19844](https://github.com/php/php-src/issues/19844) (Don't bail when closing resources on shutdown).
+  - Fixed bug [GH-20177](https://github.com/php/php-src/issues/20177) (Accessing overridden private property in get_object_vars() triggers assertion error).
+  - Fix OSS-Fuzz #447521098 (Fatal error during sccp shift eval).
+  - Fixed bug [GH-20002](https://github.com/php/php-src/issues/20002) (Broken build on *BSD with MSAN).
+  - Fixed bug [GH-19352](https://github.com/php/php-src/issues/19352) (Cross-compilation with musl C library).
+  - Fixed bug [GH-19765](https://github.com/php/php-src/issues/19765) (object_properties_load() bypasses readonly property checks).
+  - Fixed hard_timeout with --enable-zend-max-execution-timers.
+  - Fixed bug [GH-19839](https://github.com/php/php-src/issues/19839) (Incorrect HASH_FLAG_HAS_EMPTY_IND flag on userland array).
+  - Fixed bug [GH-19823](https://github.com/php/php-src/issues/19823) (register_argc_argv deprecation emitted twice when using OPcache).
+  - Fixed bug [GH-19480](https://github.com/php/php-src/issues/19480) (error_log php.ini cannot be unset when open_basedir is configured).
+  - Fixed bug [GH-19719](https://github.com/php/php-src/issues/19719) (Allow empty statements before declare(strict_types)).
+  - Fixed bug [GH-19934](https://github.com/php/php-src/issues/19934) (CGI with auto_globals_jit=0 causes uouv).
+  - Fixed bug [GH-19613](https://github.com/php/php-src/issues/19613) (Stale array iterator pointer).
+  - Fixed bug [GH-19679](https://github.com/php/php-src/issues/19679) (zend_ssa_range_widening may fail to converge).
+  - Fixed bug [GH-19681](https://github.com/php/php-src/issues/19681) (PHP_EXPAND_PATH broken with bash 5.3.0).
+  - Fixed bug [GH-18850](https://github.com/php/php-src/issues/18850) (Repeated inclusion of file with __halt_compiler() triggers "Constant already defined" warning).
+  - Fixed bug [GH-19476](https://github.com/php/php-src/issues/19476) (pipe operator fails to correctly handle returning by reference).
+  - Fixed bug [GH-19081](https://github.com/php/php-src/issues/19081) (Wrong lineno in property error with constructor property promotion).
+  - Fixed bug [GH-17959](https://github.com/php/php-src/issues/17959) (Relax missing trait fatal error to error exception).
+  - Fixed bug [GH-18033](https://github.com/php/php-src/issues/18033) (NULL-ptr dereference when using register_tick_function in destructor).
+  - Fixed bug [GH-18026](https://github.com/php/php-src/issues/18026) (Improve "expecting token" error for ampersand).
+  - The report_memleaks INI directive has been deprecated.
+  - Fixed OSS-Fuzz #439125710 (Pipe cannot be used in write context).
+  - Fixed bug [GH-19548](https://github.com/php/php-src/issues/19548) (Shared memory violation on property inheritance).
+  - Fixed bug [GH-19544](https://github.com/php/php-src/issues/19544) (GC treats ZEND_WEAKREF_TAG_MAP references as WeakMap references).
+  - Fixed bug [GH-18373](https://github.com/php/php-src/issues/18373) (Don't substitute self/parent with anonymous class).
+  - Fix support for non-userland stream notifiers.
+  - Fixed bug [GH-19305](https://github.com/php/php-src/issues/19305) (Operands may be being released during comparison).
+  - Fixed bug [GH-19306](https://github.com/php/php-src/issues/19306) (Generator can be resumed while fetching next value from delegated Generator).
+  - Fixed bug [GH-19326](https://github.com/php/php-src/issues/19326) (Calling Generator::throw() on a running generator with a non-Generator delegate crashes).
+  - Fix OSS-Fuzz #427814452 (pipe compilation fails with assert).
+  - Fixed bug [GH-16665](https://github.com/php/php-src/issues/16665) (\array and \callable should not be usable in class_alias).
+  - Use `clock_gettime_nsec_np()` for high resolution timer on macOS if available.
+  - Make `clone()` a function.
+  - Introduced the TAILCALL VM, enabled by default when compiling with Clang>=19 on x86_64 or aarch64.
+  - Enacted the follow-up phase of the "Path to Saner Increment/Decrement operators" RFC, meaning that incrementing non-numeric strings is now deprecated. (Girgias).
+  - Various closure binding issues are now deprecated.
+  - Constant redeclaration has been deprecated.
+  - Marks the stack as non-executable on Haiku.
+  - Deriving $_SERVER['argc'] and $_SERVER['argv'] from the query string is now deprecated.
+  - Using null as an array offset or when calling array_key_exists() is now deprecated.
+  - The disable_classes INI directive has been removed.
+  - The locally predefined variable $http_response_header is deprecated.
+  - Non-canonical cast names (boolean), (integer), (double), and (binary) have been deprecated.
+  - The $exclude_disabled parameter of the get_defined_functions() function has been deprecated, as it no longer has any effect since PHP 8.0.
+  - Terminating case statements with a semicolon instead of a colon has been deprecated.
+  - The backtick operator as an alias for shell_exec() has been deprecated.
+  - Returning null from __debugInfo() has been deprecated.
+  - Support #[\Override] on properties.
+  - Destructing non-array values (other than NULL) using [] or list() now emits a warning.
+  - Casting floats that are not representable as ints now emits a warning.
+  - Casting NAN to other types now emits a warning.
+  - Implement [GH-15680](https://github.com/php/php-src/issues/15680) (Enhance zend_dump_op_array to properly represent non-printable characters in string literals).
+  - Fixed bug [GH-17442](https://github.com/php/php-src/issues/17442) (Engine UAF with reference assign and dtor).
+  - Do not use RTLD_DEEPBIND if dlmopen is available.
+  - Implement [GH-17725](https://github.com/php/php-src/issues/17725) (It is now allowed to substitute static with self or the concrete class name
+      in final subclasses)
+- **BCMath:**
+  - Simplify `bc_divide()` code.
+  - If the result is 0, n_scale is set to 0.
+  - If size of BC_VECTOR array is within 64 bytes, stack area is now used.
+  - Fixed bug [GH-20006](https://github.com/php/php-src/issues/20006) (Power of 0 of BcMath number causes UB).
+- **Bz2:**
+  - Fixed bug [GH-19810](https://github.com/php/php-src/issues/19810) (Broken bzopen() stream mode validation).
+- **CLI:**
+  - Add --ini=diff to print INI settings changed from the builtin default.
+  - Drop support for -z CLI/CGI flag.
+  - Fixed [GH-17956](https://github.com/php/php-src/issues/17956) - development server 404 page does not adapt to mobiles.
+  - Fix useless "Failed to poll event" error logs due to EAGAIN in CLI server with PHP_CLI_SERVER_WORKERS.
+  - Fixed bug [GH-19461](https://github.com/php/php-src/issues/19461) (Improve error message on listening error with IPv6 address).
+- **COM:**
+  - Fixed property access of PHP objects wrapped in variant.
+  - Fixed method calls for PHP objects wrapped in variant.
+- **Curl:**
+  - Added CURLFOLLOW_ALL, CURLFOLLOW_OBEYCODE and CURLFOLLOW_FIRSTONLY values for CURLOPT_FOLLOWLOCATION curl_easy_setopt option.
+  - Added curl_multi_get_handles().
+  - Added curl_share_init_persistent().
+  - Added CURLINFO_USED_PROXY, CURLINFO_HTTPAUTH_USED, and CURLINFO_PROXYAUTH_USED support to curl_getinfo.
+  - Add support for CURLINFO_CONN_ID in curl_getinfo() (thecaliskan)
+  - Add support for CURLINFO_QUEUE_TIME_T in curl_getinfo() (thecaliskan)
+  - Add support for CURLOPT_SSL_SIGNATURE_ALGORITHMS.
+  - The curl_close() function has been deprecated.
+  - The curl_share_close() function has been deprecated.
+  - Fix cloning of CURLOPT_POSTFIELDS when using the clone operator instead of the curl_copy_handle() function to clone a CurlHandle.
+- **Date:**
+  - Fix undefined behaviour problems regarding integer overflow in extreme edge cases.
+  - The DATE_RFC7231 and DateTimeInterface::RFC7231 constants have been deprecated.
+  - Fixed date_sunrise() and date_sunset() with partial-hour UTC offset.
+  - Fixed [GH-17159](https://github.com/php/php-src/issues/17159): "P" format for ::createFromFormat swallows string literals.
+  - The __wakeup() magic method of DateTimeInterface, DateTime, DateTimeImmutable, DateTimeZone, DateInterval, and DatePeriod has been deprecated in favour of the __unserialize() magic method.
+- **DOM:**
+  - Added Dom\Element::$outerHTML.
+  - Added Dom\Element::insertAdjacentHTML().
+  - Added $children property to ParentNode implementations.
+  - Make cloning DOM node lists, maps, and collections fail.
+  - Added Dom\Element::getElementsByClassName().
+  - Fixed bug [GH-18877](https://github.com/php/php-src/issues/18877) (\Dom\HTMLDocument querySelectorAll selecting only the first when using ~ and :has).
+  - Fix getNamedItemNS() incorrect namespace check.
+- **Enchant:**
+  - Added enchant_dict_remove_from_session().
+  - Added enchant_dict_remove().
+  - Fix missing empty string checks.
+- **EXIF:**
+  - Add OffsetTime* Exif tags.
+  - Added support to retrieve Exif from HEIF file.
+  - Fix OSS-Fuzz #442954659 (zero-size box in HEIF file causes infinite loop).
+  - Fix OSS-Fuzz #442954659 (Crash in exif_scan_HEIF_header).
+  - Various hardening fixes to HEIF parsing.
+- **FileInfo:**
+  - The finfo_close() function has been deprecated.
+  - The $context parameter of the finfo_buffer() function has been deprecated as it is ignored.
+  - Upgrade to file 5.46.
+  - Change return type of finfo_close() to true.
+- **Filter:**
+  - Added support for configuring the URI parser for FILTER_VALIDATE_URL as described in https://wiki.php.net/rfc/url_parsing_api#plugability.
+  - Fixed bug [GH-16993](https://github.com/php/php-src/issues/16993) (filter_var_array with FILTER_VALIDATE_INT|FILTER_NULL_ON_FAILURE should emit warning for invalid filter usage).
+- **FPM:**
+  - Fixed bug [GH-19817](https://github.com/php/php-src/issues/19817) (Decode SCRIPT_FILENAME issue in php 8.5).
+  - Fixed bug [GH-19989](https://github.com/php/php-src/issues/19989) (PHP 8.5 FPM access log lines also go to STDERR).
+  - Fixed [GH-17645](https://github.com/php/php-src/issues/17645) (FPM with httpd ProxyPass does not decode script path).
+  - Make FPM access log limit configurable using log_limit.
+  - Fixed failed debug assertion when php_admin_value setting fails.
+  - Fixed [GH-8157](https://github.com/php/php-src/issues/8157) (post_max_size evaluates .user.ini too late in php-fpm).
+- **GD:**
+  - Fixed bug [#68629](https://bugs.php.net/68629) (Transparent artifacts when using imagerotate).
+  - Fixed bug [#64823](https://bugs.php.net/64823) (ZTS GD fails to find system TrueType font).
+  - Fix incorrect comparison with result of php_stream_can_cast().
+  - The imagedestroy() function has been deprecated.
+- **Iconv:**
+  - Extends the ICONV_CONST preprocessor for illumos/solaris.
+- **Intl:**
+  - Bumped ICU requirement to ICU >= 57.1.
+  - IntlDateFormatter::setTimeZone()/datefmt_set_timezone() throws an exception with uninitialised classes or clone failure.
+  - Added DECIMAL_COMPACT_SHORT/DECIMAL_COMPACT_LONG for NumberFormatter class.
+  - Added Locale::isRightToLeft to check if a locale is written right to left.
+  - Added null bytes presence in locale inputs for Locale class.
+  - Added grapheme_levenshtein() function.
+  - Added Locale::addLikelySubtags/Locale::minimizeSubtags to handle adding/removing likely subtags to a locale.
+  - Added IntlListFormatter class to format a list of items with a locale, operands types and units.
+  - Added grapheme_strpos(), grapheme_stripos(), grapheme_strrpos(), grapheme_strripos(), grapheme_substr(), grapheme_strstr(), grapheme_stristr() and grapheme_levenshtein() functions add $locale parameter (Yuya Hamada).
+  - Fixed bug [GH-11952](https://github.com/php/php-src/issues/11952) (Fix locale strings canonicalization for IntlDateFormatter and NumberFormatter).
+  - Fixed bug [GH-18566](https://github.com/php/php-src/issues/18566) ([intl] Weird numeric sort in Collator).
+  - Fix return value on failure for resourcebundle count handler.
+  - Fixed bug [GH-19307](https://github.com/php/php-src/issues/19307) (PGO builds of shared ext-intl are broken).
+  - Intl's internal error mechanism has been modernized so that it indicates more accurately which call site caused what error. Moreover, some ext/date exceptions have been wrapped inside a IntlException now.
+  - The intl.error_level INI setting has been deprecated.
+- **LDAP:**
+  - Allow ldap_get_option to retrieve global option by allowing NULL for connection instance ($ldap).
+- **MBstring:**
+  - Updated Unicode data tables to Unicode 17.0.
+- **MySQLi:**
+  - Fixed bugs [GH-17900](https://github.com/php/php-src/issues/17900) and [GH-8084](https://github.com/php/php-src/issues/8084) (calling mysqli::__construct twice).
+  - The mysqli_execute() alias function has been deprecated.
+- **MySQLnd:**
+  - Added mysqlnd.collect_memory_statistics to ini quick reference.
+- **ODBC:**
+  - Removed driver-specific build flags and support.
+  - Remove ODBCVER and assume ODBC 3.5.
+- **Opcache:**
+  - Make OPcache non-optional (Arnaud, timwolla)
+  - Added opcache.file_cache_read_only.
+  - Updated default value of opcache.jit_hot_loop.
+  - Log a warning when opcache lock file permissions could not be changed.
+  - Fixed bug [GH-20012](https://github.com/php/php-src/issues/20012) (heap buffer overflow in jit).
+  - Partially fixed bug [GH-17733](https://github.com/php/php-src/issues/17733) (Avoid calling wrong function when reusing file caches across differing environments).
+  - Disallow changing opcache.memory_consumption when SHM is already set up.
+  - Fixed bug [GH-15074](https://github.com/php/php-src/issues/15074) (Compiling opcache statically into ZTS PHP fails).
+  - Fixed bug [GH-17422](https://github.com/php/php-src/issues/17422) (OPcache bypasses the user-defined error handler for deprecations).
+  - Fixed bug [GH-19301](https://github.com/php/php-src/issues/19301) (opcache build failure).
+  - Fixed bug [GH-20081](https://github.com/php/php-src/issues/20081) (access to uninitialized vars in preload_load()).
+  - Fixed bug [GH-20121](https://github.com/php/php-src/issues/20121) (JIT broken in ZTS builds on MacOS 15).
+  - Fixed bug [GH-19875](https://github.com/php/php-src/issues/19875) (JIT 1205 segfault on large file compiled in subprocess).
+  - Fixed segfault in function JIT due to NAN to bool warning.
+  - Fixed bug [GH-19984](https://github.com/php/php-src/issues/19984) (Double-free of EG(errors)/persistent_script->warnings on persist of already persisted file).
+  - Fixed bug [GH-19889](https://github.com/php/php-src/issues/19889) (race condition in zend_runtime_jit(), zend_jit_hot_func()).
+  - Fixed bug [GH-19669](https://github.com/php/php-src/issues/19669) (assertion failure in zend_jit_trace_type_to_info_ex).
+  - Fixed bug [GH-19831](https://github.com/php/php-src/issues/19831) (function JIT may not deref property value).
+  - Fixed bug [GH-19486](https://github.com/php/php-src/issues/19486) (Incorrect opline after deoptimization).
+  - Fixed bug [GH-19601](https://github.com/php/php-src/issues/19601) (Wrong JIT stack setup on aarch64/clang).
+  - Fixed bug [GH-19388](https://github.com/php/php-src/issues/19388) (Broken opcache.huge_code_pages).
+  - Fixed bug [GH-19657](https://github.com/php/php-src/issues/19657) (Build fails on non-glibc/musl/freebsd/macos/win platforms).
+  - Fixed ZTS OPcache build on Cygwin.
+  - Fixed bug [GH-19493](https://github.com/php/php-src/issues/19493) (JIT variable not stored before YIELD).
+- **OpenSSL:**
+  - Added openssl.libctx INI that allows to select the OpenSSL library context type and convert various parts of the extension to use the custom libctx.
+  - Add $digest_algo parameter to openssl_public_encrypt() and openssl_private_decrypt() functions.
+  - Implement #81724 (openssl_cms_encrypt only allows specific ciphers).
+  - Implement #80495 (Enable to set padding in openssl_(sign|verify).
+  - Implement #47728 (openssl_pkcs7_sign ignores new openssl flags).
+  - Fixed bug [GH-19994](https://github.com/php/php-src/issues/19994) (openssl_get_cipher_methods inconsistent with fetching).
+  - Fixed build when --with-openssl-legacy-provider set.
+  - Fixed bug [GH-19369](https://github.com/php/php-src/issues/19369) (8.5 | Regression in openssl_sign() - support for alias algorithms appears to be broken).
+  - The $key_length parameter for openssl_pkey_derive() has been deprecated.
+- **Output:**
+  - Fixed calculation of aligned buffer size.
+- **PCNTL:**
+  - Extend pcntl_waitid with rusage parameter.
+- **PCRE:**
+  - Remove PCRE2_EXTRA_ALLOW_LOOKAROUND_BSK from pcre compile options.
+- **PDO:**
+  - Fixed bug [GH-20095](https://github.com/php/php-src/issues/20095) (Incorrect class name in deprecation message for PDO mixins).
+  - Driver specific methods and constants in the PDO class are now deprecated.
+  - The "uri:" DSN scheme has been deprecated due to security concerns with DSNs coming from remote URIs.
+- **PDO_ODBC:**
+  - Fetch larger block sizes and better handle SQL_NO_TOTAL when calling SQLGetData.
+- **PDO_PGSQL:**
+  - Added Iterable support for PDO::pgsqlCopyFromArray.
+  - Implement [GH-15387](https://github.com/php/php-src/issues/15387) Pdo\Pgsql::setAttribute(PDO::ATTR_PREFETCH, 0) or Pdo\Pgsql::prepare(…, [ PDO::ATTR_PREFETCH => 0 ]) make fetch() lazy instead of storing the whole result set in memory (Guillaume Outters)
+- **PDO_SQLITE:**
+  - Add PDO\Sqlite::ATTR_TRANSACTION_MODE connection attribute.
+  - Implement [GH-17321](https://github.com/php/php-src/issues/17321): Add setAuthorizer to Pdo\Sqlite.
+  - PDO::sqliteCreateCollation now throws a TypeError if the callback has a wrong return type.
+  - Added Pdo_Sqlite::ATTR_BUSY_STATEMENT constant to check if a statement is currently executing.
+  - Added Pdo_Sqlite::ATTR_EXPLAIN_STATEMENT constant to set a statement in either EXPLAIN_MODE_PREPARED, EXPLAIN_MODE_EXPLAIN, EXPLAIN_MODE_EXPLAIN_QUERY_PLAN modes.
+  - Fix bug [GH-13952](https://github.com/php/php-src/issues/13952) (sqlite PDO::quote silently corrupts strings with null bytes) by throwing on null bytes.
+- **PGSQL:**
+  - Added pg_close_stmt to close a prepared statement while allowing its name to be reused.
+  - Added Iterable support for pgsql_copy_from.
+  - pg_connect checks if connection_string contains any null byte, pg_close_stmt check if the statement contains any null byte.
+  - Added pg_service to get the connection current service identifier.
+  - Fix segfaults when attempting to fetch row into a non-instantiable class name.
+- **Phar:**
+  - Fix potential buffer length truncation due to usage of type int instead of type size_t.
+  - Fixed memory leaks when verifying OpenSSL signature.
+- **POSIX:**
+  - Added POSIX_SC_OPEN_MAX constant to get the number of file descriptors a process can handle.
+  - posix_ttyname() sets last_error to EBADF on invalid file descriptors, posix_isatty() raises E_WARNING on invalid file descriptors, posix_fpathconf checks invalid file descriptors.
+  - posix_kill and posix_setpgid throws a ValueError on invalid process_id.
+  - posix_setpgid throws a ValueError on invalid process_group_id, posix_setrlimit throws a ValueError on invalid soft_limit and hard_limit arguments.
+- **Random:**
+  - Moves from /dev/urandom usage to arc4random_buf on Haiku.
+- **Reflection:**
+  - Added ReflectionConstant::getExtension() and ::getExtensionName().
+  - Added ReflectionProperty::getMangledName() method.
+  - ReflectionConstant is no longer final.
+  - The setAccessible() methods of various Reflection objects have been deprecated, as those no longer have an effect.
+  - ReflectionClass::getConstant() for constants that do not exist has been deprecated.
+  - ReflectionProperty::getDefaultValue() for properties without default values has been deprecated.
+  - Fixed bug [GH-12856](https://github.com/php/php-src/issues/12856) (ReflectionClass::getStaticPropertyValue() returns UNDEF zval for uninitialized typed properties).
+  - Fixed bug [GH-15766](https://github.com/php/php-src/issues/15766) (ReflectionClass::__toString() should have better output for enums).
+  - Fix [GH-19691](https://github.com/php/php-src/issues/19691) (getModifierNames() not reporting asymmetric visibility).
+  - Fixed bug [GH-17927](https://github.com/php/php-src/issues/17927) (Reflection: have some indication of property hooks in `_property_string()`).
+  - Fixed bug [GH-19187](https://github.com/php/php-src/issues/19187) (ReflectionNamedType::getName() prints nullable type when retrieved from ReflectionProperty::getSettableType()).
+  - Fixed bug [GH-20217](https://github.com/php/php-src/issues/20217) (ReflectionClass::isIterable() incorrectly returns true for classes with property hooks).
+- **SAPI:**
+  - Fixed bug [GH-18582](https://github.com/php/php-src/issues/18582) and #81451: http_response_code() does not override the status code generated by header().
+- **Session:**
+  - session_start() throws a ValueError on option argument if not a hashmap or a TypeError if read_and_close value is not compatible with int.
+  - Added support for partitioned cookies.
+  - Fix RC violation of session SID constant deprecation attribute.
+  - Fixed [GH-19197](https://github.com/php/php-src/issues/19197): build broken with ZEND_STRL usage with memcpy when implemented as macro.
+- **SimpleXML:**
+  - Fixed bug [GH-12231](https://github.com/php/php-src/issues/12231) (SimpleXML xpath should warn when returning other return types than node lists).
+- **SNMP:**
+  - snmpget, snmpset, snmp_get2, snmp_set2, snmp_get3, snmp_set3 and SNMP::__construct() throw an exception on invalid hostname, community timeout and retries arguments.
+- **SOAP:**
+  - Added support for configuring the URI parser for SoapClient::__doRequest() as described in https://wiki.php.net/rfc/url_parsing_api#plugability.
+  - Implement request #55503 (Extend __getTypes to support enumerations).
+  - Implement request #61105 (Support Soap 1.2 SoapFault Reason Text lang attribute).
+  - Fixed bug [#49169](https://bugs.php.net/49169) (SoapServer calls wrong function, although "SOAP action" header is correct).
+  - Fix namespace handling of WSDL and XML schema in SOAP, fixing at least [GH-16320](https://github.com/php/php-src/issues/16320) and bug #68576.
+  - Fixed bug [#70951](https://bugs.php.net/70951) (Segmentation fault on invalid WSDL cache).
+  - Fixed bug [GH-19773](https://github.com/php/php-src/issues/19773) (SIGSEGV due to uninitialized soap_globals->lang_en).
+  - Fixed bug [GH-19226](https://github.com/php/php-src/issues/19226) (Segfault when spawning new thread in soap extension).
+- **Sockets:**
+  - Added IPPROTO_ICMP/IPPROTO_ICMPV6 to create raw socket for ICMP usage.
+  - Added TCP_FUNCTION_BLK to change the TCP stack algorithm on FreeBSD.
+  - Added IP_BINDANY for a socket to bind to any address.
+  - Added SO_BUSY_POOL to reduce packets poll latency.
+  - Added UDP_SEGMENT support to optimise multiple large datagrams over UDP if the kernel and hardware supports it.
+  - Added SHUT_RD, SHUT_WR and SHUT_RDWR constants for socket_shutdown().
+  - Added TCP_FUNCTION_ALIAS, TCP_REUSPORT_LB_NUMA, TCP_REUSPORT_LB_NUMA_NODOM, TCP_REUSPORT_LB_CURDOM, TCP_BBR_ALGORITHM constants.
+  - socket_set_option() catches possible overflow with SO_RCVTIMEO/SO_SNDTIMEO with timeout setting on windows.
+  - socket_create_listen() throws an exception on invalid port value.
+  - socket_bind() throws an exception on invalid port value.
+  - socket_sendto() throws an exception on invalid port value.
+  - socket_addrinfo_lookup throws an exception on invalid hints value types.
+  - socket_addrinfo_lookup throws an exception if any of the hints value overflows.
+  - socket_addrinfo_lookup throws an exception if one or more hints entries has an index as numeric.
+  - socket_set_option with the options MCAST_LEAVE_GROUP/MCAST_LEAVE_SOURCE_GROUP will throw an exception if its value is not a valid array/object.
+  - socket_getsockname/socket_create/socket_bind handled AF_PACKET family socket.
+  - socket_set_option for multicast context throws a ValueError when the socket family is not of AF_INET/AF_INET6 family.
+- **Sodium:**
+  - Fix overall theoretical overflows on zend_string buffer allocations.
+- **SPL:**
+  - Fixed bug [GH-20101](https://github.com/php/php-src/issues/20101) (SplHeap/SplPriorityQueue serialization exposes INDIRECTs).
+  - Improve __unserialize() hardening for SplHeap/SplPriorityQueue.
+  - Deprecate ArrayObject and ArrayIterator with objects.
+  - Unregistering all autoloaders by passing the spl_autoload_call() function as a callback argument to spl_autoload_unregister() has been deprecated. Instead if this is needed, one should iterate over the return value of spl_autoload_functions() and call spl_autoload_unregister() on each value.
+  - The SplObjectStorage::contains(), SplObjectStorage::attach(), and SplObjectStorage::detach() methods have been deprecated in favour of SplObjectStorage::offsetExists(), SplObjectStorage::offsetSet(), and SplObjectStorage::offsetUnset() respectively.
+- **Sqlite:**
+  - Added Sqlite3Stmt::busy to check if a statement is still being executed.
+  - Added Sqlite3Stmt::explain to produce an explain query plan from the statement.
+  - Added Sqlite3Result::fetchAll to return all results at once from a query.
+- **Standard:**
+  - Add HEIF/HEIC support to getimagesize.
+  - Added support for partitioned cookies.
+  - Implement #71517 (Implement SVG support for getimagesize() and friends).
+  - Implement [GH-19188](https://github.com/php/php-src/issues/19188): Add support for new INI mail.cr_lf_mode.
+  - Optimized PHP html_entity_decode function.
+  - Minor optimization to array_chunk().
+  - Optimized pack().
+  - Fixed crypt() tests on musl when using --with-external-libcrypt (Michael Orlitzky).
+  - Fixed bug [GH-18062](https://github.com/php/php-src/issues/18062) (is_callable(func(...), callable_name: $name) for first class callables returns wrong name).
+  - Added array_first() and array_last().
+  - Fixed bug [GH-18823](https://github.com/php/php-src/issues/18823) (setlocale's 2nd and 3rd argument ignores strict_types).
+  - Fixed exit code handling of sendmail cmd and added warnings.
+  - Fixed bug [GH-18897](https://github.com/php/php-src/issues/18897) (printf: empty precision is interpreted as precision 6, not as precision 0).
+  - Fixed bug [GH-20257](https://github.com/php/php-src/issues/20257) (mail() heap overflow with an empty message in lf mode).
+  - Fixed bug [GH-20201](https://github.com/php/php-src/issues/20201) (AVIF images misdetected as HEIF after introducing HEIF support in getimagesize()).
+  - Fixed bug [GH-19926](https://github.com/php/php-src/issues/19926) (reset internal pointer earlier while splicing array while COW violation flag is still set).
+  - Fixed bug [GH-19801](https://github.com/php/php-src/issues/19801) (leaks in var_dump() and debug_zval_dump()).
+  - Fixed [GH-14402](https://github.com/php/php-src/issues/14402) (SplPriorityQueue, SplMinHeap, and SplMaxHeap lost their data on serialize()).
+  - Fixed [GH-19610](https://github.com/php/php-src/issues/19610) (Deprecation warnings in functions taking as argument).
+  - Fixed bug [GH-19577](https://github.com/php/php-src/issues/19577) (Avoid integer overflow when using a small offset and PHP_INT_MAX with LimitIterator).
+  - Fixed bug [GH-19153](https://github.com/php/php-src/issues/19153) (#[\Attribute] validation should error on trait/interface/enum/abstract class).
+  - Fixed bug [GH-19070](https://github.com/php/php-src/issues/19070) (setlocale($type, NULL) should not be deprecated).
+  - Fixed bug [GH-16649](https://github.com/php/php-src/issues/16649) (UAF during array_splice).
+  - Passing strings which are not one byte long to ord() is now deprecated.
+  - Passing integers outside the interval [0, 255] to chr() is now deprecated.
+  - The socket_set_timeout() alias function has been deprecated.
+  - Passing null to readdir(), rewinddir(), and closedir() to use the last opened directory has been deprecated.
+- **Streams:**
+  - Fixed bug [GH-16889](https://github.com/php/php-src/issues/16889) (stream_select() timeout useless for pipes on Windows).
+  - Fixed bug [GH-19798](https://github.com/php/php-src/issues/19798): XP_SOCKET XP_SSL (Socket stream modules): Incorrect condition for Win32/Win64.
+  - Fixed bug [GH-14506](https://github.com/php/php-src/issues/14506) (Closing a userspace stream inside a userspace handler causes heap corruption).
+  - Avoid double conversion to string in php_userstreamop_readdir().
+- **Tests:**
+  - Allow to shuffle tests even in non-parallel mode.
+- **Tidy:**
+  - tidy::__construct/parseFile/parseString methods throw an exception if the configuration argument is invalid.
+  - Fixed [GH-19021](https://github.com/php/php-src/issues/19021) (improved tidyOptGetCategory detection).
+- **Tokenizer:**
+  - Fixed bug [GH-19507](https://github.com/php/php-src/issues/19507) (Corrupted result after recursive tokenization during token_get_all()).
+- **URI:**
+  - Add new URI extension.
+- **Windows:**
+  - Fixed bug [GH-10992](https://github.com/php/php-src/issues/10992) (Improper long path support for relative paths).
+  - Fixed bug [GH-16843](https://github.com/php/php-src/issues/16843) (Windows phpize builds ignore source subfolders).
+  - Fix [GH-19722](https://github.com/php/php-src/issues/19722) (_get_osfhandle asserts in debug mode when given a socket).
+- **XML:**
+  - The xml_parser_free() function has been deprecated.
+- **XMLWriter:**
+  - Improved performance and reduce memory consumption.
+- **XSL:**
+  - Implement request #30622 (make $namespace parameter functional).
+- **Zlib:**
+  - gzfile, gzopen and readgzfile, their "use_include_path" argument is now a boolean.
+  - Fixed bug [GH-16883](https://github.com/php/php-src/issues/16883) (gzopen() does not use the default stream context when opening HTTP URLs).
+  - Implemented [GH-17668](https://github.com/php/php-src/issues/17668) (zlib streams should support locking).
+- **Zip:**
+  - Fixed missing zend_release_fcall_info_cache on the following methods ZipArchive::registerProgressCallback() and ZipArchive::registerCancelCallback() on failure.
+
+## 8.4.27 – 2026-10-22 (Security Release)
+
+- **Core:**
+  - Fixed [GHSA-w8hw-w9fx-j79w](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w), [GHSA-6wmf-4rv5-p3rp](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp) (Avoid state corruption via bailout).
+  - Fix [GH-21999](https://github.com/php/php-src/issues/21999): GC inconsistency with lazy object, var_dump(), and object comparison.
+  - Fixed OSS-Fuzz #536440507 (Immutable class incorrect assertion).
+  - Fixed AVX being reported as supported when the OS has not enabled AVX state.
+  - Fixed [GH-23980](https://github.com/php/php-src/issues/23980) (ZEND_ASSERT violation @ ZEND_INCLUDE_OR_EVAL).
+  - Fixed bug [GH-23896](https://github.com/php/php-src/issues/23896) (Assertion failure in zend_call_function() after a throwing deprecation).
+  - Fixed use-after-free when a dl()-loaded extension declares a frameless function and a later request calls it.
+  - Fixed System V shared memory emulation for Windows attaching segments past the end of their mapping.
+  - Fixed bug [GH-24050](https://github.com/php/php-src/issues/24050) (GC frees an object still held by a resurrected closure when (object) and use share an array).
+  - Fixed exception thrown by destructor during GC in a Fiber not being rethrown into the frame that triggered the GC.
+- **BCMath:**
+  - Fixed BcMath\Number results that truncate to zero keeping a negative sign and comparing less than zero.
+- **BZ2:**
+  - Fixed double close of the descriptor and use-after-free of the inner stream when bzopen() is given a stream resource.
+- **CLI:**
+  - Fix [GH-22567](https://github.com/php/php-src/issues/22567) (Windows ZTS CLI SAPI should refresh its TSRMLS cache during request activation).
+  - Fixed bug [GH-23764](https://github.com/php/php-src/issues/23764) (Built-in server leaks a file descriptor on every HEAD request for a static file).
+  - Fixed crash in the built-in server when a client is reset before being accepted.
+  - Fixed the built-in server truncating an error page and leaking its unsent part after a partial socket write.
+- **DOM:**
+  - Fixed use-after-free when re-constructing a DOMXPath whose php:function registrations are freed while still reachable from the cycle collector.
+  - Fixed bug [GH-23365](https://github.com/php/php-src/issues/23365) (DOMNode::insertBefore($n, $n) drops the node and leaves a self-referencing sibling list).
+  - Fixed Dom\HTMLDocument::getElementById() not finding ids of SVG and MathML elements.
+  - Fixed Dom\HTMLDocument giving attributes the namespace of their element when a fragment is parsed with an xlink, xml or xmlns context element.
+  - Fixed bug [GH-23729](https://github.com/php/php-src/issues/23729) (DOMXPath::__construct() use-after-free during an evaluation).
+  - Fixed bug [GH-23897](https://github.com/php/php-src/issues/23897) (php:function() assertion failure after a failed registerPHPFunctions()).
+  - Fixed DOMXPath and Dom\XPath losing the context node and in-scope namespaces of an evaluation after a php:function() callback evaluated another expression on the same object.
+- **FFI:**
+  - Fixed crashes with FFI callbacks created from __call() trampolines and array callables whose object is released.
+- **FTP:**
+  - Fixed bug [GH-23619](https://github.com/php/php-src/issues/23619) (cryptic error on servers that don't support TLS session resumption on data connection).
+- **GD:**
+  - Fixed undefined behavior with GD2 images with `INT_MAX`-sized chunks.
+  - Fixed undefined behavior with GIFs with problematic LZW compression data.
+- **Intl:**
+  - Fixed IntlDateFormatter::parse(), localtime() and parseToCalendar() treating the offset as UTF-16 code units instead of bytes.
+  - Fixed cloning IntlDateFormatter and MessageFormatter losing PHP-side state such as dateType, timeType, calendar and the message pattern.
+  - Fixed Collator attribute and strength methods not rejecting an unconstructed Collator.
+  - Fixed grapheme_strstr() and grapheme_stristr() returning incorrect substrings when supplementary characters precede the match.
+  - Fixed grapheme_strstr() and grapheme_strpos() missing canonically equivalent matches, and grapheme searches reporting ICU errors for empty haystacks.
+  - Fixed grapheme_strrpos() and grapheme_strripos() skipping overlapping matches when using a negative offset.
+- **Lexbor:**
+  - Merge patches lexbor/lexbor@8a14bc0 and lexbor/lexbor@f67ce4b, fixing a heap buffer overflow in :lexbor-contains() parsing and buffer overflows in malformed decode replay.
+- **MBString:**
+  - Fixed bug [GH-23106](https://github.com/php/php-src/issues/23106) (mb_strpos() reads past the end of a haystack ending in a truncated UTF-8 sequence).
+  - Fixed mbstring functions emitting surrogates in UTF-8 output and flagging it as valid UTF-8.
+- **MySQLi:**
+  - Fix [GH-22854](https://github.com/php/php-src/issues/22854): Fixed failed assertion when accessing mysqli property after failed reconnection.
+- **MySQLnd:**
+  - Fixed field_count not resetting on OK packet.
+  - Fixed memory leak when closing a prepared statement after its connection was killed.
+- **Opcache:**
+  - Fixed OSS-Fuzz #546798343 (Heap-buffer-overflow in optimizer with FCCs and inlining).
+  - Fixed bug [GH-23693](https://github.com/php/php-src/issues/23693) (Tracing JIT produces wrong results for a guard on a loop-invariant addition).
+  - Fixed OSS-Fuzz #5674034779193344 (Read of uninitialized memory in is_cacheable_stream_path()).
+  - Fix zend_analyze_calls() call_stack buffer overrun.
+  - Fixed bug [GH-23637](https://github.com/php/php-src/issues/23637) (PHP-FPM worker SIGSEGV: run_time_cache map_ptr offset beyond CG(map_ptr_last) when a class is reached through the CE cache).
+  - Fix multiple incorrect DCE due to unsound escape analysis.
+  - Fixed bug [GH-24063](https://github.com/php/php-src/issues/24063) (OPcache optimizer folds `$cond ? -0.0 : 0.0` into a single `-0.0` constant).
+  - Fixed crash when a file cache is reused with a different set of extensions declaring frameless functions.
+  - Fixed bug [GH-23991](https://github.com/php/php-src/issues/23991) (JIT generates invalid IR for multiple recursive calls).
+  - Fix SCCP evaluation of isset()/empty() on dimension of non-escaping object.
+- **OpenSSL:**
+  - Fixed stream_socket_enable_crypto() leaving the socket non-blocking after a handshake timeout.
+  - Fixed feof() on a TLS stream staying false after a close_notify on Windows.
+- **PCNTL:**
+  - Fixed pcntl_signal_dispatch() dropping the queued signals when it runs while an exception is pending.
+  - Fixed pcntl_signal_dispatch() dropping the signals queued behind a handler that throws.
+  - Fixed pcntl_setcpuaffinity() error message advertising the cpu count as the inclusive upper bound.
+  - Fixed pcntl_setqos_class() requiring its optional $qos_class argument.
+  - Fixed bug [GH-23986](https://github.com/php/php-src/issues/23986) (/proc/self paths resolve to the parent process after pcntl_fork()).
+- **PDO:**
+  - Fixed PDOStatement::getColumnMeta() reading out of bounds for an invalid column index.
+  - Fixed PDOStatement::bindColumn() registering a binding for a column name that is not in the result set.
+  - Fixed PDOStatement::execute() leaving the previous result available after a failed execution.
+  - Fixed a use-after-free when bindValue()/execute()/closeCursor() is called from a bound parameter's __toString() during execute().
+  - Fixed bug [GH-23962](https://github.com/php/php-src/issues/23962) (Destroying a persistent PDO instance rolls back a transaction still in use by another instance).
+  - Fixed PDO::setAttribute() installing a PDO::ATTR_STATEMENT_CLASS class whose constructor arguments it rejects.
+  - Fixed PDO::ATTR_STATEMENT_CLASS constructor_args type errors reporting "array given" regardless of the value passed.
+  - Fixed PDOStatement::bindParam() and bindColumn() leaking the driver options value.
+  - Fixed PDOStatement not reporting its bound parameters and columns to the cycle collector.
+  - Fixed PDOStatement::setFetchMode() not applying changes atomically.
+- **PDO_DBLIB:**
+  - Fixed bug [GH-23741](https://github.com/php/php-src/issues/23741) (segfault after a failed query inside a PDO transaction). Errors raised by beginTransaction(), commit(), rollBack() and lastInsertId() are now reported instead of being dropped.
+- **PDO_Firebird:**
+  - Fixed bug [GH-23758](https://github.com/php/php-src/issues/23758) (PDO_Firebird returns null for non-null empty BLOBs).
+- **Readline:**
+  - Fixed a heap over-read in the interactive shell prompt when cli.prompt is set to an empty string.
+- **Session:**
+  - Fixed session_start() continuing after a failed create_sid() when session.use_strict_mode rejects the supplied ID.
+  - Fixed exceptions from user-defined create_sid() handlers being replaced by return-value validation errors.
+- **SimpleXML:**
+  - Fixed reconstructing a SimpleXMLElement freeing a child element that another variable still references.
+- **SOAP:**
+  - Fixed bug [GH-22895](https://github.com/php/php-src/issues/22895) (Heap use-after-free while encoding a Traversable with an illegal key).
+  - Fixed memory leak when load_wsdl_ex() failed to load.
+- **Sockets:**
+  - Fixed socket_select() silently truncating sets larger than FD_SETSIZE on Windows.
+- **SPL:**
+  - Fixed SplFixedArray::setSize() doing nothing on subclasses whose constructor does not call parent::__construct().
+  - Fixed memory leak when __construct(), __wakeup() or __unserialize() is called from an element destructor during setSize(0).
+- **SQLite:**
+  - Fixed a crash when SQLite3::close() is called from a userland callback.
+- **Standard:**
+  - Fixed sha1_file() returning a digest for incomplete data after a stream read failure.
+  - Fixed iptcembed() corrupting JPEG headers when called recursively from an output handler.
+  - Fixed proc_open() leaking descriptor zero when descriptor setup fails.
+  - Fixed three Windows-only proc_open() defects: an uninitialized PROCESS_INFORMATION, an indeterminate comspec pointer after a failed lookup, and an unchecked CreateFileA() failure.
+  - Fix persistent stream context lifetime during shutdown (Levi Morrison)
+  - Fix wordwrap() ignoring an existing break at the end of the string (Nicolas Grekas)
+  - Fixed convert.quoted-printable-decode decoding lowercase hex digits to the wrong byte.
+- **Tidy:**
+  - Fixed a use-after-free when a tidyNode is used after its document is reparsed.
+- **XSL:**
+  - Fixed bug [GH-23730](https://github.com/php/php-src/issues/23730) (use-after-free when XSLTProcessor::importStylesheet() is called during a transformation).
+- **Zip:**
+  - Fixed ZipArchive::extractTo() ignoring files given in a non-list array.
+  - Fixed bug [GH-23747](https://github.com/php/php-src/issues/23747) (ZipArchive::close() use-after-free from a progress or cancel callback).
+
+## 8.4.26 – 2026-09-24 (Security Release)
+
+- **BCMath:**
+  - Fixed out-of-bounds read in bc_is_zero_for_scale() when scale exceeds n_scale.
+- **Core:**
+  - Fixed out-of-bounds reads during automatic UTF-16/32 encoding detection.
+  - Fixed bug [GH-15375](https://github.com/php/php-src/issues/15375) (Nested "yield from" skips items after a valid() or next() call on the inner generator).
+  - Fixed bug [GH-23232](https://github.com/php/php-src/issues/23232) (lone namespace separator asks the autoloader for an empty class name).
+  - Fixed bug [GH-23301](https://github.com/php/php-src/issues/23301) (Nested "yield from" yields a value twice when the middle generator delegates again).
+- **CLI:**
+  - Fixed bug [GH-23425](https://github.com/php/php-src/issues/23425) (sapi_cli_server_send_headers() does not check the return value of php_cli_server_client_send_through()).
+- **DOM:**
+  - Fixed NamedNodeMap::getNamedItemNS() with an empty URI not matching the null namespace in spec-following mode.
+  - Fixed a use-after-free when cloning a DOMNameSpaceNode after DOMDocument::xinclude().
+  - Fixed bug [GH-23331](https://github.com/php/php-src/issues/23331) (UAF when node_list_unlink() skips attribute children that still have a live wrapper).
+  - Fixed a use-after-free when Dom\Element::setAttributeNS() replaces the value of an attribute whose child still has a live wrapper.
+- **GD:**
+  - Fixed imageaffinematrixget() and imageaffinematrixconcat() reporting the wrong argument in error messages.
+  - Fixed bug [GH-23457](https://github.com/php/php-src/issues/23457) (imagebmp() is extremely slow when writing to a file).
+- **FPM:**
+  - Fixed bug [GH-19320](https://github.com/php/php-src/issues/19320) (FPM UID and GID overflow).
+  - Fixed [GHSA-62xp-839h-2637](https://github.com/php/php-src/security/advisories/GHSA-62xp-839h-2637) (IPv6 ACL bypass in FastCGI listen.allowed_clients due to partial address comparison). (CVE-2026-91768)
+- **Hash:**
+  - Fixed a buffer overflow in hash_pbkdf2() with a large output length.
+- **Intl:**
+  - Fixed grapheme_strpos() and grapheme_strrpos() with an empty needle returning UTF-16 offsets instead of grapheme offsets.
+  - Fixed a memory leak when dumping IntlCalendar instances.
+  - Fixed a memory leak when iterating IntlBreakIterator::getPartsIterator() results.
+  - Fixed a double-free when IntlGregorianCalendar construction fails after the ICU constructor adopts the TimeZone.
+  - Fixed bug [GH-23094](https://github.com/php/php-src/issues/23094) (NumberFormatter parsing offsets use UTF-16 positions for UTF-8 strings).
+  - Fixed Locale::parseLocale() reading past a trailing '-' or '_'.
+  - Fixed grapheme_str_split() treating UBRK_DONE as a byte index.
+  - Fixed a leak in Locale::getKeywords() when a keyword value cannot be read.
+  - Fixed a use-after-free when IntlRuleBasedBreakIterator is constructed from compiled rules.
+- **MBString:**
+  - Fixed mb_ereg_replace() emitting a NUL or out-of-bounds bytes in the replacement when a \k<name> backref has no closing delimiter.
+- **MySQLnd:**
+  - Fixed [GHSA-r6x9-5r99-36j7](https://github.com/php/php-src/security/advisories/GHSA-r6x9-5r99-36j7) (Various packet overreads in mysqlnd wire protocol). (CVE-2025-1218)
+- **ODBC:**
+  - Fixed odbc_field_len(), odbc_field_scale() and odbc_field_type() returning uninitialized memory when SQLColAttribute fails.
+- **Opcache:**
+  - Fixed a crash when the huge page SHM remap discarded mappings outside the reserved address range.
+  - Fixed opcache.protect_memory race under ZTS.
+  - Fixed bug [GH-23288](https://github.com/php/php-src/issues/23288) (Crash on restart when opcache.interned_strings_buffer is overridden in an individual FPM pool).
+  - Fixed a tracing JIT crash when compiling a side trace for a method of a class that could not be stored in the inheritance cache.
+- **OpenSSL:**
+  - Fixed [GHSA-vvx9-73fr-5jjx](https://github.com/php/php-src/security/advisories/GHSA-vvx9-73fr-5jjx) (TLS hostname verification falls back to CN after SAN mismatch). (CVE-2026-91769)
+  - Fixed [GHSA-xr7j-rvgx-xq5p](https://github.com/php/php-src/security/advisories/GHSA-xr7j-rvgx-xq5p) (Heap buffer overflow in php_openssl_matches_wildcard_name() on crafted server certificate wildcard CN). (CVE-2026-91767)
+- **PDO:**
+  - Fixed a leak when a persistent connection failed a liveness check with no other live PDO handle.
+- **PDO_ODBC:**
+  - Fixed bug [GH-23444](https://github.com/php/php-src/issues/23444) (ODBC_ATTR_ASSUME_UTF8 corrupts Unicode data outside Windows).
+- **PDO_PGSQL:**
+  - Fixed PDO::CURSOR_SCROLL statements closing a cursor that does not exist.
+- **PDO Sqlite:**
+  - Fixed bug [GH-20214](https://github.com/php/php-src/issues/20214) (PDO::FETCH_DEFAULT unexpected behavior with PDOStatement::setFetchMode).
+- **Phar:**
+  - Fixed bug [GH-23418](https://github.com/php/php-src/issues/23418) (Use-after-free when looking up mounted directories).
+  - Fixed bug [GH-23477](https://github.com/php/php-src/issues/23477) (Memory leak on duplicate native Phar manifest entries).
+  - Fixed [GHSA-j3wh-g957-2m85](https://github.com/php/php-src/security/advisories/GHSA-j3wh-g957-2m85) (Integer overflow in phar_tar_number() allowing TAR archive entry injection). (CVE-2026-6103)
+- **SNMP:**
+  - Fixed bug [GH-23453](https://github.com/php/php-src/issues/23453) (SNMP::setSecurity() frees a non-malloced address with a context engine ID longer than 32 bytes).
+- **SOAP:**
+  - Fixed bug [GH-23447](https://github.com/php/php-src/issues/23447) (Segfault when a class passed to SoapServer::setClass() fails to initialize).
+  - Fixed WSDL cache corruption when a soap:header defines headerfaults.
+  - Fixed stack overflow when parsing a WSDL with self-referential schema groups or attributeGroups.
+  - Fixed [GHSA-rgrp-mwpx-f6rm](https://github.com/php/php-src/security/advisories/GHSA-rgrp-mwpx-f6rm) (Unbounded recursion in server-side cleanup_xml_node()). (CVE-2026-91765)
+  - Fixed [GHSA-cj93-vc83-wgqv](https://github.com/php/php-src/security/advisories/GHSA-cj93-vc83-wgqv) (Integer overflow to buffer overflow in SOAP HTTP parsing). (CVE-2025-14181)
+- **Standard:**
+  - Fixed a segfault when a stream filter callback unsets StreamBucket::$data before re-attaching the bucket.
+  - Fixed [GHSA-7875-c8px-7q5f](https://github.com/php/php-src/security/advisories/GHSA-7875-c8px-7q5f) (Out-of-bounds read in the HTTP stream wrapper when following a redirect with an empty Location header). (CVE-2026-93682)
+  - Fixed a memory leak in array_merge_recursive() when the recursive merge of an object converted to an array fails.
+  - Fixed read buffer compaction in php_stream_filter_flush().
+  - Fixed bug [GH-22410](https://github.com/php/php-src/issues/22410) (Incorrect float behavior with large numbers).
+  - Fixed [GH-23338](https://github.com/php/php-src/issues/23338) (fsockopen()/pfsockopen() ValueError reported wrong argument number for $timeout).
+  - Fixed bug [GH-23576](https://github.com/php/php-src/issues/23576) (Next index for array returned from array_keys() is wrong).
+  - Fixed [GHSA-88hq-2827-7pg6](https://github.com/php/php-src/security/advisories/GHSA-88hq-2827-7pg6) (Out-of-bounds read in convert.* stream filters when line-break-chars contains NUL). (CVE-2026-92842)
+  - Fixed [GHSA-fpwc-w8rq-cr92](https://github.com/php/php-src/security/advisories/GHSA-fpwc-w8rq-cr92) (Cross-origin credential leak in HTTP stream wrapper redirects). (CVE-2026-91766)
+- **SimpleXML:**
+  - Fixed writing to a dimension of the object returned by attributes() not creating the attribute.
+  - Fixed child elements of the element returned by SimpleXMLElement::addChild() not being accessible by property name when namespaces are involved.
+- **Windows:**
+  - Fixed [GHSA-9f67-6fw4-hpfp](https://github.com/php/php-src/security/advisories/GHSA-9f67-6fw4-hpfp) (Reserved device names are not rejected before file and stream I/O). (CVE-2026-17545)
+- **Zip:**
+  - Fixed bug [GH-23276](https://github.com/php/php-src/issues/23276) (ZipArchive subclass storing its own stream cannot be garbage collected).
+  - Fixed ZipArchive::extractTo() and ZipArchive::getFrom*() reporting success on corrupted entries.
+  - Fixed ZipArchive::getNameIndex() truncating the entry index to int.
+  - Fixed fstat() on a zip:// stream reporting success when the archive cannot be opened.
+- **SAPI:**
+  - Fixed fuzzer targets failing to build in isolation.
+  - Fixed returns uninitialized value on LiteSpeed lsapi SAPI (Go Kudo)
+
+## 8.4.25 – 2026-08-27
+
+- **Core:**
+  - Fixed bug [GH-23088](https://github.com/php/php-src/issues/23088) (Stack overflow when comparing deeply nested arrays).
+- **Date:**
+  - Fixed leak on double DatePeriod::__construct() call.
+- **DOM:**
+  - Fixed bug [GH-23116](https://github.com/php/php-src/issues/23116) (Stack overflow when normalizing a deeply nested DOMDocument).
+  - Fixed bug [GH-23117](https://github.com/php/php-src/issues/23117) (Stack overflow when normalizing a deeply nested Dom\XMLDocument).
+  - Fixed bug [GH-22825](https://github.com/php/php-src/issues/22825) (DOMElement::setAttribute() fails silently when the DTD declares a default value for the attribute).
+  - Fixed bug [GH-22447](https://github.com/php/php-src/issues/22447) (UAF at dom_objects_free_storage when setting an attribute node that collides by local name with a namespaced attribute).
+  - Fixed bug [GH-23120](https://github.com/php/php-src/issues/23120) (Stack overflow when comparing deeply nested DOM nodes with DOMNode::isEqualNode()).
+- **LibXML:**
+  - Fixed bug [GH-22752](https://github.com/php/php-src/issues/22752) (Build failure with libxml 2.15).
+- **MBString:**
+  - Fixed bug [GH-22779](https://github.com/php/php-src/issues/22779) (mb_strrpos() returns the wrong position for a negative offset in a non-UTF-8 encoding).
+  - Fixed bug [GH-21036](https://github.com/php/php-src/issues/21036) (mb_ereg_search_getregs() crashes after mb_eregi() invalidates the regex cache).
+- **Opcache:**
+  - Fixed bug [GH-22857](https://github.com/php/php-src/issues/22857) (Function JIT emits wrong code for FETCH_OBJ_FUNC_ARG on a property hook getter, losing register-held variables).
+  - Fixed bug [GH-22916](https://github.com/php/php-src/issues/22916) (Preserve parent regs in zend_jit_deoptimizer_start()).
+- **OpenSSL:**
+  - Fix missing error check on invalid alpn protocols.
+- **PCRE:**
+  - Fixed bug [GH-21134](https://github.com/php/php-src/issues/21134) (Crash with \C + UTF-8). Using \C in UTF-8 patterns is now forbidden.
+- **Reflection:**
+  - Fixed bug [GH-22905](https://github.com/php/php-src/issues/22905) (Reflection exception messages truncate on null bytes).
+  - Fixed ReflectionProperty::isLazy() and skipLazyInitialization() using the parent slot when a child class hooks an inherited property.
+  - Fixed segfault in ReflectionMethod::createFromMethodName() on an uninstantiable subclass.
+- **Session:**
+  - Fix corruption in mod_mm.
+  - Fixed bug [GH-23043](https://github.com/php/php-src/issues/23043) (broken session id code can cause zend_mm_heap corrupted).
+- **SimpleXML:**
+  - Fixed integer element offsets that cannot resolve aliasing an existing element.
+  - Fixed segfault when comparing uninitialized SimpleXMLElement instances.
+- **Sockets:**
+  - Fixed various memory related issues in ext/sockets.
+- **SQLite:**
+  - Fix leak when trying to close db if blob stream is still open.
+- **Standard:**
+  - Fixed bug [GH-23111](https://github.com/php/php-src/issues/23111) (Stack overflow in array_walk_recursive() with deeply nested arrays).
+  - Fixed bug [GH-23113](https://github.com/php/php-src/issues/23113) (Stack overflow in array_replace_recursive() with deeply nested arrays).
+  - Fixed bug [GH-23115](https://github.com/php/php-src/issues/23115) (Stack overflow in compact() with deeply nested arrays).
+  - Fixed stack overflow in count() with COUNT_RECURSIVE and deeply nested arrays.
+- **Streams:**
+  - Fixed bug [GH-15836](https://github.com/php/php-src/issues/15836) (Use-after-free when a user stream filter accesses $this->stream during the close flush).
+- **Sysvshm:**
+  - Fixed out-of-bounds write when shm_attach() opens an existing segment with a size larger than the segment actually is.
+- **XSL:**
+  - Fixed use-after-free when a DOMDocument subclass __clone() retains the stylesheet copy made by XSLTProcessor::importStylesheet().
+- **Zip:**
+  - Fixed ZipArchive::addGlob() and ZipArchive::addPattern() ignoring their default options when no options array is given.
+
+## 8.4.24 – 2026-07-30 (Security Release)
+
+- **BCMath:**
+  - Fixed [GHSA-x692-q9x7-8c3f](https://github.com/php/php-src/security/advisories/GHSA-x692-q9x7-8c3f) (Out-of-bounds write in bccomp()). (CVE-2026-17544)
+- **Calendar:**
+  - Fixed bug [GH-22602](https://github.com/php/php-src/issues/22602) (gregoriantojd() and juliantojd() integer overflow with INT_MAX year).
+- **Date:**
+  - Update timelib to 2022.17.
+  - Fixed bug [GH-19803](https://github.com/php/php-src/issues/19803) (Parsing a string with a single white space does create an error).
+  - Fixed Unix timestamps in February of the year 0 are misparsed with @-notation.
+  - Fixed bug [GH-11310](https://github.com/php/php-src/issues/11310) (__debugInfo does nothing on userland classes extending Date classes).
+- **DBA:**
+  - Fixed OOB read on malformed length field in dba flatfile handler.
+- **DOM:**
+  - Fixed bug [GH-22570](https://github.com/php/php-src/issues/22570) (Stack overflow when serializing a deeply nested Dom\XMLDocument).
+- **Exif:**
+  - Fixed bug [GH-11020](https://github.com/php/php-src/issues/11020) (exif_read_data() emits a spurious "Illegal IFD size" warning when an IFD is not followed by a next-IFD offset).
+- **GD:**
+  - Upgrade libgd. (CVE-2026-9672)
+- **Hash:**
+  - Fixed bug [GH-18173](https://github.com/php/php-src/issues/18173) (ext/hash relies on implementation-defined malloc alignment).
+- **Intl:**
+  - Fixed Locale::lookup() and locale_lookup() to return NULL instead of the fallback locale when a language tag cannot be canonicalized.
+  - Fixed memory leaks when calling Collator::__construct() or Spoofchecker::__construct() twice.
+  - Fixed IntlChar methods leaving stale global error state after successful calls.
+- **ODBC:**
+  - Fixed bug [GH-22668](https://github.com/php/php-src/issues/22668) (Heap buffer over-read when a column value exceeds the driver-reported display size).
+- **OpenSSL:**
+  - Fixed timeout for supplemental read at end of a blocking stream in SSL stream wrapper.
+- **PDO_ODBC:**
+  - Fixed bug [GH-20726](https://github.com/php/php-src/issues/20726) (Crash with ODBC connection pooling when the DSN carries no credentials).
+  - Fixed bug [GH-22667](https://github.com/php/php-src/issues/22667) (Heap buffer over-read when a column value exceeds the driver-reported display size).
+  - Fixed bug [GH-22666](https://github.com/php/php-src/issues/22666) (Heap buffer overflow when an output parameter value is longer than the declared maxlen).
+  - Fixed bug [GH-22665](https://github.com/php/php-src/issues/22665) (Out-of-bounds write when the ODBC driver reports a diagnostic message length beyond the error buffer).
+- **PGSQL:**
+  - Fixed [GHSA-7qpv-r5mr-78m4](https://github.com/php/php-src/security/advisories/GHSA-7qpv-r5mr-78m4) (SQL injection via E'...' backslash breakout). (CVE-2026-17543)
+- **Phar:**
+  - Fixed inconsistent handling of the magic ".phar" directory. Paths such as "/.phar" remain protected, while non-magic paths that merely start with ".phar" are handled consistently across file and directory creation, copying, ArrayAccess, stream lookup, directory iteration and extraction.
+  - Fixed [GHSA-vc5h-9ppw-p5f3](https://github.com/php/php-src/security/advisories/GHSA-vc5h-9ppw-p5f3) (Crash via recursive symlinks). (CVE-2026-7260)
+- **PHPDBG:**
+  - Fixed bug [GH-17387](https://github.com/php/php-src/issues/17387) (Trivial crash in phpdbg lexer).
+  - Fixed fleaked lowercased lookup keys in phpdbg_resolve_opline_break.
+  - Fixed off-by-one in phpdbg_safe_class_lookup() causing class lookups to always fail during phpdbg's signal-safe interruption path.
+- **Reflection:**
+  - Fixed bug [GH-22324](https://github.com/php/php-src/issues/22324) (Ignore leading namespace separator in ReflectionParameter::__construct()).
+  - Fixed bug [GH-22441](https://github.com/php/php-src/issues/22441) (ReflectionClass::hasProperty() and getProperty() ignore dynamic properties shadowing a private parent property).
+  - Fixed bug [GH-22658](https://github.com/php/php-src/issues/22658) (ReflectionConstant::__toString() with a string value with null bytes truncates output).
+  - Fixed bug [GH-22681](https://github.com/php/php-src/issues/22681) (Reflection*::__toString() truncates on null bytes).
+- **Session:**
+  - Fixed bug [GH-21314](https://github.com/php/php-src/issues/21314) (Different session garbage collector behavior between PHP 8.3 and PHP 8.5).
+- **SPL:**
+  - Fix class_parents for classes with leading slash in non-autoload mode.
+  - Ignore leading back-slash in class_parents(), class_implements(), and class_uses().
+  - Fixed bug [GH-16217](https://github.com/php/php-src/issues/16217) (SplFileObject::fputcsv() on an uninitialized object segfaults).
+- **Standard:**
+  - Fixed bug [GH-22360](https://github.com/php/php-src/issues/22360) (convert.base64-encode corruption on incremental flush).
+  - Fixed bug [GH-22395](https://github.com/php/php-src/issues/22395) (base_convert() outputs at most 64 characters).
+  - Fixed integer overflow in getimagesize() and getimagesizefromstring() when parsing an IFF chunk with a size of INT_MAX.
+  - Fixed bug [GH-22678](https://github.com/php/php-src/issues/22678) (Use-after-free in array_multisort() when the comparator mutates the array being sorted).
+- **Streams:**
+  - Fixed bug [GH-22617](https://github.com/php/php-src/issues/22617) (persistent stream keys truncated at null bytes, causing distinct abstract unix domain sockets to share a resource).
+- **Zip:**
+  - Fixed bug [GH-22649](https://github.com/php/php-src/issues/22649) (ZipArchive::setCommentName() and setCommentIndex() could crash after overwriting an entry and resetting its inherited unchanged comment).
+  - Fixed bug [GH-21705](https://github.com/php/php-src/issues/21705) (ZipArchive::getFromIndex() ignores ZipArchive::FL_UNCHANGED for deleted entries).
+
+## 8.4.23 – 2026-07-03 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-22280](https://github.com/php/php-src/issues/22280) (Incorrect compile error for goto to label preceding try/finally block).
+- **BCMath:**
+  - Fixed issues with oversized allocations and signed overflow in bcround() and BcMath\Number::round().
+- **Date:**
+  - Fix incorrect recurrence check of DatePeriod::createFromISO8601String().
+- **DOM:**
+  - Fix [GH-22219](https://github.com/php/php-src/issues/22219) (Dom\XMLDocument::schemaValidate fails to resolve xs:QName with prefix from imported schema).
+- **Exif:**
+  - Read correct value for single and double tags.
+- **GD:**
+  - Fixed bug [GH-22121](https://github.com/php/php-src/issues/22121) (Double free in gdImageSetStyle() after overflow-triggered early return).
+  - Fixed bug [GH-19666](https://github.com/php/php-src/issues/19666) (imageconvolution() unexpected nan filter value).
+  - Fixed bug [GH-19739](https://github.com/php/php-src/issues/19739) (imageellipse/imagefilledellipse overflow).
+  - Fixed bug [GH-19730](https://github.com/php/php-src/issues/19730) (imageaffine overflow).
+- **Intl:**
+  - Fix incorrect argument positions for uninitialized calendar arguments in IntlCalendar::equals(), ::before(), ::after(), and ::isEquivalentTo(), and for invalid start/end arguments in transliterator_transliterate().
+  - Fixed IntlTimeZone::getDisplayName() to synchronize object error state for invalid display types.
+  - Fixed Spoofchecker restriction-level APIs to only be exposed with ICU 53 and later.
+- **mysqli:**
+  - Fix stmt->query leak in mysqli_execute_query() validation errors.
+- **Opcache:**
+  - Fixed bug [GH-20469](https://github.com/php/php-src/issues/20469) (Unsafe inheritance cache replay with reentrant autoloading).
+- **OpenSSL:**
+  - Fixed bug [GH-22187](https://github.com/php/php-src/issues/22187) (Memory corruption (zend_mm_heap corrupted) in openssl_encrypt with AES-WRAP-PAD). (CVE-2026-14355)
+- **Phar:**
+  - Fixed a bypass of the magic ".phar" directory protection in Phar::addEmptyDir() for paths starting with "/.phar", while allowing non-magic directory names that merely share the ".phar" prefix.
+- **Reflection:**
+  - Preserve class-name case in ReflectionClass::getProperty() error messages and autoloading.
+- **Sqlite:**
+  - Fix error checks for column retrieval.
+- **Zlib:**
+  - Fixed memory leak if deflate initialization fails and there is a dict.
+  - Fixed memory leak in inflate_add().
+- **Zip:**
+  - Fixed error-related memory leaks.
+
+## 8.4.22 – 2026-06-04
+
+- **Date:**
+  - Fixed bug [GH-18422](https://github.com/php/php-src/issues/18422) (int overflow in php_date_llabs).
+- **Intl:**
+  - Fix incorrect argument positions in out-of-bounds errors for IntlCalendar::set(), IntlCalendar::setDate(), IntlCalendar::setDateTime(), and IntlGregorianCalendar date/time construction.
+  - Expose Spoofchecker restriction-level APIs on all supported ICU versions.
+  - Fix SpoofChecker::setAllowedChars() and IntlDateFormatter::__construct() to report PHP constant names instead of ICU constant names in user-visible error messages.
+- **MySQLnd:**
+  - Fix persistent free of non-persistent connect_attr key (David Carlier).
+- **Opcache:**
+  - Fixed tracing JIT crash when a VM interrupt is handled during an observed user function call.
+  - Fixed bug [GH-22004](https://github.com/php/php-src/issues/22004) (Assertion failure at ext/opcache/jit/zend_jit_trace.c).
+- **OpenSSL:**
+  - Fix compatibility issues with OpenSSL 4.0.
+- **SPL:**
+  - Fix SplFixedArray::setSize leak when destructor grows during clear.
+  - Fixed bug [GH-21933](https://github.com/php/php-src/issues/21933) (use after free of self-freeing MultipleIterator children).
+- **Standard:**
+  - Fixed bug [GH-21689](https://github.com/php/php-src/issues/21689) (version_compare() incorrectly handles versions ending with a dot).
+  - Fixed ip2long() leading zeros handling inconsistency on AIX.
+
+## 8.4.21 – 2026-05-07 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-19983](https://github.com/php/php-src/issues/19983) (GC assertion failure with fibers, generators and destructors).
+  - Fixed bug [GH-21478](https://github.com/php/php-src/issues/21478) (Forward property operations to real instance for initialized lazy proxies).
+  - Fixed bug [GH-21605](https://github.com/php/php-src/issues/21605) (Missing addref for Countable::count()).
+  - Fixed bug [GH-21699](https://github.com/php/php-src/issues/21699) (Assertion failure in shutdown_executor when resolving self::/parent::/static:: callables if the error handler throws).
+  - Fixed bug [GH-21603](https://github.com/php/php-src/issues/21603) (Missing addref for __unset).
+  - Fixed bug [GH-21760](https://github.com/php/php-src/issues/21760) (Trait with class constant name conflict against enum case causes SEGV).
+- **CLI:**
+  - Fixed bug [GH-21754](https://github.com/php/php-src/issues/21754) (`--rf` command line option with a method triggers ext/reflection deprecation warnings).
+- **Curl:**
+  - Add support for brotli and zstd on Windows.
+- **DOM:**
+  - Fixed [GHSA-4jhr-8w89-j733](https://github.com/php/php-src/security/advisories/GHSA-4jhr-8w89-j733) and [GH-21566](https://github.com/php/php-src/issues/21566) (Dom\XMLDocument::C14N() emits duplicate xmlns declarations after setAttributeNS()). (CVE-2026-7263)
+  - Fixed bug [GH-21688](https://github.com/php/php-src/issues/21688) (segmentation fault on empty HTMLDocument).
+  - Upgrade to lexbor v2.7.0.
+- **FPM:**
+  - Fixed [GHSA-7qg2-v9fj-4mwv](https://github.com/php/php-src/security/advisories/GHSA-7qg2-v9fj-4mwv) (XSS within status endpoint). (CVE-2026-6735)
+- **Iconv:**
+  - Fixed bug [GH-17399](https://github.com/php/php-src/issues/17399) (iconv memory leak on bailout).
+- **MBString:**
+  - Fixed [GHSA-wm6j-2649-pv75](https://github.com/php/php-src/security/advisories/GHSA-wm6j-2649-pv75) (Null pointer dereference in php_mb_check_encoding() via mb_ereg_search_init()). (CVE-2026-7259)
+  - Fixed [GHSA-74r9-qxhc-fx53](https://github.com/php/php-src/security/advisories/GHSA-74r9-qxhc-fx53) (Out-of-bounds access in mbfl_name2encoding_ex()). (CVE-2026-6104)
+- **Opcache:**
+  - Fixed bug [GH-21158](https://github.com/php/php-src/issues/21158) (JIT: Assertion jit->ra[var].flags & (1<<0) failed in zend_jit_use_reg).
+  - Fixed bug [GH-21593](https://github.com/php/php-src/issues/21593) (Borked function JIT JMPNZ smart branch).
+  - Fixed bug [GH-21460](https://github.com/php/php-src/issues/21460) (COND optimization regression).
+  - Fixed faulty returns out of zend_try block in zend_jit_trace().
+- **OpenSSL:**
+  - Fix a bunch of memory leaks and crashes on edge cases.
+- **PDO_Firebird:**
+  - Fixed [GHSA-w476-322c-wpvm](https://github.com/php/php-src/security/advisories/GHSA-w476-322c-wpvm) (SQL injection via NUL bytes in quoted strings). (CVE-2025-14179)
+- **Phar:**
+  - Restore is_link handler in phar_intercept_functions_shutdown.
+  - Fixed bug [GH-21797](https://github.com/php/php-src/issues/21797) (phar: NULL dereference in Phar::webPhar() when SCRIPT_NAME is absent from SAPI environment).
+  - Fix memory leak in Phar::offsetGet().
+  - Fix memory leak in phar_add_file().
+  - Fixed bug [GH-21799](https://github.com/php/php-src/issues/21799) (phar: propagate phar_stream_flush return value from phar_stream_close).
+  - Fix memory leak in phar_verify_signature() when md_ctx is invalid.
+- **Random:**
+  - Fixed bug [GH-21731](https://github.com/php/php-src/issues/21731) (Random\Engine\Xoshiro256StarStar::__unserialize() accepts all-zero state).
+- **Session:**
+  - Fixed memory leak when session GC callback return a refcounted value.
+- **SOAP:**
+  - Fixed [GHSA-85c2-q967-79q5](https://github.com/php/php-src/security/advisories/GHSA-85c2-q967-79q5) (Stale SOAP_GLOBAL(ref_map) pointer with Apache Map). (CVE-2026-6722)
+  - Fixed [GHSA-m33r-qmcv-p97q](https://github.com/php/php-src/security/advisories/GHSA-m33r-qmcv-p97q) (Use-after-free after header parsing failure with SOAP_PERSISTENCE_SESSION). (CVE-2026-7261)
+  - Fixed [GHSA-hmxp-6pc4-f3vv](https://github.com/php/php-src/security/advisories/GHSA-hmxp-6pc4-f3vv) (Broken Apache map value NULL check). (CVE-2026-7262)
+- **SPL:**
+  - Fixed bug [GH-21499](https://github.com/php/php-src/issues/21499) (RecursiveArrayIterator getChildren UAF after parent free).
+  - Fix concurrent iteration and deletion issues in SplObjectStorage.
+- **Standard:**
+  - Fixed [GHSA-96wq-48vp-hh57](https://github.com/php/php-src/security/advisories/GHSA-96wq-48vp-hh57) (Signed integer overflow of char array offset). (CVE-2026-7568)
+  - Fixed [GHSA-m8rr-4c36-8gq4](https://github.com/php/php-src/security/advisories/GHSA-m8rr-4c36-8gq4) (Consistently pass unsigned char to ctype.h functions). (CVE-2026-7258)
+- **Streams:**
+  - Fixed bug [GH-21468](https://github.com/php/php-src/issues/21468) (Segfault in file_get_contents w/ a https URL and a proxy set). (CVE-2026-12184)
+- **XSL:**
+  - Fixed bug [GH-21600](https://github.com/php/php-src/issues/21600) (Segfault on module shutdown).
+- **Zip:**
+  - Fixed bug [GH-21698](https://github.com/php/php-src/issues/21698) (memory leak with ZipArchive::addGlob() early return statements).
+
+## 8.4.20 – 2026-04-09
+
+- **Bz2:**
+  - Fix truncation of total output size causing erroneous errors.
+- **Core:**
+  - Fixed bugs [GH-20875](https://github.com/php/php-src/issues/20875), [GH-20873](https://github.com/php/php-src/issues/20873), [GH-20854](https://github.com/php/php-src/issues/20854) (Propagate IN_GET guard in get_property_ptr_ptr for lazy proxies).
+- **DOM:**
+  - Fixed bug [GH-21486](https://github.com/php/php-src/issues/21486) (Dom\HTMLDocument parser mangles xml:space and xml:lang attributes).
+- **FFI:**
+  - Fixed resource leak in FFI::cdef() onsymbol resolution failure.
+- **GD:**
+  - Fixed bug [GH-21431](https://github.com/php/php-src/issues/21431) (phpinfo() to display libJPEG 10.0 support).
+- **Opcache:**
+  - Fixed bug [GH-20838](https://github.com/php/php-src/issues/20838) (JIT compiler produces wrong arithmetic results).
+  - Fixed bug [GH-21267](https://github.com/php/php-src/issues/21267) (JIT tracing: infinite loop on FETCH_OBJ_R with IS_UNDEF property in polymorphic context).
+  - Fixed bug [GH-21395](https://github.com/php/php-src/issues/21395) (uaf in jit).
+- **OpenSSL:**
+  - Fixed bug [GH-21083](https://github.com/php/php-src/issues/21083) (Skip private_key_bits validation for EC/curve-based keys).
+  - Fix missing error propagation for BIO_printf() calls.
+- **PCRE:**
+  - Fixed re-entrancy issue on php_pcre_match_impl, php_pcre_replace_impl, php_pcre_split_impl, and php_pcre_grep_impl.
+- **PGSQL:**
+  - Fixed preprocessor silently guarding PGSQL_SUPPRESS_TIMESTAMPS support due to a typo.
+- **SNMP:**
+  - Fixed bug [GH-21336](https://github.com/php/php-src/issues/21336) (SNMP::setSecurity() undefined behavior with NULL arguments).
+- **SOAP:**
+  - Fixed Set-Cookie parsing bug wrong offset while scanning attributes.
+- **SPL:**
+  - Fixed bug [GH-21454](https://github.com/php/php-src/issues/21454) (missing write lock validation in SplHeap).
+- **Standard:**
+  - Fixed bug [GH-20906](https://github.com/php/php-src/issues/20906) (Assertion failure when messing up output buffers).
+  - Fixed bug [GH-20627](https://github.com/php/php-src/issues/20627) (Cannot identify some avif images with getimagesize).
+- **Sysvshm:**
+  - Fix memory leak in shm_get_var() when variable is corrupted.
+- **XSL:**
+  - Fix [GH-21357](https://github.com/php/php-src/issues/21357) (XSLTProcessor works with DOMDocument, but fails with Dom\XMLDocument).
+  - Fixed bug [GH-21496](https://github.com/php/php-src/issues/21496) (UAF in dom_objects_free_storage).
+
+## 8.4.19 – 2026-03-12
+
+- **Core:**
+  - Fixed bug [GH-21029](https://github.com/php/php-src/issues/21029) (zend_mm_heap corrupted on Aarch64, LTO builds).
+  - Fixed bug [GH-20657](https://github.com/php/php-src/issues/20657) (Assertion failure in zend_lazy_object_get_info triggered by setRawValueWithoutLazyInitialization() and newLazyGhost()).
+  - Fixed bug [GH-20504](https://github.com/php/php-src/issues/20504) (Assertion failure in zend_get_property_guard when accessing properties on Reflection LazyProxy via isset()).
+  - Fixed OSS-Fuzz #478009707 (Borked assign-op/inc/dec on untyped hooked property backing value).
+  - Fixed bug [GH-21215](https://github.com/php/php-src/issues/21215) (Build fails with -std=).
+  - Fixed bug [GH-13674](https://github.com/php/php-src/issues/13674) (Build system installs libtool wrappers when using slibtool).
+- **Curl:**
+  - Fixed bug [GH-21023](https://github.com/php/php-src/issues/21023) (CURLOPT_XFERINFOFUNCTION crash with a null callback).
+  - Don't truncate length.
+- **Date:**
+  - Fixed bug [GH-20936](https://github.com/php/php-src/issues/20936) (DatePeriod::__set_state() cannot handle null start).
+  - Fix timezone offset with seconds losing precision.
+- **DOM:**
+  - Fixed bug [GH-21077](https://github.com/php/php-src/issues/21077) (Accessing Dom\Node::baseURI can throw TypeError).
+  - Fixed bug [GH-21097](https://github.com/php/php-src/issues/21097) (Accessing Dom\Node properties can can throw TypeError).
+- **MBString:**
+  - Fixed bug [GH-21223](https://github.com/php/php-src/issues/21223); mb_guess_encoding no longer crashes when passed huge list of candidate encodings (with 200,000+ entries).
+- **Opcache:**
+  - Fixed bug [GH-20718](https://github.com/php/php-src/issues/20718) ("Insufficient shared memory" when using JIT on Solaris).
+  - Fixed bug [GH-21227](https://github.com/php/php-src/issues/21227) (Borked SCCP of array containing partial object).
+  - Fixed bug [GH-21052](https://github.com/php/php-src/issues/21052) (Preloaded constant erroneously propagated to file-cached script).
+- **OpenSSL:**
+  - Fix a bunch of leaks and error propagation.
+- **PCNTL:**
+  - Fixed pcntl_setns() internal errors handling regarding errnos.
+  - Fixed cpuset leak in pcntl_setcpuaffinity on out-of-range CPU ID on NetBSD/Solaris platforms.
+  - Fixed pcntl_signal() signal table registering the callback first OS-wise before the internal list.
+  - Fixed pcntl_signal_dispatch() stale pointer and exception handling.
+- **PCRE:**
+  - Fixed preg_match memory leak with invalid regexes.
+- **PDO_PGSQL:**
+  - Fixed bug [GH-21055](https://github.com/php/php-src/issues/21055) (connection attribute status typo for GSS negotiation).
+- **PGSQL:**
+  - Fixed bug [GH-21162](https://github.com/php/php-src/issues/21162) (pg_connect() memory leak on error).
+- **Sockets:**
+  - Fixed bug [GH-21161](https://github.com/php/php-src/issues/21161) (socket_set_option() crash with array 'addr' entry as null).
+  - Fixed possible addr length overflow with socket_connect() and AF_UNIX family sockets.
+- **Windows:**
+  - Fixed compilation with clang (missing intrin.h include).
+
+## 8.4.18 – 2026-02-12
+
+- **Core:**
+  - Fixed bug [GH-20837](https://github.com/php/php-src/issues/20837) (NULL dereference when calling ob_start() in shutdown function triggered by bailout in php_output_lock_error()).
+  - Fix OSS-Fuzz #471533782 (Infinite loop in GC destructor fiber).
+  - Fix OSS-Fuzz #472563272 (Borked block_pass JMP[N]Z optimization).
+  - Fixed bug GH-[GH-20914](https://github.com/php/php-src/issues/20914) (Internal enums can be cloned and compared).
+  - Fix OSS-Fuzz #474613951 (Leaked parent property default value).
+  - Fixed bug [GH-20766](https://github.com/php/php-src/issues/20766) (Use-after-free in FE_FREE with GC interaction).
+  - Fix OSS-Fuzz #471486164 (Broken by-ref assignment to uninitialized hooked backing value).
+  - Fix OSS-Fuzz #438780145 (Nested finally with repeated return type check may uaf).
+  - Fixed bug [GH-20905](https://github.com/php/php-src/issues/20905) (Lazy proxy bailing __clone assertion).
+  - Fixed bug [GH-20479](https://github.com/php/php-src/issues/20479) (Hooked object properties overflow).
+- **Date:**
+  - Update timelib to 2022.16.
+- **DOM:**
+  - Fixed [GH-21041](https://github.com/php/php-src/issues/21041) (Dom\HTMLDocument corrupts closing tags within scripts).
+- **MbString:**
+  - Fixed bug [GH-20833](https://github.com/php/php-src/issues/20833) (mb_str_pad() divide by zero if padding string is invalid in the encoding).
+  - Fixed bug [GH-20836](https://github.com/php/php-src/issues/20836) (Stack overflow in mb_convert_variables with recursive array references).
+- **Opcache:**
+  - Fixed bug [GH-20818](https://github.com/php/php-src/issues/20818) (Segfault in Tracing JIT with object reference).
+- **OpenSSL:**
+  - Fix memory leaks when sk_X509_new_null() fails.
+  - Fix crash when in openssl_x509_parse() when i2s_ASN1_INTEGER() fails.
+  - Fix crash in openssl_x509_parse() when X509_NAME_oneline() fails.
+- **Phar:**
+  - Fixed bug [GH-20882](https://github.com/php/php-src/issues/20882) (buildFromIterator breaks with missing base directory).
+- **PGSQL:**
+  - Fixed INSERT/UPDATE queries building with PQescapeIdentifier() and possible UB.
+- **Readline:**
+  - Fixed bug [GH-18139](https://github.com/php/php-src/issues/18139) (Memory leak when overriding some settings via readline_info()).
+- **SPL:**
+  - Fixed bug [GH-20856](https://github.com/php/php-src/issues/20856) (heap-use-after-free in SplDoublyLinkedList iterator when modifying during iteration).
+- **Standard:**
+  - Fixed bug [#74357](https://bugs.php.net/74357) (lchown fails to change ownership of symlink with ZTS) (Jakub Zelenka)
+  - Fixed bug [GH-20843](https://github.com/php/php-src/issues/20843) (var_dump() crash with nested objects) (David Carlier)
+
+## 8.4.17 – 2026-01-15
+
+- **Core:**
+  - Fix OSS-Fuzz #465488618 (Wrong assumptions when dumping function signature with dynamic class const lookup default argument).
+  - Fixed bug [GH-20695](https://github.com/php/php-src/issues/20695) (Assertion failure in normalize_value() when parsing malformed INI input via parse_ini_string()).
+  - Fixed bug [GH-20714](https://github.com/php/php-src/issues/20714) (Uncatchable exception thrown in generator).
+  - Fixed bug [GH-20352](https://github.com/php/php-src/issues/20352) (UAF in php_output_handler_free via re-entrant ob_start() during error deactivation).
+- **Bz2:**
+  - Fixed bug [GH-20620](https://github.com/php/php-src/issues/20620) (bzcompress overflow on large source size).
+- **DOM:**
+  - Fixed bug [GH-20722](https://github.com/php/php-src/issues/20722) (Null pointer dereference in DOM namespace node cloning via clone on malformed objects).
+  - Fixed bug [GH-20444](https://github.com/php/php-src/issues/20444) (Dom\XMLDocument::C14N() seems broken compared to DOMDocument::C14N()).
+- **GD:**
+  - Fixed bug [GH-20622](https://github.com/php/php-src/issues/20622) (imagestring/imagestringup overflow).
+- **Intl:**
+  - Fix leak in umsg_format_helper().
+- **LDAP:**
+  - Fix memory leak in ldap_set_options().
+- **Mbstring:**
+  - Fixed bug [GH-20674](https://github.com/php/php-src/issues/20674) (mb_decode_mimeheader does not handle separator).
+- **PCNTL:**
+  - Fixed bug with pcntl_getcpuaffinity() on solaris regarding invalid process ids handling.
+- **Phar:**
+  - Fixed bug [GH-20732](https://github.com/php/php-src/issues/20732) (Phar::LoadPhar undefined behavior when reading fails).
+  - Fix SplFileInfo::openFile() in write mode.
+  - Fix build on legacy OpenSSL 1.1.0 systems.
+  - Fixed bug [#74154](https://bugs.php.net/74154) (Phar extractTo creates empty files).
+- **POSIX:**
+  - Fixed crash on posix groups to php array creation on macos.
+- **SPL:**
+  - Fixed bug [GH-20678](https://github.com/php/php-src/issues/20678) (resource created by GlobIterator crashes with fclose()).
+- **Sqlite3:**
+  - Fixed bug [GH-20699](https://github.com/php/php-src/issues/20699) (SQLite3Result fetchArray return array|false, null returned).
+- **Standard:**
+  - Fix error check for proc_open() command.
+  - Fix memory leak in mail() when header key is numeric.
+  - Fixed bug [GH-20582](https://github.com/php/php-src/issues/20582) (Heap Buffer Overflow in iptcembed).
+- **Zlib:**
+  - Fix OOB gzseek() causing assertion failure.
+
+## 8.4.16 – 2025-12-18 (Security Release)
+
+- **Core:**
+  - Sync all boost.context files with release 1.86.0.
+  - Fixed bug [GH-20435](https://github.com/php/php-src/issues/20435) (SensitiveParameter doesn't work for named argument passing to variadic parameter).
+  - Fixed bug [GH-20286](https://github.com/php/php-src/issues/20286) (use-after-destroy during userland stream_close()).
+- **Bz2:**
+  - Fix assertion failures resulting in crashes with stream filter object parameters.
+- **Date:**
+  - Fix crashes when trying to instantiate uninstantiable classes via date static constructors.
+- **DOM:**
+  - Fix memory leak when edge case is hit when registering xpath callback.
+  - Fixed bug [GH-20395](https://github.com/php/php-src/issues/20395) (querySelector and querySelectorAll requires elements in $selectors to be lowercase).
+  - Fix missing NUL byte check on C14NFile().
+- **Fibers:**
+  - Fixed bug [GH-20483](https://github.com/php/php-src/issues/20483) (ASAN stack overflow with fiber.stack_size INI small value).
+- **FTP:**
+  - Fixed bug [GH-20601](https://github.com/php/php-src/issues/20601) (ftp_connect overflow on timeout).
+- **GD:**
+  - Fixed bug [GH-20511](https://github.com/php/php-src/issues/20511) (imagegammacorrect out of range input/output values).
+  - Fixed bug [GH-20602](https://github.com/php/php-src/issues/20602) (imagescale overflow with large height values).
+- **Intl:**
+  - Fixed bug [GH-20426](https://github.com/php/php-src/issues/20426) (Spoofchecker::setRestrictionLevel() error message suggests missing constants).
+- **LibXML:**
+  - Fix some deprecations on newer libxml versions regarding input buffer/parser handling.
+- **MbString:**
+  - Fixed bug [GH-20491](https://github.com/php/php-src/issues/20491) (SLES15 compile error with mbstring oniguruma).
+  - Fixed bug [GH-20492](https://github.com/php/php-src/issues/20492) (mbstring compile warning due to non-strings).
+- **MySQLnd:**
+  - Fixed bug [GH-20528](https://github.com/php/php-src/issues/20528) (Regression breaks mysql connexion using an IPv6 address enclosed in square brackets).
+- **Opcache:**
+  - Fixed bug [GH-20329](https://github.com/php/php-src/issues/20329) (opcache.file_cache broken with full interned string buffer).
+- **PDO:**
+  - Fixed [GHSA-8xr5-qppj-gvwj](https://github.com/php/php-src/security/advisories/GHSA-8xr5-qppj-gvwj) (PDO quoting result null deref). (CVE-2025-14180)
+- **Phar:**
+  - Fixed bug [GH-20442](https://github.com/php/php-src/issues/20442) (Phar does not respect case-insensitiveness of __halt_compiler() when reading stub).
+  - Fix broken return value of fflush() for phar file entries.
+  - Fix assertion failure when fseeking a phar file out of bounds.
+- **PHPDBG:**
+  - Fixed ZPP type violation in phpdbg_get_executable() and phpdbg_end_oplog().
+- **SPL:**
+  - Fixed bug [GH-20614](https://github.com/php/php-src/issues/20614) (SplFixedArray incorrectly handles references in deserialization).
+- **Standard:**
+  - Fix memory leak in array_diff() with custom type checks.
+  - Fixed bug [GH-20583](https://github.com/php/php-src/issues/20583) (Stack overflow in http_build_query via deep structures).
+  - Fixed [GHSA-www2-q4fc-65wf](https://github.com/php/php-src/security/advisories/GHSA-www2-q4fc-65wf) (Null byte termination in dns_get_record()).
+  - Fixed [GHSA-h96m-rvf9-jgm2](https://github.com/php/php-src/security/advisories/GHSA-h96m-rvf9-jgm2) (Heap buffer overflow in array_merge()). (CVE-2025-14178)
+  - Fixed [GHSA-3237-qqm7-mfv7](https://github.com/php/php-src/security/advisories/GHSA-3237-qqm7-mfv7) (Information Leak of Memory in getimagesize). (CVE-2025-14177)
+- **Tidy:**
+  - Fixed bug [GH-20374](https://github.com/php/php-src/issues/20374) (PHP with tidy and custom-tags).
+- **XML:**
+  - Fixed bug [GH-20439](https://github.com/php/php-src/issues/20439) (xml_set_default_handler() does not properly handle special characters in attributes when passing data to callback).
+- **Zip:**
+  - Fix crash in property existence test.
+  - Don't truncate return value of zip_fread() with user sizes.
+- **Zlib:**
+  - Fix assertion failures resulting in crashes with stream filter object parameters.
+
+## 8.4.15 – 2025-11-20
+
+- **Core:**
+  - Fixed bug [GH-19934](https://github.com/php/php-src/issues/19934) (CGI with auto_globals_jit=0 causes uouv).
+  - Fixed bug [GH-20073](https://github.com/php/php-src/issues/20073) (Assertion failure in WeakMap offset operations on reference).
+  - Fixed bug [GH-20085](https://github.com/php/php-src/issues/20085) (Assertion failure when combining lazy object get_properties exception with foreach loop).
+  - Fixed bug [GH-19844](https://github.com/php/php-src/issues/19844) (Don't bail when closing resources on shutdown).
+  - Fixed bug [GH-20177](https://github.com/php/php-src/issues/20177) (Accessing overridden private property in get_object_vars() triggers assertion error).
+  - Fixed bug [GH-20270](https://github.com/php/php-src/issues/20270) (Broken parent hook call with named arguments).
+  - Fixed bug [GH-20183](https://github.com/php/php-src/issues/20183) (Stale EG(opline_before_exception) pointer through eval).
+- **DOM:**
+  - Partially fixed bug [GH-16317](https://github.com/php/php-src/issues/16317) (DOM classes do not allow __debugInfo() overrides to work).
+  - Fixed bug [GH-20281](https://github.com/php/php-src/issues/20281) (\Dom\Document::getElementById() is inconsistent after nodes are removed).
+- **Exif:**
+  - Fix possible memory leak when tag is empty.
+- **FPM:**
+  - Fixed bug [GH-19974](https://github.com/php/php-src/issues/19974) (fpm_status_export_to_zval segfault for parallel execution).
+- **FTP:**
+  - Fixed bug [GH-20240](https://github.com/php/php-src/issues/20240) (FTP with SSL: ftp_fput(): Connection timed out on successful writes).
+- **GD:**
+  - Fixed bug [GH-20070](https://github.com/php/php-src/issues/20070) (Return type violation in imagefilter when an invalid filter is provided).
+- **Intl:**
+  - Fix memory leak on error in locale_filter_matches().
+- **LibXML:**
+  - Fix not thread safe schema/relaxng calls.
+- **MySQLnd:**
+  - Fixed bug [GH-8978](https://github.com/php/php-src/issues/8978) (SSL certificate verification fails (port doubled)).
+  - Fixed bug [GH-20122](https://github.com/php/php-src/issues/20122) (getColumnMeta() for JSON-column in MySQL).
+- **Opcache:**
+  - Fixed bug [GH-20081](https://github.com/php/php-src/issues/20081) (access to uninitialized vars in preload_load()).
+  - Fixed bug [GH-20121](https://github.com/php/php-src/issues/20121) (JIT broken in ZTS builds on MacOS 15).
+  - Fixed bug [GH-19875](https://github.com/php/php-src/issues/19875) (JIT 1205 segfault on large file compiled in subprocess).
+  - Fixed bug [GH-20012](https://github.com/php/php-src/issues/20012) (heap buffer overflow in jit).
+  - Partially fixed bug [GH-17733](https://github.com/php/php-src/issues/17733) (Avoid calling wrong function when reusing file caches across differing environments).
+- **PgSql:**
+  - Fix memory leak when first string conversion fails.
+  - Fix segfaults when attempting to fetch row into a non-instantiable class name.
+- **Phar:**
+  - Fix memory leak of argument in webPhar.
+  - Fix memory leak when setAlias() fails.
+  - Fix a bunch of memory leaks in phar_parse_zipfile() error handling.
+  - Fix file descriptor/memory leak when opening central fp fails.
+  - Fix memleak+UAF when opening temp stream in buildFromDirectory() fails.
+  - Fix potential buffer length truncation due to usage of type int instead of type size_t.
+  - Fix memory leak when openssl polyfill returns garbage.
+  - Fix file descriptor leak in phar_zip_flush() on failure.
+  - Fix memory leak when opening temp file fails while trying to open gzip-compressed archive.
+  - Fixed bug [GH-20302](https://github.com/php/php-src/issues/20302) (Freeing a phar alias may invalidate PharFileInfo objects).
+- **Random:**
+  - Fix Randomizer::__serialize() w.r.t. INDIRECTs.
+- **Reflection:**
+  - Fixed bug [GH-20217](https://github.com/php/php-src/issues/20217) (ReflectionClass::isIterable() incorrectly returns true for classes with property hooks).
+- **SimpleXML:**
+  - Partially fixed bug [GH-16317](https://github.com/php/php-src/issues/16317) (SimpleXML does not allow __debugInfo() overrides to work).
+- **Streams:**
+  - Fixed bug [GH-19798](https://github.com/php/php-src/issues/19798): XP_SOCKET XP_SSL (Socket stream modules): Incorrect condition for Win32/Win64.
+- **Tidy:**
+  - Fixed [GH-19021](https://github.com/php/php-src/issues/19021) (improved tidyOptGetCategory detection).
+  - Fix UAF in tidy when tidySetErrorBuffer() fails.
+- **XMLReader:**
+  - Fix arginfo/zpp violations when LIBXML_SCHEMAS_ENABLED is not available.
+- **Windows:**
+  - Fix [GH-19722](https://github.com/php/php-src/issues/19722) (_get_osfhandle asserts in debug mode when given a socket).
+
+## 8.4.14 – 2025-10-23
+
+- **Core:**
+  - Fixed bug [GH-19765](https://github.com/php/php-src/issues/19765) (object_properties_load() bypasses readonly property checks).
+  - Fixed hard_timeout with --enable-zend-max-execution-timers.
+  - Fixed bug [GH-19792](https://github.com/php/php-src/issues/19792) (SCCP causes UAF for return value if both warning and exception are triggered).
+  - Fixed bug [GH-19653](https://github.com/php/php-src/issues/19653) (Closure named argument unpacking between temporary closures can cause a crash).
+  - Fixed bug [GH-19839](https://github.com/php/php-src/issues/19839) (Incorrect HASH_FLAG_HAS_EMPTY_IND flag on userland array).
+  - Fixed bug [GH-19480](https://github.com/php/php-src/issues/19480) (error_log php.ini cannot be unset when open_basedir is configured).
+  - Fixed bug [GH-20002](https://github.com/php/php-src/issues/20002) (Broken build on *BSD with MSAN).
+- **CLI:**
+  - Fix useless "Failed to poll event" error logs due to EAGAIN in CLI server with PHP_CLI_SERVER_WORKERS.
+- **Curl:**
+  - Fix cloning of CURLOPT_POSTFIELDS when using the clone operator instead of the curl_copy_handle() function to clone a CurlHandle.
+  - Fix curl build and test failures with version 8.16.
+- **Date:**
+  - Fixed [GH-17159](https://github.com/php/php-src/issues/17159): "P" format for ::createFromFormat swallows string literals.
+- **DOM:**
+  - Fix macro name clash on macOS.
+  - Fixed bug [GH-20022](https://github.com/php/php-src/issues/20022) (docker-php-ext-install DOM failed).
+- **GD:**
+  - Fixed [GH-19955](https://github.com/php/php-src/issues/19955) (imagefttext() memory leak).
+- **MySQLnd:**
+  - Fixed bug [#67563](https://bugs.php.net/67563) (mysqli compiled with mysqlnd does not take ipv6 adress as parameter).
+- **Opcache:**
+  - Fixed bug [GH-19669](https://github.com/php/php-src/issues/19669) (assertion failure in zend_jit_trace_type_to_info_ex).
+  - Fixed bug [GH-19831](https://github.com/php/php-src/issues/19831) (function JIT may not deref property value).
+  - Fixed bug [GH-19889](https://github.com/php/php-src/issues/19889) (race condition in zend_runtime_jit(), zend_jit_hot_func()).
+- **Phar:**
+  - Fix memory leak and invalid continuation after tar header writing fails.
+  - Fix memory leaks when creating temp file fails when applying zip signature.
+- **SimpleXML:**
+  - Fixed bug [GH-19988](https://github.com/php/php-src/issues/19988) (zend_string_init with NULL pointer in simplexml (UB)).
+- **Soap:**
+  - Fixed bug [GH-19784](https://github.com/php/php-src/issues/19784) (SoapServer memory leak).
+  - Fixed bug [GH-20011](https://github.com/php/php-src/issues/20011) (Array of SoapVar of unknown type causes crash).
+- **Standard:**
+  - Fixed bug [GH-12265](https://github.com/php/php-src/issues/12265) (Cloning an object breaks serialization recursion).
+  - Fixed bug [GH-19701](https://github.com/php/php-src/issues/19701) (Serialize/deserialize loses some data).
+  - Fixed bug [GH-19801](https://github.com/php/php-src/issues/19801) (leaks in var_dump() and debug_zval_dump()).
+  - Fixed bug [GH-20043](https://github.com/php/php-src/issues/20043) (array_unique assertion failure with RC1 array causing an exception on sort).
+  - Fixed bug [GH-19926](https://github.com/php/php-src/issues/19926) (reset internal pointer earlier while splicing array while COW violation flag is still set).
+  - Fixed bug [GH-19570](https://github.com/php/php-src/issues/19570) (unable to fseek in /dev/zero and /dev/null).
+- **Streams:**
+  - Fixed bug [GH-19248](https://github.com/php/php-src/issues/19248) (Use strerror_r instead of strerror in main).
+  - Fixed bug [GH-17345](https://github.com/php/php-src/issues/17345) (Bug #35916 was not completely fixed).
+  - Fixed bug [GH-19705](https://github.com/php/php-src/issues/19705) (segmentation when attempting to flush on non seekable stream.
+- **XMLReader:**
+  - Fixed bug [GH-20009](https://github.com/php/php-src/issues/20009) (XMLReader leak on RelaxNG schema failure).
+- **Zip:**
+  - Fixed bug [GH-19688](https://github.com/php/php-src/issues/19688) (Remove pattern overflow in zip addGlob()).
+  - Fixed bug [GH-19932](https://github.com/php/php-src/issues/19932) (Memory leak in zip setEncryptionName()/setEncryptionIndex()).
+
+## 8.4.13 – 2025-09-25
+
+- **Core:**
+  - Fixed bug [GH-18850](https://github.com/php/php-src/issues/18850) (Repeated inclusion of file with __halt_compiler() triggers "Constant already defined" warning).
+  - Partially fixed bug [GH-19542](https://github.com/php/php-src/issues/19542) (Scanning of string literals >=2GB will fail due to signed int overflow).
+  - Fixed bug [GH-19544](https://github.com/php/php-src/issues/19544) (GC treats ZEND_WEAKREF_TAG_MAP references as WeakMap references).
+  - Fixed bug [GH-19613](https://github.com/php/php-src/issues/19613) (Stale array iterator pointer).
+  - Fixed bug [GH-19679](https://github.com/php/php-src/issues/19679) (zend_ssa_range_widening may fail to converge).
+  - Fixed bug [GH-19681](https://github.com/php/php-src/issues/19681) (PHP_EXPAND_PATH broken with bash 5.3.0).
+  - Fixed bug [GH-19720](https://github.com/php/php-src/issues/19720) (Assertion failure when error handler throws when accessing a deprecated constant).
+- **CLI:**
+  - Fixed bug [GH-19461](https://github.com/php/php-src/issues/19461) (Improve error message on listening error with IPv6 address).
+- **Date:**
+  - Fixed date_sunrise() and date_sunset() with partial-hour UTC offset.
+- **DBA:**
+  - Fixed bug [GH-19706](https://github.com/php/php-src/issues/19706) (dba stream resource mismanagement).
+- **DOM:**
+  - Fixed bug [GH-19612](https://github.com/php/php-src/issues/19612) (Mitigate libxml2 tree dictionary bug).
+- **FPM:**
+  - Fixed failed debug assertion when php_admin_value setting fails.
+- **Intl:**
+  - Fixed bug [GH-11952](https://github.com/php/php-src/issues/11952) (Fix locale strings canonicalization for IntlDateFormatter and NumberFormatter).
+- **Opcache:**
+  - Fixed bug [GH-19493](https://github.com/php/php-src/issues/19493) (JIT variable not stored before YIELD).
+- **OpenSSL:**
+  - Fixed bug [GH-19245](https://github.com/php/php-src/issues/19245) (Success error message on TLS stream accept failure).
+- **PGSQL:**
+  - Fixed bug [GH-19485](https://github.com/php/php-src/issues/19485) (potential use after free when using persistent pgsql connections).
+- **Phar:**
+  - Fixed memory leaks when verifying OpenSSL signature.
+  - Fix memory leak in phar tar temporary file error handling code.
+  - Fix metadata leak when phar convert logic fails.
+  - Fix memory leak on failure in phar_convert_to_other().
+  - Fixed bug [GH-19752](https://github.com/php/php-src/issues/19752) (Phar decompression with invalid extension can cause UAF).
+- **Standard:**
+  - Fixed bug [GH-16649](https://github.com/php/php-src/issues/16649) (UAF during array_splice).
+  - Fixed bug [GH-19577](https://github.com/php/php-src/issues/19577) (Avoid integer overflow when using a small offset and PHP_INT_MAX with LimitIterator).
+- **Streams:**
+  - Remove incorrect call to zval_ptr_dtor() in user_wrapper_metadata().
+  - Fix OSS-Fuzz #385993744.
+- **Zip:**
+  - Fix memory leak in zip when encountering empty glob result.
+
+## 8.4.12 – 2025-08-28
+
+- **Core:**
+  - Fixed [GH-19169](https://github.com/php/php-src/issues/19169) build issue with C++17 and ZEND_STATIC_ASSERT macro.
+  - Fixed bug [GH-19053](https://github.com/php/php-src/issues/19053) (Duplicate property slot with hooks and interface property).
+  - Fixed bug [GH-19044](https://github.com/php/php-src/issues/19044) (Protected properties are not scoped according to their prototype).
+  - Fixed bug [GH-18581](https://github.com/php/php-src/issues/18581) (Coerce numeric string keys from iterators when argument unpacking).
+  - Fixed OSS-Fuzz #434346548 (Failed assertion with throwing __toString in binary const expr).
+  - Fixed bug [GH-19305](https://github.com/php/php-src/issues/19305) (Operands may be being released during comparison).
+  - Fixed bug [GH-19303](https://github.com/php/php-src/issues/19303) (Unpacking empty packed array into uninitialized array causes assertion failure).
+  - Fixed bug [GH-19306](https://github.com/php/php-src/issues/19306) (Generator can be resumed while fetching next value from delegated Generator).
+  - Fixed bug [GH-19326](https://github.com/php/php-src/issues/19326) (Calling Generator::throw() on a running generator with a non-Generator delegate crashes).
+  - Fixed bug [GH-19280](https://github.com/php/php-src/issues/19280) (Stale array iterator position on rehashing).
+  - Fixed bug [GH-18736](https://github.com/php/php-src/issues/18736) (Circumvented type check with return by ref + finally).
+  - Fixed bug [GH-19065](https://github.com/php/php-src/issues/19065) (Long match statement can segfault compiler during recursive SSA renaming).
+- **Calendar:**
+  - Fixed bug [GH-19371](https://github.com/php/php-src/issues/19371) (integer overflow in calendar.c).
+- **FTP:**
+  - Fix theoretical issues with hrtime() not being available.
+- **GD:**
+  - Fix incorrect comparison with result of php_stream_can_cast().
+- **Hash:**
+  - Fix crash on clone failure.
+- **Intl:**
+  - Fix memleak on failure in collator_get_sort_key().
+  - Fix return value on failure for resourcebundle count handler.
+- **LDAP:**
+  - Fixed bug [GH-18529](https://github.com/php/php-src/issues/18529) (additional inheriting of TLS int options).
+- **LibXML:**
+  - Fixed bug [GH-19098](https://github.com/php/php-src/issues/19098) (libxml<2.13 segmentation fault caused by php_libxml_node_free).
+- **MbString:**
+  - Fixed bug [GH-19397](https://github.com/php/php-src/issues/19397) (mb_list_encodings() can cause crashes on shutdown).
+- **Opcache:**
+  - Reset global pointers to prevent use-after-free in zend_jit_status().
+  - Fix issue with JIT restart and hooks.
+  - Fix crash with dynamic function defs in hooks during preload.
+- **OpenSSL:**
+  - Fixed bug [GH-18986](https://github.com/php/php-src/issues/18986) (OpenSSL backend: incorrect RAND_{load,write}_file() return value check).
+  - Fix error return check of EVP_CIPHER_CTX_ctrl().
+  - Fixed bug [GH-19428](https://github.com/php/php-src/issues/19428) (openssl_pkey_derive segfaults for DH derive with low key_length param).
+- **PDO Pgsql:**
+  - Fixed dangling pointer access on _pdo_pgsql_trim_message helper.
+- **SOAP:**
+  - Fixed bug [GH-18640](https://github.com/php/php-src/issues/18640) (heap-use-after-free ext/soap/php_encoding.c:299:32 in soap_check_zval_ref).
+- **Sockets:**
+  - Fix some potential crashes on incorrect argument value.
+- **Standard:**
+  - Fixed OSS Fuzz #433303828 (Leak in failed unserialize() with opcache).
+  - Fix theoretical issues with hrtime() not being available.
+  - Fixed bug [GH-19300](https://github.com/php/php-src/issues/19300) (Nested array_multisort invocation with error breaks).
+- **Windows:**
+  - Free opened_path when opened_path_len >= MAXPATHLEN.
+
+## 8.4.11 – 2025-07-31
+
+- **Calendar:**
+  - Fixed jewishtojd overflow on year argument.
+- **Core:**
+  - Fixed bug [GH-18833](https://github.com/php/php-src/issues/18833) (Use after free with weakmaps dependent on destruction order).
+  - Fixed bug [GH-18907](https://github.com/php/php-src/issues/18907) (Leak when creating cycle in hook).
+  - Fix OSS-Fuzz #427814456.
+  - Fix OSS-Fuzz #428983568 and #428760800.
+  - Fixed bug [GH-17204](https://github.com/php/php-src/issues/17204) (-Wuseless-escape warnings emitted by re2c).
+  - Fixed bug [GH-19064](https://github.com/php/php-src/issues/19064) (Undefined symbol 'execute_ex' on Windows ARM64).
+- **Curl:**
+  - Fix memory leaks when returning refcounted value from curl callback.
+  - Remove incorrect string release.
+- **DOM:**
+  - Fixed bug [GH-18979](https://github.com/php/php-src/issues/18979) (Dom\XMLDocument::createComment() triggers undefined behavior with null byte).
+- **LDAP:**
+  - Fixed [GH-18902](https://github.com/php/php-src/issues/18902) ldap_exop/ldap_exop_sync assert triggered on empty request OID.
+- **MbString:**
+  - Fixed bug [GH-18901](https://github.com/php/php-src/issues/18901) (integer overflow mb_split).
+- **Opcache:**
+  - Fixed bug [GH-18639](https://github.com/php/php-src/issues/18639) (Internal class aliases can break preloading + JIT).
+  - Fixed bug [GH-18899](https://github.com/php/php-src/issues/18899) (JIT function crash when emitting undefined variable warning and opline is not set yet).
+  - Fixed bug [GH-14082](https://github.com/php/php-src/issues/14082) (Segmentation fault on unknown address 0x600000000018 in ext/opcache/jit/zend_jit.c).
+  - Fixed bug [GH-18898](https://github.com/php/php-src/issues/18898) (SEGV zend_jit_op_array_hot with property hooks and preloading).
+- **OpenSSL:**
+  - Fixed bug [#80770](https://bugs.php.net/80770) (It is not possible to get client peer certificate with stream_socket_server).
+- **PCNTL:**
+  - Fixed bug [GH-18958](https://github.com/php/php-src/issues/18958) (Fatal error during shutdown after pcntl_rfork() or pcntl_forkx() with zend-max-execution-timers).
+- **Phar:**
+  - Fix stream double free in phar.
+  - Fix phar crash and file corruption with SplFileObject.
+- **SOAP:**
+  - Fixed bug [GH-18990](https://github.com/php/php-src/issues/18990), bug #81029, bug #47314 (SOAP HTTP socket not closing on object destruction).
+  - Fix memory leak when URL parsing fails in redirect.
+- **SPL:**
+  - Fixed bug [GH-19094](https://github.com/php/php-src/issues/19094) (Attaching class with no Iterator implementation to MultipleIterator causes crash).
+- **Standard:**
+  - Fix misleading errors in printf().
+  - Fix RCN violations in array functions.
+  - Fixed [GH-18976](https://github.com/php/php-src/issues/18976) pack() overflow with h/H format and INT_MAX repeater value.
+- **Streams:**
+  - Fixed [GH-13264](https://github.com/php/php-src/issues/13264) (fgets() and stream_get_line() do not return false on filter fatal error).
+- **Zip:**
+  - Fix leak when path is too long in ZipArchive::extractTo().
+
+## 8.4.10 – 2025-07-03 (Security Release)
+
+- **BcMath:**
+  - Fixed bug [GH-18641](https://github.com/php/php-src/issues/18641) (Accessing a BcMath\Number property by ref crashes).
+- **Core:**
+  - Fixed bugs [GH-17711](https://github.com/php/php-src/issues/17711) and [GH-18022](https://github.com/php/php-src/issues/18022) (Infinite recursion on deprecated attribute evaluation) and [GH-18464](https://github.com/php/php-src/issues/18464) (Recursion protection for deprecation constants not released on bailout).
+  - Fixed [GH-18695](https://github.com/php/php-src/issues/18695) (zend_ast_export() - float number is not preserved).
+  - Fix handling of references in zval_try_get_long().
+  - Do not delete main chunk in zend_gc.
+  - Fix compile issues with zend_alloc and some non-default options.
+- **Curl:**
+  - Fix memory leak when setting a list via curl_setopt fails.
+- **Date:**
+  - Fix leaks with multiple calls to DatePeriod iterator current().
+- **DOM:**
+  - Fixed bug [GH-18744](https://github.com/php/php-src/issues/18744) (classList works not correctly if copy HTMLElement by clone keyword).
+- **FPM:**
+  - Fixed [GH-18662](https://github.com/php/php-src/issues/18662) (fpm_get_status segfault).
+- **Hash:**
+  - Fixed bug [GH-14551](https://github.com/php/php-src/issues/14551) (PGO build fails with xxhash).
+- **Intl:**
+  - Fix memory leak in intl_datetime_decompose() on failure.
+  - Fix memory leak in locale lookup on failure.
+- **Opcache:**
+  - Fixed bug [GH-18743](https://github.com/php/php-src/issues/18743) (Incompatibility in Inline TLS Assembly on Alpine 3.22).
+- **ODBC:**
+  - Fix memory leak on php_odbc_fetch_hash() failure.
+- **OpenSSL:**
+  - Fix memory leak of X509_STORE in php_openssl_setup_verify() on failure.
+  - Fixed bug [#74796](https://bugs.php.net/74796) (Requests through http proxy set peer name).
+- **PGSQL:**
+  - Fixed [GHSA-hrwm-9436-5mv3](https://github.com/php/php-src/security/advisories/GHSA-hrwm-9436-5mv3) (pgsql extension does not check for errors during escaping). (CVE-2025-1735)
+  - Fix warning not being emitted when failure to cancel a query with pg_cancel_query().
+- **PDO ODBC:**
+  - Fix memory leak if WideCharToMultiByte() fails.
+- **PDO Sqlite:**
+  - Fixed memory leak with Pdo_Sqlite::createCollation when the callback has an incorrect return type.
+- **Phar:**
+  - Add missing filter cleanups on phar failure.
+  - Fixed bug [GH-18642](https://github.com/php/php-src/issues/18642) (Signed integer overflow in ext/phar fseek).
+- **PHPDBG:**
+  - Fix 'phpdbg --help' segfault on shutdown with USE_ZEND_ALLOC=0.
+- **Random:**
+  - Fix reference type confusion and leak in user random engine.
+- **Readline:**
+  - Fix memory leak when calloc() fails in php_readline_completion_cb().
+- **SimpleXML:**
+  - Fixed bug [GH-18597](https://github.com/php/php-src/issues/18597) (Heap-buffer-overflow in zend_alloc.c when assigning string with UTF-8 bytes).
+- **SOAP:**
+  - Fix memory leaks in php_http.c when call_user_function() fails.
+  - Fixed [GHSA-453j-q27h-5p8x](https://github.com/php/php-src/security/advisories/GHSA-453j-q27h-5p8x) (NULL Pointer Dereference in PHP SOAP Extension via Large XML Namespace Prefix). (CVE-2025-6491)
+- **Standard:**
+  - Fixed [GHSA-3cr5-j632-f35r](https://github.com/php/php-src/security/advisories/GHSA-3cr5-j632-f35r) (Null byte termination in hostnames). (CVE-2025-1220)
+- **Tidy:**
+  - Fix memory leak in tidy output handler on error.
+  - Fix tidyOptIsReadonly deprecation, using tidyOptGetCategory.
+
+## 8.4.8 – 2025-06-05
+
+- **Core:**
+  - Fixed [GH-18480](https://github.com/php/php-src/issues/18480) (array_splice with large values for offset/length arguments).
+  - Partially fixed [GH-18572](https://github.com/php/php-src/issues/18572) (nested object comparisons leading to stack overflow).
+  - Fixed OSS-Fuzz #417078295.
+  - Fixed OSS-Fuzz #418106144.
+- **Curl:**
+  - Fixed [GH-18460](https://github.com/php/php-src/issues/18460) (curl_easy_setopt with CURLOPT_USERPWD/CURLOPT_USERNAME/ CURLOPT_PASSWORD set the Authorization header when set to NULL).
+- **Date:**
+  - Fixed bug [GH-18076](https://github.com/php/php-src/issues/18076) (Since PHP 8, the date_sun_info() function returns inaccurate sunrise and sunset times, but other calculated times are correct) (JiriJozif).
+  - Fixed bug [GH-18481](https://github.com/php/php-src/issues/18481) (date_sunrise with unexpected nan value for the offset).
+- **DOM:**
+  - Backport lexbor/lexbor#274.
+- **Intl:**
+  - Fix various reference issues.
+- **LDAP:**
+  - Fixed bug [GH-18529](https://github.com/php/php-src/issues/18529) (ldap no longer respects TLS_CACERT from ldaprc in ldap_start_tls()).
+- **Opcache:**
+  - Fixed bug [GH-18417](https://github.com/php/php-src/issues/18417) (Windows SHM reattachment fails when increasing memory_consumption or jit_buffer_size).
+  - Fixed bug [GH-18297](https://github.com/php/php-src/issues/18297) (Exception not handled when jit guard is triggered).
+  - Fixed bug [GH-18408](https://github.com/php/php-src/issues/18408) (Snapshotted poly_func / poly_this may be spilled).
+  - Fixed bug [GH-18567](https://github.com/php/php-src/issues/18567) (Preloading with internal class alias triggers assertion failure).
+  - Fixed bug [GH-18534](https://github.com/php/php-src/issues/18534) (FPM exit code 70 with enabled opcache and hooked properties in traits).
+  - Fix leak of accel_globals->key.
+- **OpenSSL:**
+  - Fix missing checks against php_set_blocking() in xp_ssl.c.
+- **SPL:**
+  - Fixed bug [GH-18421](https://github.com/php/php-src/issues/18421) (Integer overflow with large numbers in LimitIterator).
+- **Standard:**
+  - Fixed bug [GH-17403](https://github.com/php/php-src/issues/17403) (Potential deadlock when putenv fails).
+  - Fixed bug [GH-18400](https://github.com/php/php-src/issues/18400) (http_build_query type error is inaccurate).
+  - Fixed bug [GH-18509](https://github.com/php/php-src/issues/18509) (Dynamic calls to assert() ignore zend.assertions).
+- **Windows:**
+  - Fix leak+crash with sapi_windows_set_ctrl_handler().
+- **Zip:**
+  - Fixed bug [GH-18431](https://github.com/php/php-src/issues/18431) (Registering ZIP progress callback twice doesn't work).
+  - Fixed bug [GH-18438](https://github.com/php/php-src/issues/18438) (Handling of empty data and errors in ZipArchive::addPattern).
+
+## 8.4.7 – 2025-05-08
+
+- **Core:**
+  - Fixed bug [GH-18038](https://github.com/php/php-src/issues/18038) (Lazy proxy calls magic methods twice).
+  - Fixed bug [GH-18209](https://github.com/php/php-src/issues/18209) (Use-after-free in extract() with EXTR_REFS).
+  - Fixed bug [GH-18268](https://github.com/php/php-src/issues/18268) (Segfault in array_walk() on object with added property hooks).
+  - Fixed bug [GH-18304](https://github.com/php/php-src/issues/18304) (Changing the properties of a DateInterval through dynamic properties triggers a SegFault).
+  - Fix some leaks in php_scandir.
+- **DBA:**
+  - FIxed bug [GH-18247](https://github.com/php/php-src/issues/18247) dba_popen() memory leak on invalid path.
+- **Filter:**
+  - Fixed bug [GH-18309](https://github.com/php/php-src/issues/18309) (ipv6 filter integer overflow).
+- **GD:**
+  - Fixed imagecrop() overflow with rect argument with x/width y/heigh usage in gdImageCrop().
+  - Fixed [GH-18243](https://github.com/php/php-src/issues/18243) imagettftext() overflow/underflow on font size value.
+- **Intl:**
+  - Fix reference support for intltz_get_offset().
+- **LDAP:**
+  - Fixed bug [GH-17776](https://github.com/php/php-src/issues/17776) (LDAP_OPT_X_TLS_* options can't be overridden).
+  - Fix NULL deref on high modification key.
+- **libxml:**
+  - Fixed custom external entity loader returning an invalid resource leading to a confusing TypeError message.
+- **Opcache:**
+  - Fixed bug [GH-18294](https://github.com/php/php-src/issues/18294) (assertion failure zend_jit_ir.c).
+  - Fixed bug [GH-18289](https://github.com/php/php-src/issues/18289) (Fix segfault in JIT).
+  - Fixed bug [GH-18136](https://github.com/php/php-src/issues/18136) (tracing JIT floating point register clobbering on Windows and ARM64).
+- **OpenSSL:**
+  - Fix memory leak in openssl_sign() when passing invalid algorithm.
+  - Fix potential leaks when writing to BIO fails.
+- **PDO Firebird:**
+  - Fixed bug [GH-18276](https://github.com/php/php-src/issues/18276) (persistent connection - "zend_mm_heap corrupted" with setAttribute()) (SakiTakamachi).
+  - Fixed bug [GH-17383](https://github.com/php/php-src/issues/17383) (PDOException has wrong code and message since PHP 8.4) (SakiTakamachi).
+- **PDO Sqlite:**
+  - Fix memory leak on error return of collation callback.
+- **PgSql:**
+  - Fix uouv in pg_put_copy_end().
+- **SPL:**
+  - Fixed bug [GH-18322](https://github.com/php/php-src/issues/18322) (SplObjectStorage debug handler mismanages memory).
+- **Standard:**
+  - Fixed bug [GH-18145](https://github.com/php/php-src/issues/18145) (php8ts crashes in php_clear_stat_cache()).
+  - Fix resource leak in iptcembed() on error.
+- **Tests:**
+  - Address deprecated PHP 8.4 session options to prevent test failures.
+- **Zip:**
+  - Fix uouv when handling empty options in ZipArchive::addGlob().
+  - Fix memory leak when handling a too long path in ZipArchive::addGlob().
+
+## 8.4.6 – 2025-04-10
+
+- **BCMath:**
+  - Fixed pointer subtraction for scale.
+- **Core:**
+  - Fixed property hook backing value access in multi-level inheritance.
+  - Fixed accidentally inherited default value in overridden virtual properties.
+  - Fixed bug [GH-17376](https://github.com/php/php-src/issues/17376) (Broken JIT polymorphism for property hooks added to child class).
+  - Fixed bug [GH-17913](https://github.com/php/php-src/issues/17913) (ReflectionFunction::isDeprecated() returns incorrect results for closures created from magic __call()).
+  - Fixed bug [GH-17941](https://github.com/php/php-src/issues/17941) (Stack-use-after-return with lazy objects and hooks).
+  - Fixed bug [GH-17988](https://github.com/php/php-src/issues/17988) (Incorrect handling of hooked props without get hook in get_object_vars()).
+  - Fixed bug [GH-17998](https://github.com/php/php-src/issues/17998) (Skipped lazy object initialization on primed SIMPLE_WRITE cache).
+  - Fixed bug [GH-17998](https://github.com/php/php-src/issues/17998) (Assignment to backing value in set hook of lazy proxy calls hook again).
+  - Fixed bug [GH-17961](https://github.com/php/php-src/issues/17961) (use-after-free during dl()'ed module class destruction).
+  - Fixed bug [GH-15367](https://github.com/php/php-src/issues/15367) (dl() of module with aliased class crashes in shutdown).
+  - Fixed OSS-Fuzz #403308724.
+  - Fixed bug [GH-13193](https://github.com/php/php-src/issues/13193) again (Significant performance degradation in 'foreach').
+- **DBA:**
+  - Fixed assertion violation when opening the same file with dba_open multiple times.
+- **DOM:**
+  - Fixed bug [GH-17991](https://github.com/php/php-src/issues/17991) (Assertion failure dom_attr_value_write).
+  - Fix weird unpack behaviour in DOM.
+  - Fixed bug [GH-18090](https://github.com/php/php-src/issues/18090) (DOM: Svg attributes and tag names are being lowercased).
+  - Fix xinclude destruction of live attributes.
+- **Fuzzer:**
+  - Fixed bug [GH-18081](https://github.com/php/php-src/issues/18081) (Memory leaks in error paths of fuzzer SAPI).
+- **GD:**
+  - Fixed bug [GH-17984](https://github.com/php/php-src/issues/17984) (calls with arguments as array with references).
+- **LDAP:**
+  - Fixed bug [GH-18015](https://github.com/php/php-src/issues/18015) (Error messages for ldap_mod_replace are confusing).
+- **Mbstring:**
+  - Fixed bug [GH-17989](https://github.com/php/php-src/issues/17989) (mb_output_handler crash with unset http_output_conv_mimetypes).
+- **Opcache:**
+  - Fixed bug [GH-15834](https://github.com/php/php-src/issues/15834) (Segfault with hook "simple get" cache slot and minimal JIT).
+  - Fixed bug [GH-17966](https://github.com/php/php-src/issues/17966) (Symfony JIT 1205 assertion failure).
+  - Fixed bug [GH-18037](https://github.com/php/php-src/issues/18037) (SEGV Zend/zend_execute.c).
+  - Fixed bug [GH-18050](https://github.com/php/php-src/issues/18050) (IN_ARRAY optimization in DFA pass is broken).
+  - Fixed bug [GH-18113](https://github.com/php/php-src/issues/18113) (stack-buffer-overflow ext/opcache/jit/ir/ir_sccp.c).
+  - Fixed bug [GH-18112](https://github.com/php/php-src/issues/18112) (NULL access with preloading and INI option).
+  - Fixed bug [GH-18107](https://github.com/php/php-src/issues/18107) (Opcache CFG jmp optimization with try-finally breaks the exception table).
+- **PDO:**
+  - Fix memory leak when destroying PDORow.
+- **Standard:**
+  - Fix memory leaks in array_any() / array_all().
+- **SOAP:**
+  - Fixed bug [#66049](https://bugs.php.net/66049) (Typemap can break parsing in parse_packet_soap leading to a segfault) .
+- **SPL:**
+  - Fixed bug [GH-18018](https://github.com/php/php-src/issues/18018) (RC1 data returned from offsetGet causes UAF in ArrayObject).
+- **Treewide:**
+  - Fixed bug [GH-17736](https://github.com/php/php-src/issues/17736) (Assertion failure zend_reference_destroy()).
+- **Windows:**
+  - Fixed bug [GH-17836](https://github.com/php/php-src/issues/17836) (zend_vm_gen.php shouldn't break on Windows line endings).
+
+## 8.4.5 – 2025-03-13 (Security Release)
+
+- **BCMath:**
+  - Fixed bug [GH-17398](https://github.com/php/php-src/issues/17398) (bcmul memory leak).
+- **Core:**
+  - Fixed bug [GH-17623](https://github.com/php/php-src/issues/17623) (Broken stack overflow detection for variable compilation).
+  - Fixed bug [GH-17618](https://github.com/php/php-src/issues/17618) (UnhandledMatchError does not take zend.exception_ignore_args=1 into account).
+  - Fix fallback paths in fast_long_{add,sub}_function.
+  - Fixed bug OSS-Fuzz #391975641 (Crash when accessing property backing value by reference).
+  - Fixed bug [GH-17718](https://github.com/php/php-src/issues/17718) (Calling static methods on an interface that has `__callStatic` is allowed).
+  - Fixed bug [GH-17713](https://github.com/php/php-src/issues/17713) (ReflectionProperty::getRawValue() and related methods may call hooks of overridden properties).
+  - Fixed bug [GH-17916](https://github.com/php/php-src/issues/17916) (Final abstract properties should error).
+  - Fixed bug [GH-17866](https://github.com/php/php-src/issues/17866) (zend_mm_heap corrupted error after upgrading from 8.4.3 to 8.4.4).
+  - Fixed [GHSA-rwp7-7vc6-8477](https://github.com/php/php-src/security/advisories/GHSA-rwp7-7vc6-8477) (Reference counting in php_request_shutdown causes Use-After-Free). (CVE-2024-11235)
+- **DOM:**
+  - Fixed bug [GH-17609](https://github.com/php/php-src/issues/17609) (Typo in error message: Dom\NO_DEFAULT_NS instead of Dom\HTML_NO_DEFAULT_NS).
+  - Fixed bug [GH-17802](https://github.com/php/php-src/issues/17802) (\Dom\HTMLDocument querySelector attribute name is case sensitive in HTML).
+  - Fixed bug [GH-17847](https://github.com/php/php-src/issues/17847) (xinclude destroys live node).
+  - Fix using Dom\Node with Dom\XPath callbacks.
+- **GD:**
+  - Fixed bug [GH-17703](https://github.com/php/php-src/issues/17703) (imagescale with both width and height negative values triggers only an Exception on width).
+  - Fixed bug [GH-17772](https://github.com/php/php-src/issues/17772) (imagepalettetotruecolor crash with memory_limit=2M).
+- **FFI:**
+  - Fix FFI Parsing of Pointer Declaration Lists.
+- **FPM:**
+  - Fixed bug [GH-17643](https://github.com/php/php-src/issues/17643) (FPM with httpd ProxyPass encoded PATH_INFO env).
+- **LDAP:**
+  - Fixed bug [GH-17704](https://github.com/php/php-src/issues/17704) (ldap_search fails when $attributes contains a non-packed array with numerical keys).
+- **LibXML:**
+  - Fixed [GHSA-wg4p-4hqh-c3g9](https://github.com/php/php-src/security/advisories/GHSA-wg4p-4hqh-c3g9) (Reocurrence of #72714).
+  - Fixed [GHSA-p3x9-6h7p-cgfc](https://github.com/php/php-src/security/advisories/GHSA-p3x9-6h7p-cgfc) (libxml streams use wrong `content-type` header when requesting a redirected resource). (CVE-2025-1219)
+- **MBString:**
+  - Fixed bug [GH-17503](https://github.com/php/php-src/issues/17503) (Undefined float conversion in mb_convert_variables).
+- **Opcache:**
+  - Fixed bug [GH-17654](https://github.com/php/php-src/issues/17654) (Multiple classes using same trait causes function JIT crash).
+  - Fixed bug [GH-17577](https://github.com/php/php-src/issues/17577) (JIT packed type guard crash).
+  - Fixed bug [GH-17747](https://github.com/php/php-src/issues/17747) (Exception on reading property in register-based FETCH_OBJ_R breaks JIT).
+  - Fixed bug [GH-17715](https://github.com/php/php-src/issues/17715) (Null pointer deref in observer API when calling cases() method on preloaded enum).
+  - Fixed bug [GH-17868](https://github.com/php/php-src/issues/17868) (Cannot allocate memory with tracing JIT on 8.4.4).
+- **PDO_SQLite:**
+  - Fixed [GH-17837](https://github.com/php/php-src/issues/17837) ()::getColumnMeta() on unexecuted statement segfaults).
+  - Fix cycle leak in sqlite3 setAuthorizer().
+  - Fix memory leaks in pdo_sqlite callback registration.
+- **Phar:**
+  - Fixed bug [GH-17808](https://github.com/php/php-src/issues/17808): PharFileInfo refcount bug.
+- **PHPDBG:**
+  - Partially fixed bug [GH-17387](https://github.com/php/php-src/issues/17387) (Trivial crash in phpdbg lexer).
+  - Fix memory leak in phpdbg calling registered function.
+- **Reflection:**
+  - Fixed bug [GH-15902](https://github.com/php/php-src/issues/15902) (Core dumped in ext/reflection/php_reflection.c).
+  - Fixed missing final and abstract flags when dumping properties.
+- **Standard:**
+  - Fixed bug [#72666](https://bugs.php.net/72666) (stat cache clearing inconsistent between file:// paths and plain paths).
+- **Streams:**
+  - Fixed bug [GH-17650](https://github.com/php/php-src/issues/17650) (realloc with size 0 in user_filters.c).
+  - Fix memory leak on overflow in _php_stream_scandir().
+  - Fixed [GHSA-hgf5-96fm-v528](https://github.com/php/php-src/security/advisories/GHSA-hgf5-96fm-v528) (Stream HTTP wrapper header check might omit basic auth header). (CVE-2025-1736)
+  - Fixed [GHSA-52jp-hrpf-2jff](https://github.com/php/php-src/security/advisories/GHSA-52jp-hrpf-2jff) (Stream HTTP wrapper truncate redirect location to 1024 bytes). (CVE-2025-1861)
+  - Fixed [GHSA-pcmh-g36c-qc44](https://github.com/php/php-src/security/advisories/GHSA-pcmh-g36c-qc44) (Streams HTTP wrapper does not fail for headers without colon). (CVE-2025-1734)
+  - Fixed [GHSA-v8xr-gpvj-cx9g](https://github.com/php/php-src/security/advisories/GHSA-v8xr-gpvj-cx9g) (Header parser of `http` stream wrapper does not handle folded headers). (CVE-2025-1217)
+- **Windows:**
+  - Fixed phpize for Windows 11 (24H2).
+  - Fixed [GH-17855](https://github.com/php/php-src/issues/17855) (CURL_STATICLIB flag set even if linked with shared lib).
+- **Zlib:**
+  - Fixed bug [GH-17745](https://github.com/php/php-src/issues/17745) (zlib extension incorrectly handles object arguments).
+  - Fix memory leak when encoding check fails.
+  - Fix zlib support for large files.
+
+## 8.4.4 – 2025-02-13
+
+- **Core:**
+  - Fixed bug [GH-17234](https://github.com/php/php-src/issues/17234) (Numeric parent hook call fails with assertion).
+  - Fixed bug [GH-16892](https://github.com/php/php-src/issues/16892) (ini_parse_quantity() fails to parse inputs starting with 0x0b).
+  - Fixed bug [GH-16886](https://github.com/php/php-src/issues/16886) (ini_parse_quantity() fails to emit warning for 0x+0).
+  - Fixed bug [GH-17222](https://github.com/php/php-src/issues/17222) (__PROPERTY__ magic constant does not work in all constant expression contexts).
+  - Fixed bug [GH-17214](https://github.com/php/php-src/issues/17214) (Relax final+private warning for trait methods with inherited final).
+  - Fixed NULL arithmetic during system program execution on Windows.
+  - Fixed potential OOB when checking for trailing spaces on Windows.
+  - Fixed bug [GH-17408](https://github.com/php/php-src/issues/17408) (Assertion failure Zend/zend_exceptions.c).
+  - Fix may_have_extra_named_args flag for ZEND_AST_UNPACK.
+  - Fix NULL arithmetic in System V shared memory emulation for Windows.
+  - Fixed bug [GH-17597](https://github.com/php/php-src/issues/17597) (#[\Deprecated] does not work for __call() and __callStatic()).
+- **DOM:**
+  - Fixed bug [GH-17397](https://github.com/php/php-src/issues/17397) (Assertion failure ext/dom/php_dom.c).
+  - Fixed bug [GH-17486](https://github.com/php/php-src/issues/17486) (Incorrect error line numbers reported in Dom\HTMLDocument::createFromString).
+  - Fixed bug [GH-17481](https://github.com/php/php-src/issues/17481) (UTF-8 corruption in \Dom\HTMLDocument).
+  - Fixed bug [GH-17500](https://github.com/php/php-src/issues/17500) (Segfault with requesting nodeName on nameless doctype).
+  - Fixed bug [GH-17485](https://github.com/php/php-src/issues/17485) (upstream fix, Self-closing tag on void elements shouldn't be a parse error/warning in \Dom\HTMLDocument).
+  - Fixed bug [GH-17572](https://github.com/php/php-src/issues/17572) (getElementsByTagName returns collections with tagName-based indexing).
+- **Enchant:**
+  - Fix crashes in enchant when passing null bytes.
+- **FTP:**
+  - Fixed bug [GH-16800](https://github.com/php/php-src/issues/16800) (ftp functions can abort with EINTR).
+- **GD:**
+  - Fixed bug [GH-17349](https://github.com/php/php-src/issues/17349) (Tiled truecolor filling looses single color transparency).
+  - Fixed bug [GH-17373](https://github.com/php/php-src/issues/17373) (imagefttext() ignores clipping rect for palette images).
+  - Ported fix for libgd 223 (gdImageRotateGeneric() does not properly interpolate).
+  - Added support for reading GIFs without colormap to bundled libgd.
+- **Gettext:**
+  - Fixed bug [GH-17400](https://github.com/php/php-src/issues/17400) (bindtextdomain SEGV on invalid domain).
+- **Intl:**
+  - Fixed bug [GH-11874](https://github.com/php/php-src/issues/11874) (intl causing segfault in docker images).
+- **Opcache:**
+  - Fixed bug [GH-15981](https://github.com/php/php-src/issues/15981) (Segfault with frameless jumps and minimal JIT).
+  - Fixed bug [GH-17307](https://github.com/php/php-src/issues/17307) (Internal closure causes JIT failure).
+  - Fixed bug [GH-17428](https://github.com/php/php-src/issues/17428) (Assertion failure ext/opcache/jit/zend_jit_ir.c:8940).
+  - Fixed bug [GH-17564](https://github.com/php/php-src/issues/17564) (Potential UB when reading from / writing to struct padding).
+- **PCNTL:**
+  - Fixed pcntl_setcpuaffinity exception type from ValueError to TypeError for the cpu mask argument with entries type different than int/string.
+- **PCRE:**
+  - Fixed bug [GH-17122](https://github.com/php/php-src/issues/17122) (memory leak in regex).
+- **PDO:**
+  - Fixed a memory leak when the GC is used to free a PDOStatment.
+  - Fixed a crash in the PDO Firebird Statement destructor.
+  - Fixed UAFs when changing default fetch class ctor args.
+- **PgSql:**
+  - Fixed build failure when the constant PGRES_TUPLES_CHUNK is not present in the system.
+- **Phar:**
+  - Fixed bug [GH-17518](https://github.com/php/php-src/issues/17518) (offset overflow phar extractTo()).
+- **PHPDBG:**
+  - Fix crashes in function registration + test.
+- **Session:**
+  - Fix type confusion with session SID constant.
+  - Fixed bug [GH-17541](https://github.com/php/php-src/issues/17541) (ext/session NULL pointer dereferencement during ID reset).
+- **SimpleXML:**
+  - Fixed bug [GH-17409](https://github.com/php/php-src/issues/17409) (Assertion failure Zend/zend_hash.c:1730).
+- **SNMP:**
+  - Fixed bug [GH-17330](https://github.com/php/php-src/issues/17330) (SNMP::setSecurity segfault on closed session).
+- **SPL:**
+  - Fixed bug [GH-15833](https://github.com/php/php-src/issues/15833) (Segmentation fault (access null pointer) in ext/spl/spl_array.c).
+  - Fixed bug [GH-17516](https://github.com/php/php-src/issues/17516) (SplFileTempObject::getPathInfo() Undefined behavior on invalid class).
+- **Standard:**
+  - Fixed bug [GH-17447](https://github.com/php/php-src/issues/17447) (Assertion failure when array popping a self addressing variable).
+- **Windows:**
+  - Fixed clang compiler detection.
+- **Zip:**
+  - Fixed bug [GH-17139](https://github.com/php/php-src/issues/17139) (Fix zip_entry_name() crash on invalid entry).
+
+## 8.4.3 – 2025-01-16
+
+- **BcMath:**
+  - Fixed bug [GH-17049](https://github.com/php/php-src/issues/17049) (Correctly compare 0 and -0).
+  - Fixed bug [GH-17061](https://github.com/php/php-src/issues/17061) (Now Number::round() does not remove trailing zeros).
+  - Fixed bug [GH-17064](https://github.com/php/php-src/issues/17064) (Correctly round rounding mode with zero edge case).
+  - Fixed bug [GH-17275](https://github.com/php/php-src/issues/17275) (Fixed the calculation logic of dividend scale).
+- **Core:**
+  - Fixed bug OSS-Fuzz #382922236 (Duplicate dynamic properties in hooked object iterator properties table).
+  - Fixed unstable get_iterator pointer for hooked classes in shm on Windows.
+  - Fixed bug [GH-17106](https://github.com/php/php-src/issues/17106) (ZEND_MATCH_ERROR misoptimization).
+  - Fixed bug [GH-17162](https://github.com/php/php-src/issues/17162) (zend_array_try_init() with dtor can cause engine UAF).
+  - Fixed bug [GH-17101](https://github.com/php/php-src/issues/17101) (AST->string does not reproduce constructor property promotion correctly).
+  - Fixed bug [GH-17200](https://github.com/php/php-src/issues/17200) (Incorrect dynamic prop offset in hooked prop iterator).
+  - Fixed bug [GH-17216](https://github.com/php/php-src/issues/17216) (Trampoline crash on error).
+- **DBA:**
+  - Skip test if inifile is disabled.
+- **DOM:**
+  - Fixed bug [GH-17145](https://github.com/php/php-src/issues/17145) (DOM memory leak).
+  - Fixed bug [GH-17201](https://github.com/php/php-src/issues/17201) (Dom\TokenList issues with interned string replace).
+  - Fixed bug [GH-17224](https://github.com/php/php-src/issues/17224) (UAF in importNode).
+- **Embed:**
+  - Make build command for program using embed portable.
+- **FFI:**
+  - Fixed bug [#79075](https://bugs.php.net/79075) (FFI header parser chokes on comments).
+  - Fix memory leak on ZEND_FFI_TYPE_CHAR conversion failure.
+  - Fixed bug [GH-16013](https://github.com/php/php-src/issues/16013) and bug #80857 (Big endian issues).
+- **Fileinfo:**
+  - Fixed bug [GH-17039](https://github.com/php/php-src/issues/17039) (PHP 8.4: Incorrect MIME content type).
+- **FPM:**
+  - Fixed bug [GH-13437](https://github.com/php/php-src/issues/13437) (FPM: ERROR: scoreboard: failed to lock (already locked)).
+  - Fixed bug [GH-17112](https://github.com/php/php-src/issues/17112) (Macro redefinitions).
+  - Fixed bug [GH-17208](https://github.com/php/php-src/issues/17208) (bug64539-status-json-encoding.phpt fail on 32-bits).
+- **GD:**
+  - Fixed bug [GH-16255](https://github.com/php/php-src/issues/16255) (Unexpected nan value in ext/gd/libgd/gd_filter.c).
+  - Ported fix for libgd bug 276 (Sometimes pixels are missing when storing images as BMPs).
+- **Gettext:**
+  - Fixed bug [GH-17202](https://github.com/php/php-src/issues/17202) (Segmentation fault ext/gettext/gettext.c bindtextdomain()).
+- **Iconv:**
+  - Fixed bug [GH-17047](https://github.com/php/php-src/issues/17047) (UAF on iconv filter failure).
+- **LDAP:**
+  - Fixed bug [GH-17280](https://github.com/php/php-src/issues/17280) (ldap_search() fails when $attributes array has holes).
+- **LibXML:**
+  - Fixed bug [GH-17223](https://github.com/php/php-src/issues/17223) (Memory leak in libxml encoding handling).
+- **MBString:**
+  - Fixed bug [GH-17112](https://github.com/php/php-src/issues/17112) (Macro redefinitions).
+- **Opcache:**
+  - opcache_get_configuration() properly reports jit_prof_threshold.
+  - Fixed bug [GH-17140](https://github.com/php/php-src/issues/17140) (Assertion failure in JIT trace exit with ZEND_FETCH_DIM_FUNC_ARG).
+  - Fixed bug [GH-17151](https://github.com/php/php-src/issues/17151) (Incorrect RC inference of op1 of FETCH_OBJ and INIT_METHOD_CALL).
+  - Fixed bug [GH-17246](https://github.com/php/php-src/issues/17246) (GC during SCCP causes segfault).
+  - Fixed bug [GH-17257](https://github.com/php/php-src/issues/17257) (UBSAN warning in ext/opcache/jit/zend_jit_vm_helpers.c).
+- **PCNTL:**
+  - Fix memory leak in cleanup code of pcntl_exec() when a non stringable value is encountered past the first entry.
+- **PgSql:**
+  - Fixed bug [GH-17158](https://github.com/php/php-src/issues/17158) (pg_fetch_result Shows Incorrect ArgumentCountError Message when Called With 1 Argument).
+  - Fixed further ArgumentCountError for calls with flexible number of arguments.
+- **Phar:**
+  - Fixed bug [GH-17137](https://github.com/php/php-src/issues/17137) (Segmentation fault ext/phar/phar.c).
+- **SimpleXML:**
+  - Fixed bug [GH-17040](https://github.com/php/php-src/issues/17040) (SimpleXML's unset can break DOM objects).
+  - Fixed bug [GH-17153](https://github.com/php/php-src/issues/17153) (SimpleXML crash when using autovivification on document).
+- **Sockets:**
+  - Fixed bug [GH-16276](https://github.com/php/php-src/issues/16276) (socket_strerror overflow handling with INT_MIN).
+  - Fixed overflow on SO_LINGER values setting, strengthening values check on SO_SNDTIMEO/SO_RCVTIMEO for socket_set_option().
+- **SPL:**
+  - Fixed bug [GH-17198](https://github.com/php/php-src/issues/17198) (SplFixedArray assertion failure with get_object_vars).
+  - Fixed bug [GH-17225](https://github.com/php/php-src/issues/17225) (NULL deref in spl_directory.c).
+- **Streams:**
+  - Fixed bug [GH-17037](https://github.com/php/php-src/issues/17037) (UAF in user filter when adding existing filter name due to incorrect error handling).
+  - Fixed bug [GH-16810](https://github.com/php/php-src/issues/16810) (overflow on fopen HTTP wrapper timeout value).
+  - Fixed bug [GH-17067](https://github.com/php/php-src/issues/17067) (glob:// wrapper doesn't cater to CWD for ZTS builds).
+- **Windows:**
+  - Hardened proc_open() against cmd.exe hijacking.
+- **XML:**
+  - Fixed bug [GH-1718](https://github.com/php/php-src/issues/1718) (unreachable program point in zend_hash).
+
+## 8.4.2 – 2024-12-19
+
+- **BcMath:**
+  - Fixed bug [GH-16978](https://github.com/php/php-src/issues/16978) (Avoid unnecessary padding with leading zeros) (Saki Takamachi)
+- **Calendar:**
+  - Fixed jdtogregorian overflow.
+  - Fixed cal_to_jd julian_days argument overflow.
+- **COM:**
+  - Fixed bug [GH-16991](https://github.com/php/php-src/issues/16991) (Getting typeinfo of non DISPATCH variant segfaults).
+- **Core:**
+  - Fail early in *nix configuration build script.
+  - Fixed bug [GH-16344](https://github.com/php/php-src/issues/16344) (setRawValueWithoutLazyInitialization() and skipLazyInitialization() may change initialized proxy).
+  - Fixed bug [GH-16727](https://github.com/php/php-src/issues/16727) (Opcache bad signal 139 crash in ZTS bookworm (frankenphp)).
+  - Fixed bug [GH-16799](https://github.com/php/php-src/issues/16799) (Assertion failure at Zend/zend_vm_execute.h:7469).
+  - Fixed bug [GH-16630](https://github.com/php/php-src/issues/16630) (UAF in lexer with encoding translation and heredocs).
+  - Fix is_zend_ptr() huge block comparison.
+  - Fixed potential OOB read in zend_dirname() on Windows.
+  - Fixed bug [GH-15964](https://github.com/php/php-src/issues/15964) (printf() can strip sign of -INF).
+- **Curl:**
+  - Fixed bug [GH-16802](https://github.com/php/php-src/issues/16802) (open_basedir bypass using curl extension).
+  - Fix various memory leaks in curl mime handling.
+- **DBA:**
+  - Fixed bug [GH-16990](https://github.com/php/php-src/issues/16990) (dba_list() is now zero-indexed instead of using resource ids) (kocsismate)
+- **DOM:**
+  - Fixed bug [GH-16777](https://github.com/php/php-src/issues/16777) (Calling the constructor again on a DOM object after it is in a document causes UAF).
+  - Fixed bug [GH-16906](https://github.com/php/php-src/issues/16906) (Reloading document can cause UAF in iterator).
+- **FPM:**
+  - Fixed [GH-16432](https://github.com/php/php-src/issues/16432) (PHP-FPM 8.2 SIGSEGV in fpm_get_status).
+  - Fixed bug [GH-16932](https://github.com/php/php-src/issues/16932) (wrong FPM status output).
+- **GD:**
+  - Fixed [GH-16776](https://github.com/php/php-src/issues/16776) (imagecreatefromstring overflow).
+- **GMP:**
+  - Fixed bug [GH-16890](https://github.com/php/php-src/issues/16890) (array_sum() with GMP can loose precision (LLP64)).
+- **Hash:**
+  - Fixed [GH-16711](https://github.com/php/php-src/issues/16711): Segfault in mhash().
+- **Opcache:**
+  - Fixed bug [GH-16851](https://github.com/php/php-src/issues/16851) (JIT_G(enabled) not set correctly on other threads).
+  - Fixed bug [GH-16902](https://github.com/php/php-src/issues/16902) (Set of opcache tests fail zts+aarch64).
+  - Fixed bug [GH-16879](https://github.com/php/php-src/issues/16879) (JIT dead code skipping does not update call_level).
+- **OpenSSL:**
+  - Prevent unexpected array entry conversion when reading key.
+  - Fix various memory leaks related to openssl exports.
+  - Fix memory leak in php_openssl_pkey_from_zval().
+- **PDO:**
+  - Fixed memory leak of `setFetchMode()`.
+- **Phar:**
+  - Fixed bug [GH-16695](https://github.com/php/php-src/issues/16695) (phar:// tar parser and zero-length file header blocks).
+- **PHPDBG:**
+  - Fixed bug [GH-15208](https://github.com/php/php-src/issues/15208) (Segfault with breakpoint map and phpdbg_clear()).
+- **SAPI:**
+  - Fixed bug [GH-16998](https://github.com/php/php-src/issues/16998) (UBSAN warning in rfc1867).
+- **SimpleXML:**
+  - Fixed bug [GH-16808](https://github.com/php/php-src/issues/16808) (Segmentation fault in RecursiveIteratorIterator ->current() with a xml element input).
+- **SOAP:**
+  - Fix make check being invoked in ext/soap.
+- **Standard:**
+  - Fixed bug [GH-16905](https://github.com/php/php-src/issues/16905) (Internal iterator functions can't handle UNDEF properties).
+  - Fixed bug [GH-16957](https://github.com/php/php-src/issues/16957) (Assertion failure in array_shift with self-referencing array).
+- **Streams:**
+  - Fixed network connect poll interuption handling.
+- **Windows:**
+  - Fixed bug [GH-16849](https://github.com/php/php-src/issues/16849) (Error dialog causes process to hang).
+  - Windows Server 2025 is now properly reported.
+
+## 8.4.1 – 2024-11-21 (Security Release)
+
+- **BcMath:**
+  - [RFC] Add bcfloor, bcceil and bcround to BCMath.
+  - Improve performance.
+  - Adjust bcround()'s $mode parameter to only accept the RoundingMode enum.
+  - Fixed LONG_MAX in BCMath ext.
+  - Fixed bcdiv() div by one.
+  - [RFC] Support object types in BCMath.
+  - bcpow() performance improvement.
+  - ext/bcmath: Check for scale overflow.
+  - [RFC] ext/bcmath: Added bcdivmod.
+  - Fix [GH-15968](https://github.com/php/php-src/issues/15968) (Avoid converting objects to strings in operator calculations).
+  - Fixed bug [GH-16265](https://github.com/php/php-src/issues/16265) (Added early return case when result is 0) (Saki Takamachi).
+  - Fixed bug [GH-16262](https://github.com/php/php-src/issues/16262) (Fixed a bug where size_t underflows) (Saki Takamachi).
+  - Fixed [GH-16236](https://github.com/php/php-src/issues/16236) (Fixed a bug in BcMath\Number::pow() and bcpow() when raising negative powers of 0) (Saki Takamachi).
+- **Core:**
+  - Added zend_call_stack_get implementation for NetBSD, DragonFlyBSD, Solaris and Haiku.
+  - Enabled ifunc checks on FreeBSD from the 12.x releases.
+  - Changed the type of PHP_DEBUG and PHP_ZTS constants to bool.
+  - Fixed bug [GH-13142](https://github.com/php/php-src/issues/13142) (Undefined variable name is shortened when contains \0).
+  - Fixed bug [GH-13178](https://github.com/php/php-src/issues/13178) (Iterator positions incorrect when converting packed array to hashed).
+  - Fixed zend fiber build for solaris default mode (32 bits).
+  - Fixed zend call stack size for macOs/arm64.
+  - Added support for Zend Max Execution Timers on FreeBSD.
+  - Ensure fiber stack is not backed by THP.
+  - Implement [GH-13609](https://github.com/php/php-src/issues/13609) (Dump wrapped object in WeakReference class).
+  - Added sparc64 arch assembly support for zend fiber.
+  - Fixed [GH-13581](https://github.com/php/php-src/issues/13581) no space available for TLS on NetBSD.
+  - Added fiber Sys-V loongarch64 support.
+  - Adjusted closure names to include the parent function's name.
+  - Improve randomness of uploaded file names and files created by tempnam().
+  - Added gc and shutdown callbacks to zend_mm custom handlers.
+  - Fixed bug [GH-14650](https://github.com/php/php-src/issues/14650) (Compute the size of pages before allocating memory).
+  - Fixed bug [GH-11928](https://github.com/php/php-src/issues/11928) (The --enable-re2c-cgoto doesn't add the -g flag).
+  - Added the #[\Deprecated] attribute.
+  - Fixed [GH-11389](https://github.com/php/php-src/issues/11389) (Allow suspending fibers in destructors).
+  - Fixed bug [GH-14801](https://github.com/php/php-src/issues/14801) (Fix build for armv7).
+  - Implemented property hooks RFC.
+  - Fix [GH-14978](https://github.com/php/php-src/issues/14978) (The xmlreader extension phpize build).
+  - Throw Error exception when encountering recursion during comparison, rather than fatal error.
+  - Added missing cstddef include for C++ builds.
+  - Updated build system scripts config.guess to 2024-07-27 and config.sub to 2024-05-27.
+  - Fixed bug [GH-15240](https://github.com/php/php-src/issues/15240) (Infinite recursion in trait hook).
+  - Fixed bug [GH-15140](https://github.com/php/php-src/issues/15140) (Missing variance check for abstract set with asymmetric type).
+  - Fixed bug [GH-15181](https://github.com/php/php-src/issues/15181) (Disabled output handler is flushed again).
+  - Passing E_USER_ERROR to trigger_error() is now deprecated.
+  - Fixed bug [GH-15292](https://github.com/php/php-src/issues/15292) (Dynamic AVX detection is broken for MSVC).
+  - Using "_" as a class name is now deprecated.
+  - Exiting a namespace now clears seen symbols.
+  - The exit (and die) language constructs now behave more like a function. They can be passed liked callables, are affected by the strict_types declare statement, and now perform the usual type coercions instead of casting any non-integer value to a string. As such, passing invalid types to exit/die may now result in a TypeError being thrown.
+  - Fixed bug [GH-15438](https://github.com/php/php-src/issues/15438) (Hooks on constructor promoted properties without visibility are ignored).
+  - Fixed bug [GH-15419](https://github.com/php/php-src/issues/15419) (Missing readonly+hook incompatibility check for readonly classes).
+  - Fixed bug [GH-15187](https://github.com/php/php-src/issues/15187) (Various hooked object iterator issues).
+  - Fixed bug [GH-15456](https://github.com/php/php-src/issues/15456) (Crash in get_class_vars() on virtual properties).
+  - Fixed bug [GH-15501](https://github.com/php/php-src/issues/15501) (Windows HAVE_<header>_H macros defined to 1 or undefined).
+  - Implemented asymmetric visibility for properties.
+  - Fixed bug [GH-15644](https://github.com/php/php-src/issues/15644) (Asymmetric visibility doesn't work with hooks).
+  - Implemented lazy objects RFC.
+  - Fixed bug [GH-15686](https://github.com/php/php-src/issues/15686) (Building shared iconv with external iconv library).
+  - Fixed missing error when adding asymmetric visibility to unilateral virtual property.
+  - Fixed bug [GH-15693](https://github.com/php/php-src/issues/15693) (Unnecessary include in main.c bloats binary).
+  - Fixed bug [GH-15731](https://github.com/php/php-src/issues/15731) (AllowDynamicProperties validation should error on enums).
+  - Fixed bug [GH-16040](https://github.com/php/php-src/issues/16040) (Use-after-free of object released in hook).
+  - Fixed bug [GH-16026](https://github.com/php/php-src/issues/16026) (Reuse of dtor fiber during shutdown).
+  - Fixed bug [GH-15999](https://github.com/php/php-src/issues/15999) (zend_std_write_property() assertion failure with lazy objects).
+  - Fixed bug [GH-15960](https://github.com/php/php-src/issues/15960) (Foreach edge cases with lazy objects).
+  - Fixed bug [GH-16185](https://github.com/php/php-src/issues/16185) (Various hooked object iterator issues).
+  - Fixed bug OSS-Fuzz #371445205 (Heap-use-after-free in attr_free).
+  - Fixed missing error when adding asymmetric visibility to static properties.
+  - Fixed bug OSS-Fuzz #71407 (Null-dereference WRITE in zend_lazy_object_clone).
+  - Fixed bug [GH-16574](https://github.com/php/php-src/issues/16574) (Incorrect error "undefined method" messages).
+  - Fixed bug [GH-16577](https://github.com/php/php-src/issues/16577) (EG(strtod_state).freelist leaks with opcache.preload).
+  - Fixed bug [GH-16615](https://github.com/php/php-src/issues/16615) (Assertion failure in zend_std_read_property).
+  - Fixed bug [GH-16342](https://github.com/php/php-src/issues/16342) (Added ReflectionProperty::isLazy()).
+  - Fixed bug [GH-16725](https://github.com/php/php-src/issues/16725) (Incorrect access check for non-hooked props in hooked object iterator).
+- **Curl:**
+  - Deprecated the CURLOPT_BINARYTRANSFER constant.
+  - Bumped required libcurl version to 7.61.0.
+  - Added feature_list key to the curl_version() return value.
+  - Added constants CURL_HTTP_VERSION_3 (libcurl 7.66) and CURL_HTTP_VERSION_3ONLY (libcurl 7.88) as options for CURLOPT_HTTP_VERSION (Ayesh Karunaratne)
+  - Added CURLOPT_TCP_KEEPCNT to set the number of probes to send before dropping the connection.
+  - Added CURLOPT_PREREQFUNCTION Curl option to set a custom callback after the connection is established, but before the request is performed.
+  - Added CURLOPT_SERVER_RESPONSE_TIMEOUT, which was formerly known as CURLOPT_FTP_RESPONSE_TIMEOUT.
+  - The CURLOPT_DNS_USE_GLOBAL_CACHE option is now silently ignored.
+  - Added CURLOPT_DEBUGFUNCTION as a Curl option.
+  - Fixed bug [GH-16359](https://github.com/php/php-src/issues/16359) (crash with curl_setopt* CURLOPT_WRITEFUNCTION without null callback).
+  - Fixed bug [GH-16723](https://github.com/php/php-src/issues/16723) (CURLMOPT_PUSHFUNCTION issues).
+- **Date:**
+  - Added DateTime[Immutable]::createFromTimestamp.
+  - Added DateTime[Immutable]::[get|set]Microsecond.
+  - Constants SUNFUNCS_RET_TIMESTAMP, SUNFUNCS_RET_STRING, and SUNFUNCS_RET_DOUBLE are now deprecated.
+  - Fixed bug [GH-13773](https://github.com/php/php-src/issues/13773) (DatePeriod not taking into account microseconds for end date).
+- **DBA:**
+  - Passing null or false to dba_key_split() is deprecated.
+- **Debugging:**
+  - Fixed bug [GH-15923](https://github.com/php/php-src/issues/15923) (GDB: Python Exception <class 'TypeError'>: exceptions must derive from BaseException).
+- **DOM:**
+  - Added DOMNode::compareDocumentPosition().
+  - Implement #53655 (Improve speed of DOMNode::C14N() on large XML documents).
+  - Fix cloning attribute with namespace disappearing namespace.
+  - Implement DOM HTML5 parsing and serialization RFC.
+  - Fix DOMElement->prefix with empty string creates bogus prefix.
+  - Handle OOM more consistently.
+  - Implemented "Improve callbacks in ext/dom and ext/xsl" RFC.
+  - Added DOMXPath::quote() static method.
+  - Implemented opt-in ext/dom spec compliance RFC.
+  - Fixed bug [#79701](https://bugs.php.net/79701) (getElementById does not correctly work with duplicate definitions).
+  - Implemented "New ext-dom features in PHP 8.4" RFC.
+  - Fixed [GH-14698](https://github.com/php/php-src/issues/14698) (segfault on DOM node dereference).
+  - Improve support for template elements.
+  - Fix trampoline leak in xpath callables.
+  - Throw instead of silently failing when creating a too long text node in (DOM)ParentNode and (DOM)ChildNode.
+  - Fixed bug [GH-15192](https://github.com/php/php-src/issues/15192) (Segmentation fault in dom extension (html5_serializer)).
+  - Deprecated DOM_PHP_ERR constant.
+  - Removed DOMImplementation::getFeature().
+  - Fixed bug [GH-15331](https://github.com/php/php-src/issues/15331) (Element::$substitutedNodeValue test failed).
+  - Fixed bug [GH-15570](https://github.com/php/php-src/issues/15570) (Segmentation fault (access null pointer) in ext/dom/html5_serializer.c).
+  - Fixed bug [GH-13988](https://github.com/php/php-src/issues/13988) (Storing DOMElement consume 4 times more memory in PHP 8.1 than in PHP 8.0).
+  - Fix XML serializer errata: xmlns="" serialization should be allowed.
+  - Fixed bug [GH-15910](https://github.com/php/php-src/issues/15910) (Assertion failure in ext/dom/element.c).
+  - Fix unsetting DOM properties.
+  - Fixed bug [GH-16190](https://github.com/php/php-src/issues/16190) (Using reflection to call Dom\Node::__construct causes assertion failure).
+  - Fix edge-case in DOM parsing decoding.
+  - Fixed bug [GH-16465](https://github.com/php/php-src/issues/16465) (Heap buffer overflow in DOMNode->getElementByTagName).
+  - Fixed bug [GH-16594](https://github.com/php/php-src/issues/16594) (Assertion failure in DOM -> before).
+- **Fileinfo:**
+  - Update to libmagic 5.45.
+  - Fixed bug [#65106](https://bugs.php.net/65106) (PHP fails to compile ext/fileinfo).
+- **FPM:**
+  - Implement [GH-12385](https://github.com/php/php-src/issues/12385) (flush headers without body when calling flush()).
+  - Added DragonFlyBSD system to the list which set FPM_BACKLOG_DEFAULT to SOMAXCONN.
+  - /dev/poll events.mechanism for Solaris/Illumos setting had been retired.
+  - Added memory peak to the scoreboard / status page.
+- **FTP:**
+  - Removed the deprecated inet_ntoa call support.
+  - Fixed bug [#63937](https://bugs.php.net/63937) (Upload speed 10 times slower with PHP).
+- **GD:**
+  - Fix parameter numbers and missing alpha check for imagecolorset().
+  - imagepng/imagejpeg/imagewep/imageavif now throw an exception on invalid quality parameter.
+  - Check overflow/underflow for imagescale/imagefilter.
+  - Added gdImageClone to bundled libgd.
+- **Gettext:**
+  - bind_textdomain_codeset, textdomain and d(*)gettext functions now throw an exception on empty domain.
+- **GMP:**
+  - The GMP class is now final and cannot be extended anymore.
+  - RFC: Change GMP bool cast behavior.
+- **Hash:**
+  - Changed return type of hash_update() to true.
+  - Added HashContext::__debugInfo().
+  - Deprecated passing incorrect data types for options to ext/hash functions.
+  - Added SSE2 and SHA-NI implementation of SHA-256.
+  - Fix [GH-15384](https://github.com/php/php-src/issues/15384) (Build fails on Alpine / Musl for amd64).
+  - Fixed bug [GH-15742](https://github.com/php/php-src/issues/15742) (php_hash_sha.h incompatible with C++).
+- **IMAP:**
+  - Moved to PECL.
+- **Intl:**
+  - Added IntlDateFormatter::PATTERN constant.
+  - Fixed Numberformatter::__construct when the locale is invalid, now throws an exception.
+  - Added NumberFormatter::ROUND_TOWARD_ZERO and ::ROUND_AWAY_FROM_ZERO as aliases for ::ROUND_DOWN and ::ROUND_UP.
+  - Added NumberFormatter::ROUND_HALFODD.
+  - Added PROPERTY_IDS_UNARY_OPERATOR, PROPERTY_ID_COMPAT_MATH_START and PROPERTY_ID_COMPAT_MATH_CONTINUE constants.
+  - Added IntlDateFormatter::getIanaID/intltz_get_iana_id method/function.
+  - Set to C++17 standard for icu 74 and onwards.
+  - resourcebundle_get(), ResourceBundle::get(), and accessing offsets on a ResourceBundle object now throw: - TypeError for invalid offset types - ValueError for an empty string - ValueError if the integer index does not fit in a signed 32 bit integer
+  - ResourceBundle::get() now has a tentative return type of: ResourceBundle|array|string|int|null
+  - Added the new Grapheme function grapheme_str_split.
+  - Added IntlDateFormatter::parseToCalendar.
+  - Added SpoofChecker::setAllowedChars to set unicode chars ranges.
+- **LDAP:**
+  - Added LDAP_OPT_X_TLS_PROTOCOL_MAX/LDAP_OPT_X_TLS_PROTOCOL_TLS1_3 constants.
+- **LibXML:**
+  - Added LIBXML_RECOVER constant.
+  - libxml_set_streams_context() now throws immediately on an invalid context instead of at the use-site.
+  - Added LIBXML_NO_XXE constant.
+- **MBString:**
+  - Added mb_trim, mb_ltrim and mb_rtrim.
+  - Added mb_ucfirst and mb_lcfirst.
+  - Updated Unicode data tables to Unicode 15.1.
+  - Fixed bug [GH-15824](https://github.com/php/php-src/issues/15824) (mb_detect_encoding(): Argument $encodings contains invalid encoding "UTF8").
+  - Updated Unicode data tables to Unicode 16.0.
+- **Mysqli:**
+  - The mysqli_ping() function and mysqli::ping() method are now deprecated, as the reconnect feature was removed in PHP 8.2.
+  - The mysqli_kill() function and mysqli::kill() method are now deprecated. If this functionality is needed a SQL "KILL" command can be used instead.
+  - The mysqli_refresh() function and mysqli::refresh() method are now deprecated. If this functionality is needed a SQL "FLUSH" command can be used instead.
+  - Passing explicitly the $mode parameter to mysqli_store_result() has been deprecated. As the MYSQLI_STORE_RESULT_COPY_DATA constant was only used in conjunction with this function it has also been deprecated.
+- **MySQLnd:**
+  - Fixed bug [GH-13440](https://github.com/php/php-src/issues/13440) (PDO quote bottleneck).
+  - Fixed bug [GH-10599](https://github.com/php/php-src/issues/10599) (Apache crash on Windows when using a self-referencing anonymous function inside a class with an active mysqli connection).
+- **Opcache:**
+  - Added large shared segments support for FreeBSD.
+  - If JIT is enabled, PHP will now exit with a fatal error on startup in case of JIT startup initialization issues.
+  - Increased the maximum value of opcache.interned_strings_buffer to 32767 on 64bit archs.
+  - Fixed bug [GH-13834](https://github.com/php/php-src/issues/13834) (Applying non-zero offset 36 to null pointer in zend_jit.c).
+  - Fixed bug [GH-14361](https://github.com/php/php-src/issues/14361) (Deep recursion in zend_cfg.c causes segfault).
+  - Fixed bug [GH-14873](https://github.com/php/php-src/issues/14873) (PHP 8.4 min function fails on typed integer).
+  - Fixed bug [GH-15490](https://github.com/php/php-src/issues/15490) (Building of callgraph modifies preloaded symbols).
+  - Fixed bug [GH-15178](https://github.com/php/php-src/issues/15178) (Assertion in tracing JIT on hooks).
+  - Fixed bug [GH-15657](https://github.com/php/php-src/issues/15657) (Segmentation fault in dasm_x86.h).
+  - Added opcache_jit_blacklist() function.
+  - Fixed bug [GH-16009](https://github.com/php/php-src/issues/16009) (Segmentation fault with frameless functions and undefined CVs).
+  - Fixed bug [GH-16186](https://github.com/php/php-src/issues/16186) (Assertion failure in Zend/zend_operators.c).
+  - Fixed bug [GH-16572](https://github.com/php/php-src/issues/16572) (Incorrect result with reflection in low-trigger JIT).
+  - Fixed [GH-16839](https://github.com/php/php-src/issues/16839) (Error on building Opcache JIT for Windows ARM64).
+- **OpenSSL:**
+  - Fixed bug [#80269](https://bugs.php.net/80269) (OpenSSL sets Subject wrong with extraattribs parameter).
+  - Implement request #48520 (openssl_csr_new - allow multiple values in DN).
+  - Introduced new serial_hex parameter to openssl_csr_sign.
+  - Added X509_PURPOSE_OCSP_HELPER and X509_PURPOSE_TIMESTAMP_SIGN constants.
+  - Bumped minimum required OpenSSL version to 1.1.1.
+  - Added compile-time option --with-openssl-legacy-provider to enable legacy provider.
+  - Added support for Curve25519 + Curve448 based keys.
+  - Fixed bug [GH-13343](https://github.com/php/php-src/issues/13343) (openssl_x509_parse should not allow omitted seconds in UTCTimes).
+  - Bumped minimum required OpenSSL version to 1.1.0.
+  - Implement [GH-13514](https://github.com/php/php-src/issues/13514) PASSWORD_ARGON2 from OpenSSL 3.2.
+- **Output:**
+  - Clear output handler status flags during handler initialization.
+  - Fixed bug with url_rewriter.hosts not used by output_add_rewrite_var().
+- **PCNTL:**
+  - Added pcntl_setns for Linux.
+  - Added pcntl_getcpuaffinity/pcntl_setcpuaffinity.
+  - Updated pcntl_get_signal_handler signal id upper limit to be more in line with platforms limits.
+  - Added pcntl_getcpu for Linux/FreeBSD/Solaris/Illumos.
+  - Added pcntl_getqos_class/pcntl_setqos_class for macOs.
+  - Added SIGCKPT/SIGCKPTEXIT constants for DragonFlyBSD.
+  - Added FreeBSD's SIGTRAP handling to pcntl_siginfo_to_zval.
+  - Added POSIX pcntl_waitid.
+  - Fixed bug [GH-16769](https://github.com/php/php-src/issues/16769): (pcntl_sigwaitinfo aborts on signal value as reference).
+- **PCRE:**
+  - Upgrade bundled pcre2lib to version 10.43.
+  - Add "/r" modifier.
+  - Upgrade bundled pcre2lib to version 10.44.
+  - Fixed [GH-16189](https://github.com/php/php-src/issues/16189) (underflow on offset argument).
+  - Fix UAF issues with PCRE after request shutdown.
+- **PDO:**
+  - Fixed setAttribute and getAttribute.
+  - Implemented PDO driver-specific subclasses RFC.
+  - Added support for PDO driver-specific SQL parsers.
+  - Fixed bug [GH-14792](https://github.com/php/php-src/issues/14792) (Compilation failure on pdo_* extensions).
+  - mysqlnd: support ER_CLIENT_INTERACTION_TIMEOUT.
+  - The internal header php_pdo_int.h is no longer installed; it is not supposed to be used by PDO drivers.
+  - Fixed bug [GH-16167](https://github.com/php/php-src/issues/16167) (Prevent mixing PDO sub-classes with different DSN).
+  - Fixed bug [GH-16314](https://github.com/php/php-src/issues/16314) ("Pdo\Mysql object is uninitialized" when opening a persistent connection).
+- **PDO_DBLIB:**
+  - Fixed setAttribute and getAttribute.
+  - Added class Pdo\DbLib.
+- **PDO_Firebird:**
+  - Fixed setAttribute and getAttribute.
+  - Feature: Add transaction isolation level and mode settings to pdo_firebird.
+  - Added class Pdo\Firebird.
+  - Added Pdo\Firebird::ATTR_API_VERSION.
+  - Added getApiVersion() and removed from getAttribute().
+  - Supported Firebird 4.0 datatypes.
+  - Support proper formatting of time zone types.
+  - Fixed [GH-15604](https://github.com/php/php-src/issues/15604) (Always make input parameters nullable).
+- **PDO_MYSQL:**
+  - Fixed setAttribute and getAttribute.
+  - Added class Pdo\Mysql.
+  - Added custom SQL parser.
+  - Fixed [GH-15949](https://github.com/php/php-src/issues/15949) (PDO_MySQL not properly quoting PDO_PARAM_LOB binary data).
+- **PDO_ODBC:**
+  - Added class Pdo\Odbc.
+- **PDO_PGSQL:**
+  - Fixed [GH-12423](https://github.com/php/php-src/issues/12423), DSN credentials being prioritized over the user/password PDO constructor arguments.
+  - Fixed native float support with pdo_pgsql query results.
+  - Added class Pdo\Pgsql.
+  - Retrieve the memory usage of the query result resource.
+  - Added Pdo\Pgsql::setNoticeCallBack method to receive DB notices.
+  - Added custom SQL parser.
+  - Fixed [GH-15986](https://github.com/php/php-src/issues/15986) (Double-free due to Pdo\Pgsql::setNoticeCallback()).
+  - Fixed [GH-12940](https://github.com/php/php-src/issues/12940) (Using PQclosePrepared when available instead of the DEALLOCATE command to free statements resources).
+  - Remove PGSQL_ATTR_RESULT_MEMORY_SIZE constant as it is provided by the new PDO Subclass as Pdo\Pgsql::ATTR_RESULT_MEMORY_SIZE.
+- **PDO_SQLITE:**
+  - Added class Pdo\Sqlite.
+  - Fixed bug [#81227](https://bugs.php.net/81227) (PDO::inTransaction reports false when in transaction).
+  - Added custom SQL parser.
+- **PHPDBG:**
+  - array out of bounds, stack overflow handled for segfault handler on windows.
+  - Fixed bug [GH-16041](https://github.com/php/php-src/issues/16041) (Support stack limit in phpdbg).
+- **PGSQL:**
+  - Added the possibility to have no conditions for pg_select.
+  - Persistent connections support the PGSQL_CONNECT_FORCE_RENEW flag.
+  - Added pg_result_memory_size to get the query result memory usage.
+  - Added pg_change_password to alter an user's password.
+  - Added pg_put_copy_data/pg_put_copy_end to send COPY commands and signal the end of the COPY.
+  - Added pg_socket_poll to poll on the connection.
+  - Added pg_jit to get infos on server JIT support.
+  - Added pg_set_chunked_rows_size to fetch results per chunk.
+  - pg_convert/pg_insert/pg_update/pg_delete ; regexes are now cached.
+- **Phar:**
+  - Fixed bug [GH-12532](https://github.com/php/php-src/issues/12532) (PharData created from zip has incorrect timestamp).
+- **POSIX:**
+  - Added POSIX_SC_CHILD_MAX and POSIX_SC_CLK_TCK constants.
+  - Updated posix_isatty to set the error number on file descriptors.
+- **PSpell:**
+  - Moved to PECL.
+- **Random:**
+  - Fixed bug [GH-15094](https://github.com/php/php-src/issues/15094) (php_random_default_engine() is not C++ conforming).
+  - lcg_value() is now deprecated.
+- **Readline:**
+  - Fixed readline_info, rl_line_buffer_length/rl_len globals on update.
+  - Fixed bug [#51558](https://bugs.php.net/51558) (Shared readline build fails).
+  - Fixed UAF with readline_info().
+- **Reflection:**
+  - Implement [GH-12908](https://github.com/php/php-src/issues/12908) (Show attribute name/class in ReflectionAttribute dump).
+  - Make ReflectionGenerator::getFunction() legal after generator termination.
+  - Added ReflectionGenerator::isClosed().
+  - Fixed bug [GH-15718](https://github.com/php/php-src/issues/15718) (Segfault on ReflectionProperty::get{Hook,Hooks}() on dynamic properties).
+  - Fixed bug [GH-15694](https://github.com/php/php-src/issues/15694) (ReflectionProperty::isInitialized() is incorrect for hooked properties).
+  - Add missing ReflectionProperty::hasHook[s]() methods.
+  - Add missing ReflectionProperty::isFinal() method.
+  - Fixed bug [GH-16122](https://github.com/php/php-src/issues/16122) (The return value of ReflectionFunction::getNamespaceName() and ReflectionFunction::inNamespace() for closures is incorrect).
+  - Fixed bug [GH-16162](https://github.com/php/php-src/issues/16162) (No ReflectionProperty::IS_VIRTUAL) (DanielEScherzer)
+  - Fixed the name of the second parameter of ReflectionClass::resetAsLazyGhost().
+- **Session:**
+  - INI settings session.sid_length and session.sid_bits_per_character are now deprecated.
+  - Emit warnings for non-positive values of session.gc_divisor and negative values of session.gc_probability.
+  - Fixed bug [GH-16590](https://github.com/php/php-src/issues/16590) (UAF in session_encode()).
+- **SimpleXML:**
+  - Fix signature of simplexml_import_dom().
+- **SNMP:**
+  - Removed the deprecated inet_ntoa call support.
+- **SOAP:**
+  - Add support for clark notation for namespaces in class map.
+  - Mitigate #51561 (SoapServer with a extented class and using sessions, lost the setPersistence()).
+  - Fixed bug [#49278](https://bugs.php.net/49278) (SoapClient::__getLastResponseHeaders returns NULL if wsdl operation !has output).
+  - Fixed bug [#44383](https://bugs.php.net/44383) (PHP DateTime not converted to xsd:datetime).
+  - Fixed bug [GH-11941](https://github.com/php/php-src/issues/11941) (soap with session persistence will silently fail when "session" built as a shared object).
+  - Passing an int to SoapServer::addFunction() is now deprecated. If all PHP functions need to be provided flatten the array returned by get_defined_functions().
+  - The SOAP_FUNCTIONS_ALL constant is now deprecated.
+  - Fixed bug [#61525](https://bugs.php.net/61525) (SOAP functions require at least one space after HTTP header colon).
+  - Implement request #47317 (SoapServer::__getLastResponse()).
+- **Sockets:**
+  - Removed the deprecated inet_ntoa call support.
+  - Added the SO_EXECLUSIVEADDRUSE windows constant.
+  - Added the SOCK_CONN_DGRAM/SOCK_DCCP netbsd constants.
+  - Added multicast group support for ipv4 on FreeBSD.
+  - Added the TCP_SYNCNT constant for Linux to set number of attempts to send SYN packets from the client.
+  - Added the SO_EXCLBIND constant for exclusive socket binding on illumos/solaris.
+  - Updated the socket_create_listen backlog argument default value to SOMAXCONN.
+  - Added the SO_NOSIGPIPE constant to control the generation of SIGPIPE for macOs and FreeBSD.
+  - Added SO_LINGER_SEC for macOs, true equivalent of SO_LINGER in other platforms.
+  - Add close-on-exec on socket created with socket_accept on unixes.
+  - Added IP_PORTRANGE* constants for BSD systems to control ephemeral port ranges.
+  - Added SOCK_NONBLOCK/SOCK_CLOEXEC constants for socket_create and socket_create_pair to apply O_NONBLOCK/O_CLOEXEC flags to the newly created sockets.
+  - Added SO_BINDTOIFINDEX to bind a socket to an interface index.
+- **Sodium:**
+  - Add support for AEGIS-128L and AEGIS-256.
+  - Enable AES-GCM on aarch64 with the ARM crypto extensions.
+- **SPL:**
+  - Implement SeekableIterator for SplObjectStorage.
+  - The SplFixedArray::__wakeup() method has been deprecated as it implements __serialize() and __unserialize() which need to be overwritten instead.
+  - Passing a non-empty string for the $escape parameter of: - SplFileObject::setCsvControl() - SplFileObject::fputcsv() - SplFileObject::fgetcsv() is now deprecated.
+- **Standard:**
+  - Implement [GH-12188](https://github.com/php/php-src/issues/12188) (Indication for the int size in phpinfo()).
+  - Partly fix [GH-12143](https://github.com/php/php-src/issues/12143) (Incorrect round() result for 0.49999999999999994).
+  - Fix [GH-12252](https://github.com/php/php-src/issues/12252) (round(): Validate the rounding mode).
+  - Increase the default BCrypt cost to 12.
+  - Fixed bug [GH-12592](https://github.com/php/php-src/issues/12592) (strcspn() odd behaviour with NUL bytes and empty mask).
+  - Removed the deprecated inet_ntoa call support.
+  - Cast large floats that are within int range to int in number_format so the precision is not lost.
+  - Add support for 4 new rounding modes to the round() function.
+  - debug_zval_dump() now indicates whether an array is packed.
+  - Fix [GH-12143](https://github.com/php/php-src/issues/12143) (Optimize round).
+  - Changed return type of long2ip to string from string|false.
+  - Fix [GH-12143](https://github.com/php/php-src/issues/12143) (Extend the maximum precision round can handle by one digit).
+  - Added the http_get_last_response_headers() and http_clear_last_response_headers() that allows retrieving the same content as the magic $http_response_header variable.
+  - Add php_base64_encode_ex() API.
+  - Implemented "Raising zero to the power of negative number" RFC.
+  - Added array_find(), array_find_key(), array_all(), and array_any().
+  - Change highlight_string() and print_r() return type to string|true.
+  - Fix references in request_parse_body() options array.
+  - Add RoundingMode enum.
+  - Unserializing the uppercase 'S' tag is now deprecated.
+  - Enables crc32 auxiliary detection on OpenBSD.
+  - Passing a non-empty string for the $escape parameter of: - fputcsv() - fgetcsv() - str_getcsv() is now deprecated.
+  - The str_getcsv() function now throws ValueErrors when the $separator and $enclosure arguments are not one byte long, or if the $escape is not one byte long or the empty string. This aligns the behaviour to be identical to that of fputcsv() and fgetcsv().
+  - php_uname() now throws ValueErrors on invalid inputs.
+  - The "allowed_classes" option for unserialize() now throws TypeErrors and ValueErrors	if it is not an	array of class names.
+  - Implemented [GH-15685](https://github.com/php/php-src/issues/15685) (improve proc_open error reporting on Windows).
+  - Add support for backed enums in http_build_query().
+  - Fixed bug [GH-15982](https://github.com/php/php-src/issues/15982) (Assertion failure with array_find when references are involved).
+  - Fixed parameter names of fpow() to be identical to pow().
+- **Streams:**
+  - Implemented [GH-15155](https://github.com/php/php-src/issues/15155) (Stream context is lost when custom stream wrapper is being filtered).
+- **Tidy:**
+  - Failures in the constructor now throw exceptions rather than emitting warnings and having a broken object.
+  - Add tidyNode::getNextSibling() and tidyNode::getPreviousSibling().
+- **Windows:**
+  - Update the icon of the Windows executables, e.g. php.exe.
+  - Fixed bug [GH-16199](https://github.com/php/php-src/issues/16199) (GREP_HEADER() is broken).
+- **XML:**
+  - Added XML_OPTION_PARSE_HUGE parser option.
+  - Fixed bug [#81481](https://bugs.php.net/81481) (xml_get_current_byte_index limited to 32-bit numbers on 64-bit builds).
+  - The xml_set_object() function has been deprecated.
+  - Passing non-callable strings to the xml_set_*_handler() functions is now deprecated.
+- **XMLReader:**
+  - Declares class constant types.
+  - Add XMLReader::fromStream(), XMLReader::fromUri(), XMLReader::fromString().
+  - Fixed bug [GH-15123](https://github.com/php/php-src/issues/15123) (var_dump doesn't actually work on XMLReader).
+- **XMLWriter:**
+  - Add XMLWriter::toStream(), XMLWriter::toUri(), XMLWriter::toMemory().
+- **XSL:**
+  - Implement request #64137 (XSLTProcessor::setParameter() should allow both quotes to be used).
+  - Implemented "Improve callbacks in ext/dom and ext/xsl" RFC.
+  - Added XSLTProcessor::$maxTemplateDepth and XSLTProcessor::$maxTemplateVars.
+  - Fix trampoline leak in xpath callables.
+- **Zip:**
+  - Added ZipArchive::ER_TRUNCATED_ZIP added in libzip 1.11.
+
+## 8.3.36 – 2026-10-22 (Security Release)
+
+- **Core:**
+  - Fixed [GHSA-w8hw-w9fx-j79w](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w), [GHSA-6wmf-4rv5-p3rp](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp) (Avoid state corruption via bailout).
+
+## 8.3.35 – 2026-09-24 (Security Release)
+
+- **Filter:**
+  - Fixed [GHSA-ch8v-r6jh-4vvr](https://github.com/php/php-src/security/advisories/GHSA-ch8v-r6jh-4vvr) (FILTER_SANITIZE_ENCODED does not encode 0xFF).
+- **FPM:**
+  - Fixed [GHSA-62xp-839h-2637](https://github.com/php/php-src/security/advisories/GHSA-62xp-839h-2637) (IPv6 ACL bypass in FastCGI listen.allowed_clients due to partial address comparison). (CVE-2026-91768)
+- **MySQLnd:**
+  - Fixed [GHSA-r6x9-5r99-36j7](https://github.com/php/php-src/security/advisories/GHSA-r6x9-5r99-36j7) (Various packet overreads in mysqlnd wire protocol). (CVE-2025-1218)
+- **OpenSSL:**
+  - Fixed [GHSA-vvx9-73fr-5jjx](https://github.com/php/php-src/security/advisories/GHSA-vvx9-73fr-5jjx) (TLS hostname verification falls back to CN after SAN mismatch). (CVE-2026-91769)
+  - Fixed [GHSA-xr7j-rvgx-xq5p](https://github.com/php/php-src/security/advisories/GHSA-xr7j-rvgx-xq5p) (Heap buffer overflow in php_openssl_matches_wildcard_name() on crafted server certificate wildcard CN). (CVE-2026-91767)
+- **Phar:**
+  - Fixed [GHSA-j3wh-g957-2m85](https://github.com/php/php-src/security/advisories/GHSA-j3wh-g957-2m85) (Integer overflow in phar_tar_number() allowing TAR archive entry injection). (CVE-2026-6103)
+- **SOAP:**
+  - Fixed [GHSA-rgrp-mwpx-f6rm](https://github.com/php/php-src/security/advisories/GHSA-rgrp-mwpx-f6rm) (Unbounded recursion in server-side cleanup_xml_node()). (CVE-2026-91765)
+  - Fixed [GHSA-cj93-vc83-wgqv](https://github.com/php/php-src/security/advisories/GHSA-cj93-vc83-wgqv) (Integer overflow to buffer overflow in SOAP HTTP parsing). (CVE-2025-14181)
+- **Standard:**
+  - Fixed [GHSA-88hq-2827-7pg6](https://github.com/php/php-src/security/advisories/GHSA-88hq-2827-7pg6) (Out-of-bounds read in convert.* stream filters when line-break-chars contains NUL). (CVE-2026-92842)
+  - Fixed [GHSA-fpwc-w8rq-cr92](https://github.com/php/php-src/security/advisories/GHSA-fpwc-w8rq-cr92) (Cross-origin credential leak in HTTP stream wrapper redirects). (CVE-2026-91766)
+  - Fixed [GHSA-7875-c8px-7q5f](https://github.com/php/php-src/security/advisories/GHSA-7875-c8px-7q5f) (Out-of-bounds read in the HTTP stream wrapper when following a redirect with an empty Location header). (CVE-2026-93682)
+- **Windows:**
+  - Fixed [GHSA-9f67-6fw4-hpfp](https://github.com/php/php-src/security/advisories/GHSA-9f67-6fw4-hpfp) (Reserved device names are not rejected before file and stream I/O). (CVE-2026-17545)
+
+## 8.3.33 – 2026-07-30 (Security Release)
+
+- **Date:**
+  - Fixed leak on double DatePeriod::__construct() call.
+- **GD:**
+  - Upgrade libgd. (CVE-2026-9672)
+- **PGSQL:**
+  - Fixed [GHSA-7qpv-r5mr-78m4](https://github.com/php/php-src/security/advisories/GHSA-7qpv-r5mr-78m4) (SQL injection via E'...' backslash breakout). (CVE-2026-17543)
+- **Phar:**
+  - Fixed [GHSA-vc5h-9ppw-p5f3](https://github.com/php/php-src/security/advisories/GHSA-vc5h-9ppw-p5f3) (Crash via recursive symlinks). (CVE-2026-7260)
+
+## 8.3.32 – 2026-07-02 (Security Release)
+
+- **Streams:**
+  - Fixed bug [GH-21468](https://github.com/php/php-src/issues/21468) (Segfault in file_get_contents w/ a https URL and a proxy set). (CVE-2026-12184)
+- **OpenSSL:**
+  - Fixed bug [GH-22187](https://github.com/php/php-src/issues/22187) (Memory corruption (zend_mm_heap corrupted) in openssl_encrypt with AES-WRAP-PAD). (CVE-2026-14355)
+
+## 8.3.31 – 2026-05-07 (Security Release)
+
+- **Curl:**
+  - Add support for brotli and zstd on Windows.
+- **FPM:**
+  - Fixed [GHSA-7qg2-v9fj-4mwv](https://github.com/php/php-src/security/advisories/GHSA-7qg2-v9fj-4mwv) (XSS within status endpoint). (CVE-2026-6735)
+- **MBString:**
+  - Fixed [GHSA-wm6j-2649-pv75](https://github.com/php/php-src/security/advisories/GHSA-wm6j-2649-pv75) (Null pointer dereference in php_mb_check_encoding() via mb_ereg_search_init()). (CVE-2026-7259)
+- **OpenSSL:**
+  - Fix compatibility issues with OpenSSL 4.0.
+- **PDO_Firebird:**
+  - Fixed [GHSA-w476-322c-wpvm](https://github.com/php/php-src/security/advisories/GHSA-w476-322c-wpvm) (SQL injection via NUL bytes in quoted strings). (CVE-2025-14179)
+- **SOAP:**
+  - Fixed [GHSA-85c2-q967-79q5](https://github.com/php/php-src/security/advisories/GHSA-85c2-q967-79q5) (Stale SOAP_GLOBAL(ref_map) pointer with Apache Map). (CVE-2026-6722)
+  - Fixed [GHSA-m33r-qmcv-p97q](https://github.com/php/php-src/security/advisories/GHSA-m33r-qmcv-p97q) (Use-after-free after header parsing failure with SOAP_PERSISTENCE_SESSION). (CVE-2026-7261)
+  - Fixed [GHSA-hmxp-6pc4-f3vv](https://github.com/php/php-src/security/advisories/GHSA-hmxp-6pc4-f3vv) (Broken Apache map value NULL check). (CVE-2026-7262)
+- **Standard:**
+  - Fixed [GHSA-96wq-48vp-hh57](https://github.com/php/php-src/security/advisories/GHSA-96wq-48vp-hh57) (Signed integer overflow of char array offset). (CVE-2026-7568)
+  - Fixed [GHSA-m8rr-4c36-8gq4](https://github.com/php/php-src/security/advisories/GHSA-m8rr-4c36-8gq4) (Consistently pass unsigned char to ctype.h functions). (CVE-2026-7258)
+
+## 8.3.30 – 2026-01-15
+
+- **Core:**
+  - Fix OSS-Fuzz #465488618 (Wrong assumptions when dumping function signature with dynamic class const lookup default argument).
+  - Fixed bug [GH-20695](https://github.com/php/php-src/issues/20695) (Assertion failure in normalize_value() when parsing malformed INI input via parse_ini_string()).
+  - Fixed bug [GH-20714](https://github.com/php/php-src/issues/20714) (Uncatchable exception thrown in generator).
+  - Fixed bug [GH-20352](https://github.com/php/php-src/issues/20352) (UAF in php_output_handler_free via re-entrant ob_start() during error deactivation).
+- **Bz2:**
+  - Fixed bug [GH-20620](https://github.com/php/php-src/issues/20620) (bzcompress overflow on large source size).
+- **DOM:**
+  - Fixed bug [GH-20722](https://github.com/php/php-src/issues/20722) (Null pointer dereference in DOM namespace node cloning via clone on malformed objects).
+- **GD:**
+  - Fixed bug [GH-20622](https://github.com/php/php-src/issues/20622) (imagestring/imagestringup overflow).
+- **Intl:**
+  - Fix leak in umsg_format_helper().
+- **LDAP:**
+  - Fix memory leak in ldap_set_options().
+- **Mbstring:**
+  - Fixed bug [GH-20674](https://github.com/php/php-src/issues/20674) (mb_decode_mimeheader does not handle separator).
+- **Phar:**
+  - Fixed bug [GH-20732](https://github.com/php/php-src/issues/20732) (Phar::LoadPhar undefined behavior when reading fails).
+  - Fix SplFileInfo::openFile() in write mode.
+  - Fix build on legacy OpenSSL 1.1.0 systems.
+- **POSIX:**
+  - Fixed crash on posix groups to php array creation on macos.
+- **SPL:**
+  - Fixed bug [GH-20678](https://github.com/php/php-src/issues/20678) (resource created by GlobIterator crashes with fclose()).
+- **Sqlite3:**
+  - Fixed bug [GH-20699](https://github.com/php/php-src/issues/20699) (SQLite3Result fetchArray return array|false, null returned).
+- **Standard:**
+  - Fix error check for proc_open() command.
+  - Fixed bug [GH-20582](https://github.com/php/php-src/issues/20582) (Heap Buffer Overflow in iptcembed).
+- **Zlib:**
+  - Fix OOB gzseek() causing assertion failure.
+
+## 8.3.29 – 2025-12-18 (Security Release)
+
+- **Core:**
+  - Sync all boost.context files with release 1.86.0.
+  - Fixed bug [GH-20435](https://github.com/php/php-src/issues/20435) (SensitiveParameter doesn't work for named argument passing to variadic parameter).
+  - Fixed bug [GH-20286](https://github.com/php/php-src/issues/20286) (use-after-destroy during userland stream_close()).
+- **Bz2:**
+  - Fix assertion failures resulting in crashes with stream filter object parameters.
+- **Date:**
+  - Fix crashes when trying to instantiate uninstantiable classes via date static constructors.
+- **DOM:**
+  - Fix missing NUL byte check on C14NFile().
+- **Fibers:**
+  - Fixed bug [GH-20483](https://github.com/php/php-src/issues/20483) (ASAN stack overflow with fiber.stack_size INI small value).
+- **FTP:**
+  - Fixed bug [GH-20601](https://github.com/php/php-src/issues/20601) (ftp_connect overflow on timeout).
+- **GD:**
+  - Fixed bug [GH-20511](https://github.com/php/php-src/issues/20511) (imagegammacorrect out of range input/output values).
+  - Fixed bug [GH-20602](https://github.com/php/php-src/issues/20602) (imagescale overflow with large height values).
+- **Intl:**
+  - Fixed bug [GH-20426](https://github.com/php/php-src/issues/20426) (Spoofchecker::setRestrictionLevel() error message suggests missing constants).
+- **LibXML:**
+  - Fix some deprecations on newer libxml versions regarding input buffer/parser handling.
+- **MbString:**
+  - Fixed bug [GH-20491](https://github.com/php/php-src/issues/20491) (SLES15 compile error with mbstring oniguruma).
+  - Fixed bug [GH-20492](https://github.com/php/php-src/issues/20492) (mbstring compile warning due to non-strings).
+- **MySQLnd:**
+  - Fixed bug [GH-20528](https://github.com/php/php-src/issues/20528) (Regression breaks mysql connexion using an IPv6 address enclosed in square brackets).
+- **Opcache:**
+  - Fixed bug [GH-20329](https://github.com/php/php-src/issues/20329) (opcache.file_cache broken with full interned string buffer).
+- **PDO:**
+  - Fixed [GHSA-8xr5-qppj-gvwj](https://github.com/php/php-src/security/advisories/GHSA-8xr5-qppj-gvwj) (PDO quoting result null deref). (CVE-2025-14180)
+- **Phar:**
+  - Fixed bug [GH-20442](https://github.com/php/php-src/issues/20442) (Phar does not respect case-insensitiveness of __halt_compiler() when reading stub).
+  - Fix broken return value of fflush() for phar file entries.
+  - Fix assertion failure when fseeking a phar file out of bounds.
+- **PHPDBG:**
+  - Fixed ZPP type violation in phpdbg_get_executable() and phpdbg_end_oplog().
+- **SPL:**
+  - Fixed bug [GH-20614](https://github.com/php/php-src/issues/20614) (SplFixedArray incorrectly handles references in deserialization).
+- **Standard:**
+  - Fix memory leak in array_diff() with custom type checks.
+  - Fixed bug [GH-20583](https://github.com/php/php-src/issues/20583) (Stack overflow in http_build_query via deep structures).
+  - Fixed [GHSA-www2-q4fc-65wf](https://github.com/php/php-src/security/advisories/GHSA-www2-q4fc-65wf) (Null byte termination in dns_get_record()).
+  - Fixed [GHSA-h96m-rvf9-jgm2](https://github.com/php/php-src/security/advisories/GHSA-h96m-rvf9-jgm2) (Heap buffer overflow in array_merge()). (CVE-2025-14178)
+  - Fixed [GHSA-3237-qqm7-mfv7](https://github.com/php/php-src/security/advisories/GHSA-3237-qqm7-mfv7) (Information Leak of Memory in getimagesize). (CVE-2025-14177)
+- **Tidy:**
+  - Fixed bug [GH-20374](https://github.com/php/php-src/issues/20374) (PHP with tidy and custom-tags).
+- **XML:**
+  - Fixed bug [GH-20439](https://github.com/php/php-src/issues/20439) (xml_set_default_handler() does not properly handle special characters in attributes when passing data to callback).
+- **Zip:**
+  - Fix crash in property existence test.
+  - Don't truncate return value of zip_fread() with user sizes.
+- **Zlib:**
+  - Fix assertion failures resulting in crashes with stream filter object parameters.
+
+## 8.3.28 – 2025-11-20
+
+- **Core:**
+  - Fixed bug [GH-19934](https://github.com/php/php-src/issues/19934) (CGI with auto_globals_jit=0 causes uouv).
+  - Fixed bug [GH-20073](https://github.com/php/php-src/issues/20073) (Assertion failure in WeakMap offset operations on reference).
+  - Fixed bug [GH-19844](https://github.com/php/php-src/issues/19844) (Don't bail when closing resources on shutdown).
+  - Fixed bug [GH-20177](https://github.com/php/php-src/issues/20177) (Accessing overridden private property in get_object_vars() triggers assertion error).
+  - Fixed bug [GH-20183](https://github.com/php/php-src/issues/20183) (Stale EG(opline_before_exception) pointer through eval).
+- **DOM:**
+  - Partially fixed bug [GH-16317](https://github.com/php/php-src/issues/16317) (DOM classes do not allow __debugInfo() overrides to work).
+- **Exif:**
+  - Fix possible memory leak when tag is empty.
+- **FPM:**
+  - Fixed bug [GH-19974](https://github.com/php/php-src/issues/19974) (fpm_status_export_to_zval segfault for parallel execution).
+- **FTP:**
+  - Fixed bug [GH-20240](https://github.com/php/php-src/issues/20240) (FTP with SSL: ftp_fput(): Connection timed out on successful writes).
+- **GD:**
+  - Fixed bug [GH-20070](https://github.com/php/php-src/issues/20070) (Return type violation in imagefilter when an invalid filter is provided).
+- **Intl:**
+  - Fix memory leak on error in locale_filter_matches().
+- **LibXML:**
+  - Fix not thread safe schema/relaxng calls.
+- **MySQLnd:**
+  - Fixed bug [GH-8978](https://github.com/php/php-src/issues/8978) (SSL certificate verification fails (port doubled)).
+  - Fixed bug [GH-20122](https://github.com/php/php-src/issues/20122) (getColumnMeta() for JSON-column in MySQL).
+- **Opcache:**
+  - Fixed bug [GH-20081](https://github.com/php/php-src/issues/20081) (access to uninitialized vars in preload_load()).
+  - Fixed bug [GH-20121](https://github.com/php/php-src/issues/20121) (JIT broken in ZTS builds on MacOS 15).
+- **PgSql:**
+  - Fix memory leak when first string conversion fails.
+  - Fix segfaults when attempting to fetch row into a non-instantiable class name.
+- **Phar:**
+  - Fix memory leak of argument in webPhar.
+  - Fix memory leak when setAlias() fails.
+  - Fix a bunch of memory leaks in phar_parse_zipfile() error handling.
+  - Fix file descriptor/memory leak when opening central fp fails.
+  - Fix memleak+UAF when opening temp stream in buildFromDirectory() fails.
+  - Fix potential buffer length truncation due to usage of type int instead of type size_t.
+  - Fix memory leak when openssl polyfill returns garbage.
+  - Fix file descriptor leak in phar_zip_flush() on failure.
+  - Fix memory leak when opening temp file fails while trying to open gzip-compressed archive.
+  - Fixed bug [GH-20302](https://github.com/php/php-src/issues/20302) (Freeing a phar alias may invalidate PharFileInfo objects).
+- **Random:**
+  - Fix Randomizer::__serialize() w.r.t. INDIRECTs.
+- **SimpleXML:**
+  - Partially fixed bug [GH-16317](https://github.com/php/php-src/issues/16317) (SimpleXML does not allow __debugInfo() overrides to work).
+- **Standard:**
+  - Fix shm corruption with coercion in options of unserialize().
+- **Streams:**
+  - Fixed bug [GH-19798](https://github.com/php/php-src/issues/19798): XP_SOCKET XP_SSL (Socket stream modules): Incorrect condition for Win32/Win64.
+- **Tidy:**
+  - Fixed [GH-19021](https://github.com/php/php-src/issues/19021) (improved tidyOptGetCategory detection).
+  - Fix UAF in tidy when tidySetErrorBuffer() fails.
+- **XMLReader:**
+  - Fix arginfo/zpp violations when LIBXML_SCHEMAS_ENABLED is not available.
+- **Windows:**
+  - Fix [GH-19722](https://github.com/php/php-src/issues/19722) (_get_osfhandle asserts in debug mode when given a socket).
+- **Zip:**
+  - Fix memory leak when passing enc_method/enc_password is passed as option for ZipArchive::addGlob()/addPattern() and with consecutive calls.
+
+## 8.3.27 – 2025-10-23
+
+- **Core:**
+  - Fixed bug [GH-19765](https://github.com/php/php-src/issues/19765) (object_properties_load() bypasses readonly property checks).
+  - Fixed hard_timeout with --enable-zend-max-execution-timers.
+  - Fixed bug [GH-19792](https://github.com/php/php-src/issues/19792) (SCCP causes UAF for return value if both warning and exception are triggered).
+  - Fixed bug [GH-19653](https://github.com/php/php-src/issues/19653) (Closure named argument unpacking between temporary closures can cause a crash).
+  - Fixed bug [GH-19839](https://github.com/php/php-src/issues/19839) (Incorrect HASH_FLAG_HAS_EMPTY_IND flag on userland array).
+  - Fixed bug [GH-19480](https://github.com/php/php-src/issues/19480) (error_log php.ini cannot be unset when open_basedir is configured).
+  - Fixed bug [GH-20002](https://github.com/php/php-src/issues/20002) (Broken build on *BSD with MSAN).
+- **CLI:**
+  - Fix useless "Failed to poll event" error logs due to EAGAIN in CLI server with PHP_CLI_SERVER_WORKERS.
+- **Curl:**
+  - Fix cloning of CURLOPT_POSTFIELDS when using the clone operator instead of the curl_copy_handle() function to clone a CurlHandle.
+  - Fix curl build and test failures with version 8.16.
+- **Date:**
+  - Fixed [GH-17159](https://github.com/php/php-src/issues/17159): "P" format for ::createFromFormat swallows string literals.
+- **DBA:**
+  - Fixed [GH-19885](https://github.com/php/php-src/issues/19885) (dba_fetch() overflow on skip argument).
+- **GD:**
+  - Fixed [GH-19955](https://github.com/php/php-src/issues/19955) (imagefttext() memory leak).
+- **MySQLnd:**
+  - Fixed bug [#67563](https://bugs.php.net/67563) (mysqli compiled with mysqlnd does not take ipv6 adress as parameter).
+- **Phar:**
+  - Fix memory leak and invalid continuation after tar header writing fails.
+  - Fix memory leaks when creating temp file fails when applying zip signature.
+- **SimpleXML:**
+  - Fixed bug [GH-19988](https://github.com/php/php-src/issues/19988) (zend_string_init with NULL pointer in simplexml (UB)).
+- **Soap:**
+  - Fixed bug [GH-19784](https://github.com/php/php-src/issues/19784) (SoapServer memory leak).
+  - Fixed bug [GH-20011](https://github.com/php/php-src/issues/20011) (Array of SoapVar of unknown type causes crash).
+- **Standard:**
+  - Fixed bug [GH-12265](https://github.com/php/php-src/issues/12265) (Cloning an object breaks serialization recursion).
+  - Fixed bug [GH-19701](https://github.com/php/php-src/issues/19701) (Serialize/deserialize loses some data).
+  - Fixed bug [GH-19801](https://github.com/php/php-src/issues/19801) (leaks in var_dump() and debug_zval_dump()).
+  - Fixed bug [GH-20043](https://github.com/php/php-src/issues/20043) (array_unique assertion failure with RC1 array causing an exception on sort).
+  - Fixed bug [GH-19926](https://github.com/php/php-src/issues/19926) (reset internal pointer earlier while splicing array while COW violation flag is still set).
+  - Fixed bug [GH-19570](https://github.com/php/php-src/issues/19570) (unable to fseek in /dev/zero and /dev/null).
+- **Streams:**
+  - Fixed bug [GH-19248](https://github.com/php/php-src/issues/19248) (Use strerror_r instead of strerror in main).
+  - Fixed bug [GH-17345](https://github.com/php/php-src/issues/17345) (Bug #35916 was not completely fixed).
+  - Fixed bug [GH-19705](https://github.com/php/php-src/issues/19705) (segmentation when attempting to flush on non seekable stream.
+- **XMLReader:**
+  - Fixed bug [GH-20009](https://github.com/php/php-src/issues/20009) (XMLReader leak on RelaxNG schema failure).
+- **Zip:**
+  - Fixed bug [GH-19688](https://github.com/php/php-src/issues/19688) (Remove pattern overflow in zip addGlob()).
+  - Fixed bug [GH-19932](https://github.com/php/php-src/issues/19932) (Memory leak in zip setEncryptionName()/setEncryptionIndex()).
+- **Zlib:**
+  - Fixed bug [GH-19922](https://github.com/php/php-src/issues/19922) (Double free on gzopen).
+
+## 8.3.26 – 2025-09-25
+
+- **Core:**
+  - Fixed bug [GH-18850](https://github.com/php/php-src/issues/18850) (Repeated inclusion of file with __halt_compiler() triggers "Constant already defined" warning).
+  - Partially fixed bug [GH-19542](https://github.com/php/php-src/issues/19542) (Scanning of string literals >=2GB will fail due to signed int overflow).
+  - Fixed bug [GH-19544](https://github.com/php/php-src/issues/19544) (GC treats ZEND_WEAKREF_TAG_MAP references as WeakMap references).
+  - Fixed bug [GH-19613](https://github.com/php/php-src/issues/19613) (Stale array iterator pointer).
+  - Fixed bug [GH-19679](https://github.com/php/php-src/issues/19679) (zend_ssa_range_widening may fail to converge).
+  - Fixed bug [GH-19681](https://github.com/php/php-src/issues/19681) (PHP_EXPAND_PATH broken with bash 5.3.0).
+  - Fixed bug [GH-19720](https://github.com/php/php-src/issues/19720) (Assertion failure when error handler throws when accessing a deprecated constant).
+- **CLI:**
+  - Fixed bug [GH-19461](https://github.com/php/php-src/issues/19461) (Improve error message on listening error with IPv6 address).
+- **Date:**
+  - Fixed date_sunrise() and date_sunset() with partial-hour UTC offset.
+- **DOM:**
+  - Fixed bug [GH-19612](https://github.com/php/php-src/issues/19612) (Mitigate libxml2 tree dictionary bug).
+- **FPM:**
+  - Fixed failed debug assertion when php_admin_value setting fails.
+- **GD:**
+  - Fixed bug [GH-19579](https://github.com/php/php-src/issues/19579) (imagefilledellipse underflow on width argument).
+- **Intl:**
+  - Fixed bug [GH-11952](https://github.com/php/php-src/issues/11952) (Fix locale strings canonicalization for IntlDateFormatter and NumberFormatter).
+- **OpenSSL:**
+  - Fixed bug [GH-19245](https://github.com/php/php-src/issues/19245) (Success error message on TLS stream accept failure).
+- **PGSQL:**
+  - Fixed bug [GH-19485](https://github.com/php/php-src/issues/19485) (potential use after free when using persistent pgsql connections).
+- **Phar:**
+  - Fixed memory leaks when verifying OpenSSL signature.
+  - Fix memory leak in phar tar temporary file error handling code.
+  - Fix metadata leak when phar convert logic fails.
+  - Fix memory leak on failure in phar_convert_to_other().
+  - Fixed bug [GH-19752](https://github.com/php/php-src/issues/19752) (Phar decompression with invalid extension can cause UAF).
+- **Standard:**
+  - Fixed bug [GH-16649](https://github.com/php/php-src/issues/16649) (UAF during array_splice).
+  - Fixed bug [GH-19577](https://github.com/php/php-src/issues/19577) (Avoid integer overflow when using a small offset and PHP_INT_MAX with LimitIterator).
+- **Streams:**
+  - Remove incorrect call to zval_ptr_dtor() in user_wrapper_metadata().
+  - Fix OSS-Fuzz #385993744.
+- **Tidy:**
+  - Fixed [GH-19021](https://github.com/php/php-src/issues/19021) build issue with libtidy in regard of tidyOptIsReadonly deprecation and TidyInternalCategory being available later than tidyOptGetCategory.
+- **Zip:**
+  - Fix memory leak in zip when encountering empty glob result.
+
+## 8.3.25 – 2025-08-28
+
+- **Core:**
+  - Fixed [GH-19169](https://github.com/php/php-src/issues/19169) build issue with C++17 and ZEND_STATIC_ASSERT macro.
+  - Fixed bug [GH-18581](https://github.com/php/php-src/issues/18581) (Coerce numeric string keys from iterators when argument unpacking).
+  - Fixed OSS-Fuzz #434346548 (Failed assertion with throwing __toString in binary const expr).
+  - Fixed bug [GH-19305](https://github.com/php/php-src/issues/19305) (Operands may be being released during comparison).
+  - Fixed bug [GH-19303](https://github.com/php/php-src/issues/19303) (Unpacking empty packed array into uninitialized array causes assertion failure).
+  - Fixed bug [GH-19306](https://github.com/php/php-src/issues/19306) (Generator can be resumed while fetching next value from delegated Generator).
+  - Fixed bug [GH-19326](https://github.com/php/php-src/issues/19326) (Calling Generator::throw() on a running generator with a non-Generator delegate crashes).
+  - Fixed bug [GH-18736](https://github.com/php/php-src/issues/18736) (Circumvented type check with return by ref + finally).
+  - Fixed zend call stack size for macOs/arm64.
+  - Fixed bug [GH-19065](https://github.com/php/php-src/issues/19065) (Long match statement can segfault compiler during recursive SSA renaming).
+- **Calendar:**
+  - Fixed bug [GH-19371](https://github.com/php/php-src/issues/19371) (integer overflow in calendar.c).
+- **FTP:**
+  - Fix theoretical issues with hrtime() not being available.
+- **GD:**
+  - Fix incorrect comparison with result of php_stream_can_cast().
+- **Hash:**
+  - Fix crash on clone failure.
+- **Intl:**
+  - Fixed [GH-19261](https://github.com/php/php-src/issues/19261): msgfmt_parse_message leaks on message creation failure.
+  - Fix return value on failure for resourcebundle count handler.
+- **LDAP:**
+  - Fixed bug [GH-18529](https://github.com/php/php-src/issues/18529) (additional inheriting of TLS int options).
+- **LibXML:**
+  - Fixed bug [GH-19098](https://github.com/php/php-src/issues/19098) (libxml<2.13 segmentation fault caused by php_libxml_node_free).
+- **MbString:**
+  - Fixed bug [GH-19397](https://github.com/php/php-src/issues/19397) (mb_list_encodings() can cause crashes on shutdown).
+- **Opcache:**
+  - Reset global pointers to prevent use-after-free in zend_jit_status().
+- **OpenSSL:**
+  - Fixed bug [GH-18986](https://github.com/php/php-src/issues/18986) (OpenSSL backend: incorrect RAND_{load,write}_file() return value check).
+  - Fix error return check of EVP_CIPHER_CTX_ctrl().
+  - Fixed bug [GH-19428](https://github.com/php/php-src/issues/19428) (openssl_pkey_derive segfaults for DH derive with low key_length param).
+- **PDO Pgsql:**
+  - Fixed dangling pointer access on _pdo_pgsql_trim_message helper.
+- **Readline:**
+  - Fixed bug [GH-19250](https://github.com/php/php-src/issues/19250) and bug #51360 (Invalid conftest for rl_pending_input).
+- **SOAP:**
+  - Fixed bug [GH-18640](https://github.com/php/php-src/issues/18640) (heap-use-after-free ext/soap/php_encoding.c:299:32 in soap_check_zval_ref).
+- **Sockets:**
+  - Fix some potential crashes on incorrect argument value.
+- **Standard:**
+  - Fixed OSS Fuzz #433303828 (Leak in failed unserialize() with opcache).
+  - Fix theoretical issues with hrtime() not being available.
+  - Fixed bug [GH-19300](https://github.com/php/php-src/issues/19300) (Nested array_multisort invocation with error breaks).
+- **Windows:**
+  - Free opened_path when opened_path_len >= MAXPATHLEN.
+
+## 8.3.24 – 2025-07-31
+
+- **Calendar:**
+  - Fixed jewishtojd overflow on year argument.
+- **Core:**
+  - Fixed bug [GH-18833](https://github.com/php/php-src/issues/18833) (Use after free with weakmaps dependent on destruction order).
+  - Fix OSS-Fuzz #427814456.
+  - Fix OSS-Fuzz #428983568 and #428760800.
+  - Fixed bug [GH-17204](https://github.com/php/php-src/issues/17204) -Wuseless-escape warnings emitted by re2c.
+- **Curl:**
+  - Fix memory leaks when returning refcounted value from curl callback.
+  - Remove incorrect string release.
+- **LDAP:**
+  - Fixed [GH-18902](https://github.com/php/php-src/issues/18902) ldap_exop/ldap_exop_sync assert triggered on empty request OID.
+- **MbString:**
+  - Fixed bug [GH-18901](https://github.com/php/php-src/issues/18901) (integer overflow mb_split).
+- **OCI8:**
+  - Fixed bug [GH-18873](https://github.com/php/php-src/issues/18873) (OCI_RETURN_LOBS flag causes oci8 to leak memory).
+- **Opcache:**
+  - Fixed bug [GH-18639](https://github.com/php/php-src/issues/18639) (Internal class aliases can break preloading + JIT).
+  - Fixed bug [GH-14082](https://github.com/php/php-src/issues/14082) (Segmentation fault on unknown address 0x600000000018 in ext/opcache/jit/zend_jit.c).
+- **OpenSSL:**
+  - Fixed bug [#80770](https://bugs.php.net/80770) (It is not possible to get client peer certificate with stream_socket_server).
+- **PCNTL:**
+  - Fixed bug [GH-18958](https://github.com/php/php-src/issues/18958) (Fatal error during shutdown after pcntl_rfork() or pcntl_forkx() with zend-max-execution-timers).
+- **Phar:**
+  - Fix stream double free in phar.
+  - Fix phar crash and file corruption with SplFileObject.
+- **SOAP:**
+  - Fixed bug [GH-18990](https://github.com/php/php-src/issues/18990), bug #81029, bug #47314 (SOAP HTTP socket not closing on object destruction).
+  - Fix memory leak when URL parsing fails in redirect.
+- **SPL:**
+  - Fixed bug [GH-19094](https://github.com/php/php-src/issues/19094) (Attaching class with no Iterator implementation to MultipleIterator causes crash).
+- **Standard:**
+  - Fix misleading errors in printf().
+  - Fix RCN violations in array functions.
+  - Fixed [GH-18976](https://github.com/php/php-src/issues/18976) pack() overflow with h/H format and INT_MAX repeater value.
+- **Streams:**
+  - Fixed [GH-13264](https://github.com/php/php-src/issues/13264) (fgets() and stream_get_line() do not return false on filter fatal error).
+- **Zip:**
+  - Fix leak when path is too long in ZipArchive::extractTo().
+
+## 8.3.23 – 2025-07-03 (Security Release)
+
+- **Core:**
+  - Fixed [GH-18695](https://github.com/php/php-src/issues/18695) (zend_ast_export() - float number is not preserved).
+  - Do not delete main chunk in zend_gc.
+  - Fix compile issues with zend_alloc and some non-default options.
+- **Curl:**
+  - Fix memory leak when setting a list via curl_setopt fails.
+  - Fix incorrect OpenSSL version detection.
+- **Date:**
+  - Fix leaks with multiple calls to DatePeriod iterator current().
+- **FPM:**
+  - Fixed [GH-18662](https://github.com/php/php-src/issues/18662) (fpm_get_status segfault).
+- **Hash:**
+  - Fixed bug [GH-14551](https://github.com/php/php-src/issues/14551) (PGO build fails with xxhash).
+- **Intl:**
+  - Fix memory leak in intl_datetime_decompose() on failure.
+  - Fix memory leak in locale lookup on failure.
+- **ODBC:**
+  - Fix memory leak on php_odbc_fetch_hash() failure.
+- **Opcache:**
+  - Fixed bug [GH-18743](https://github.com/php/php-src/issues/18743) (Incompatibility in Inline TLS Assembly on Alpine 3.22).
+- **OpenSSL:**
+  - Fix memory leak of X509_STORE in php_openssl_setup_verify() on failure.
+  - Fixed bug [#74796](https://bugs.php.net/74796) (Requests through http proxy set peer name).
+- **PGSQL:**
+  - Fixed [GHSA-hrwm-9436-5mv3](https://github.com/php/php-src/security/advisories/GHSA-hrwm-9436-5mv3) (pgsql extension does not check for errors during escaping). (CVE-2025-1735)
+  - Fix warning not being emitted when failure to cancel a query with pg_cancel_query().
+- **Phar:**
+  - Add missing filter cleanups on phar failure.
+  - Fixed bug [GH-18642](https://github.com/php/php-src/issues/18642) (Signed integer overflow in ext/phar fseek).
+- **PHPDBG:**
+  - Fix 'phpdbg --help' segfault on shutdown with USE_ZEND_ALLOC=0.
+- **PDO ODBC:**
+  - Fix memory leak if WideCharToMultiByte() fails.
+- **Random:**
+  - Fix reference type confusion and leak in user random engine.
+- **Readline:**
+  - Fix memory leak when calloc() fails in php_readline_completion_cb().
+- **SOAP:**
+  - Fix memory leaks in php_http.c when call_user_function() fails.
+  - Fixed [GHSA-453j-q27h-5p8x](https://github.com/php/php-src/security/advisories/GHSA-453j-q27h-5p8x) (NULL Pointer Dereference in PHP SOAP Extension via Large XML Namespace Prefix). (CVE-2025-6491)
+- **Standard:**
+  - Fixed [GHSA-3cr5-j632-f35r](https://github.com/php/php-src/security/advisories/GHSA-3cr5-j632-f35r) (Null byte termination in hostnames). (CVE-2025-1220)
+- **Tidy:**
+  - Fix memory leak in tidy output handler on error.
+  - Fix tidyOptIsReadonly deprecation, using tidyOptGetCategory.
+
+## 8.3.22 – 2025-06-05
+
+- **Core:**
+  - Fixed [GH-18480](https://github.com/php/php-src/issues/18480) (array_splice with large values for offset/length arguments).
+  - Partially fixed [GH-18572](https://github.com/php/php-src/issues/18572) (nested object comparisons leading to stack overflow).
+  - Fixed OSS-Fuzz #417078295.
+  - Fixed OSS-Fuzz #418106144.
+- **Curl:**
+  - Fixed [GH-18460](https://github.com/php/php-src/issues/18460) (curl_easy_setopt with CURLOPT_USERPWD/CURLOPT_USERNAME/ CURLOPT_PASSWORD set the Authorization header when set to NULL).
+- **Date:**
+  - Fixed bug [GH-18076](https://github.com/php/php-src/issues/18076) (Since PHP 8, the date_sun_info() function returns inaccurate sunrise and sunset times, but other calculated times are correct) (JiriJozif).
+  - Fixed bug [GH-18481](https://github.com/php/php-src/issues/18481) (date_sunrise with unexpected nan value for the offset).
+- **Intl:**
+  - Fix various reference issues.
+- **LDAP:**
+  - Fixed bug [GH-18529](https://github.com/php/php-src/issues/18529) (ldap no longer respects TLS_CACERT from ldaprc in ldap_start_tls()).
+- **Opcache:**
+  - Fixed bug [GH-18417](https://github.com/php/php-src/issues/18417) (Windows SHM reattachment fails when increasing memory_consumption or jit_buffer_size).
+  - Fixed bug [GH-18567](https://github.com/php/php-src/issues/18567) (Preloading with internal class alias triggers assertion failure).
+  - Fix leak of accel_globals->key.
+- **OpenSSL:**
+  - Fix missing checks against php_set_blocking() in xp_ssl.c.
+- **PDO_OCI:**
+  - Fixed bug [GH-18494](https://github.com/php/php-src/issues/18494) (PDO OCI segfault in statement GC).
+- **SPL:**
+  - Fixed bug [GH-18421](https://github.com/php/php-src/issues/18421) (Integer overflow with large numbers in LimitIterator).
+- **Standard:**
+  - Fixed bug [GH-17403](https://github.com/php/php-src/issues/17403) (Potential deadlock when putenv fails).
+  - Fixed bug [GH-18509](https://github.com/php/php-src/issues/18509) (Dynamic calls to assert() ignore zend.assertions).
+- **Windows:**
+  - Fix leak+crash with sapi_windows_set_ctrl_handler().
+- **Zip:**
+  - Fixed bug [GH-18431](https://github.com/php/php-src/issues/18431) (Registering ZIP progress callback twice doesn't work).
+  - Fixed bug [GH-18438](https://github.com/php/php-src/issues/18438) (Handling of empty data and errors in ZipArchive::addPattern).
+
+## 8.3.21 – 2025-05-08
+
+- **Core:**
+  - Fixed bug [GH-18304](https://github.com/php/php-src/issues/18304) (Changing the properties of a DateInterval through dynamic properties triggers a SegFault).
+  - Fix some leaks in php_scandir.
+- **Filter:**
+  - Fixed bug [GH-18309](https://github.com/php/php-src/issues/18309) (ipv6 filter integer overflow).
+- **GD:**
+  - Fixed imagecrop() overflow with rect argument with x/width y/heigh usage in gdImageCrop().
+  - Fixed [GH-18243](https://github.com/php/php-src/issues/18243) imagettftext() overflow/underflow on font size value.
+- **Intl:**
+  - Fix reference support for intltz_get_offset().
+- **LDAP:**
+  - Fixed bug [GH-17776](https://github.com/php/php-src/issues/17776) (LDAP_OPT_X_TLS_* options can't be overridden).
+  - Fix NULL deref on high modification key.
+- **libxml:**
+  - Fixed custom external entity loader returning an invalid resource leading to a confusing TypeError message.
+- **OpenSSL:**
+  - Fix memory leak in openssl_sign() when passing invalid algorithm.
+  - Fix potential leaks when writing to BIO fails.
+- **PDO Firebird:**
+  - Fixed [GH-18276](https://github.com/php/php-src/issues/18276) - persistent connection - "zend_mm_heap corrupted" with setAttribute() (SakiTakamachi).
+- **SPL:**
+  - Fixed bug [GH-18322](https://github.com/php/php-src/issues/18322) (SplObjectStorage debug handler mismanages memory).
+- **Standard:**
+  - Fixed bug [GH-18145](https://github.com/php/php-src/issues/18145) (php8ts crashes in php_clear_stat_cache()).
+  - Fixed bug [GH-18209](https://github.com/php/php-src/issues/18209) (Use-after-free in extract() with EXTR_REFS).
+  - Fixed bug [GH-18212](https://github.com/php/php-src/issues/18212) (fseek with SEEK_CUR whence value and negative offset leads to negative stream position).
+  - Fix resource leak in iptcembed() on error.
+- **Zip:**
+  - Fix uouv when handling empty options in ZipArchive::addGlob().
+  - Fix memory leak when handling a too long path in ZipArchive::addGlob().
+
+## 8.3.20 – 2025-04-10
+
+- **Core:**
+  - Fixed bug [GH-17961](https://github.com/php/php-src/issues/17961) (use-after-free during dl()'ed module class destruction).
+  - Fixed bug [GH-15367](https://github.com/php/php-src/issues/15367) (dl() of module with aliased class crashes in shutdown).
+  - Fixed bug [GH-13193](https://github.com/php/php-src/issues/13193) again (Significant performance degradation in 'foreach').
+- **DOM:**
+  - Fix weird unpack behaviour in DOM.
+  - Fix xinclude destruction of live attributes.
+- **Embed:**
+  - Fixed bug [GH-8533](https://github.com/php/php-src/issues/8533) (Unable to link dynamic libphp on Mac).
+- **Fuzzer:**
+  - Fixed bug [GH-18081](https://github.com/php/php-src/issues/18081) (Memory leaks in error paths of fuzzer SAPI).
+- **GD:**
+  - Fixed bug [GH-17984](https://github.com/php/php-src/issues/17984) (calls with arguments as array with references).
+- **Intl:**
+  - Fix locale_compose and locale_lookup to work with their array argument with values as references.
+  - Fix dateformat_format when the time is an array of references.
+  - Fix UConverter::transcode with substitutes as references.
+- **Mbstring:**
+  - Fixed bug [GH-17989](https://github.com/php/php-src/issues/17989) (mb_output_handler crash with unset http_output_conv_mimetypes).
+- **Opcache:**
+  - Fixed bug [GH-18112](https://github.com/php/php-src/issues/18112) (NULL access with preloading and INI option).
+  - Fixed bug [GH-18107](https://github.com/php/php-src/issues/18107) (Opcache CFG jmp optimization with try-finally breaks the exception table).
+- **PDO:**
+  - Fix memory leak when destroying PDORow.
+- **SOAP:**
+  - Fixed bug [#66049](https://bugs.php.net/66049) (Typemap can break parsing in parse_packet_soap leading to a segfault) .
+- **SPL:**
+  - Fixed bug [GH-18018](https://github.com/php/php-src/issues/18018) (RC1 data returned from offsetGet causes UAF in ArrayObject).
+- **Treewide:**
+  - Fixed bug [GH-17736](https://github.com/php/php-src/issues/17736) (Assertion failure zend_reference_destroy()).
+- **Windows:**
+  - Fixed bug [GH-17836](https://github.com/php/php-src/issues/17836) (zend_vm_gen.php shouldn't break on Windows line endings).
+
+## 8.3.19 – 2025-03-13 (Security Release)
+
+- **BCMath:**
+  - Fixed bug [GH-17398](https://github.com/php/php-src/issues/17398) (bcmul memory leak).
+- **Core:**
+  - Fixed bug [GH-17623](https://github.com/php/php-src/issues/17623) (Broken stack overflow detection for variable compilation).
+  - Fixed bug [GH-17618](https://github.com/php/php-src/issues/17618) (UnhandledMatchError does not take zend.exception_ignore_args=1 into account).
+  - Fix fallback paths in fast_long_{add,sub}_function.
+  - Fixed bug [GH-17718](https://github.com/php/php-src/issues/17718) (Calling static methods on an interface that has `__callStatic` is allowed).
+  - Fixed bug [GH-17797](https://github.com/php/php-src/issues/17797) (zend_test_compile_string crash on invalid script path).
+  - Fixed [GHSA-rwp7-7vc6-8477](https://github.com/php/php-src/security/advisories/GHSA-rwp7-7vc6-8477) (Reference counting in php_request_shutdown causes Use-After-Free). (CVE-2024-11235)
+- **DOM:**
+  - Fixed bug [GH-17847](https://github.com/php/php-src/issues/17847) (xinclude destroys live node).
+- **FFI:**
+  - Fix FFI Parsing of Pointer Declaration Lists.
+- **FPM:**
+  - Fixed bug [GH-17643](https://github.com/php/php-src/issues/17643) (FPM with httpd ProxyPass encoded PATH_INFO env).
+- **GD:**
+  - Fixed bug [GH-17772](https://github.com/php/php-src/issues/17772) (imagepalettetotruecolor crash with memory_limit=2M).
+- **LDAP:**
+  - Fixed bug [GH-17704](https://github.com/php/php-src/issues/17704) (ldap_search fails when $attributes contains a non-packed array with numerical keys).
+- **LibXML:**
+  - Fixed [GHSA-wg4p-4hqh-c3g9](https://github.com/php/php-src/security/advisories/GHSA-wg4p-4hqh-c3g9) (Reocurrence of #72714).
+  - Fixed [GHSA-p3x9-6h7p-cgfc](https://github.com/php/php-src/security/advisories/GHSA-p3x9-6h7p-cgfc) (libxml streams use wrong `content-type` header when requesting a redirected resource). (CVE-2025-1219)
+- **MBString:**
+  - Fixed bug [GH-17503](https://github.com/php/php-src/issues/17503) (Undefined float conversion in mb_convert_variables).
+- **Opcache:**
+  - Fixed bug [GH-17654](https://github.com/php/php-src/issues/17654) (Multiple classes using same trait causes function JIT crash).
+  - Fixed bug [GH-17577](https://github.com/php/php-src/issues/17577) (JIT packed type guard crash).
+  - Fixed bug [GH-17899](https://github.com/php/php-src/issues/17899) (zend_test_compile_string with invalid path when opcache is enabled).
+  - Fixed bug [GH-17868](https://github.com/php/php-src/issues/17868) (Cannot allocate memory with tracing JIT).
+- **PDO_SQLite:**
+  - Fixed [GH-17837](https://github.com/php/php-src/issues/17837) ()::getColumnMeta() on unexecuted statement segfaults).
+  - Fix cycle leak in sqlite3 setAuthorizer().
+- **Phar:**
+  - Fixed bug [GH-17808](https://github.com/php/php-src/issues/17808): PharFileInfo refcount bug.
+- **PHPDBG:**
+  - Partially fixed bug [GH-17387](https://github.com/php/php-src/issues/17387) (Trivial crash in phpdbg lexer).
+  - Fix memory leak in phpdbg calling registered function.
+- **Reflection:**
+  - Fixed bug [GH-15902](https://github.com/php/php-src/issues/15902) (Core dumped in ext/reflection/php_reflection.c).
+- **Standard:**
+  - Fixed bug [#72666](https://bugs.php.net/72666) (stat cache clearing inconsistent between file:// paths and plain paths).
+- **Streams:**
+  - Fixed bug [GH-17650](https://github.com/php/php-src/issues/17650) (realloc with size 0 in user_filters.c).
+  - Fix memory leak on overflow in _php_stream_scandir().
+  - Fixed [GHSA-hgf5-96fm-v528](https://github.com/php/php-src/security/advisories/GHSA-hgf5-96fm-v528) (Stream HTTP wrapper header check might omit basic auth header). (CVE-2025-1736)
+  - Fixed [GHSA-52jp-hrpf-2jff](https://github.com/php/php-src/security/advisories/GHSA-52jp-hrpf-2jff) (Stream HTTP wrapper truncate redirect location to 1024 bytes). (CVE-2025-1861)
+  - Fixed [GHSA-pcmh-g36c-qc44](https://github.com/php/php-src/security/advisories/GHSA-pcmh-g36c-qc44) (Streams HTTP wrapper does not fail for headers without colon). (CVE-2025-1734)
+  - Fixed [GHSA-v8xr-gpvj-cx9g](https://github.com/php/php-src/security/advisories/GHSA-v8xr-gpvj-cx9g) (Header parser of `http` stream wrapper does not handle folded headers). (CVE-2025-1217)
+- **Windows:**
+  - Fixed phpize for Windows 11 (24H2).
+  - Fixed [GH-17855](https://github.com/php/php-src/issues/17855) (CURL_STATICLIB flag set even if linked with shared lib).
+- **Zlib:**
+  - Fixed bug [GH-17745](https://github.com/php/php-src/issues/17745) (zlib extension incorrectly handles object arguments).
+  - Fix memory leak when encoding check fails.
+  - Fix zlib support for large files.
+
+## 8.3.17 – 2025-02-13
+
+- **Core:**
+  - Fixed bug [GH-16892](https://github.com/php/php-src/issues/16892) (ini_parse_quantity() fails to parse inputs starting with 0x0b).
+  - Fixed bug [GH-16886](https://github.com/php/php-src/issues/16886) (ini_parse_quantity() fails to emit warning for 0x+0).
+  - Fixed bug [GH-17214](https://github.com/php/php-src/issues/17214) (Relax final+private warning for trait methods with inherited final).
+  - Fixed NULL arithmetic during system program execution on Windows.
+  - Fixed potential OOB when checking for trailing spaces on Windows.
+  - Fixed bug [GH-17408](https://github.com/php/php-src/issues/17408) (Assertion failure Zend/zend_exceptions.c).
+  - Fix may_have_extra_named_args flag for ZEND_AST_UNPACK.
+  - Fix NULL arithmetic in System V shared memory emulation for Windows.
+- **DOM:**
+  - Fixed bug [GH-17500](https://github.com/php/php-src/issues/17500) (Segfault with requesting nodeName on nameless doctype).
+- **Enchant:**
+  - Fix crashes in enchant when passing null bytes.
+- **FTP:**
+  - Fixed bug [GH-16800](https://github.com/php/php-src/issues/16800) (ftp functions can abort with EINTR).
+- **GD:**
+  - Fixed bug [GH-17349](https://github.com/php/php-src/issues/17349) (Tiled truecolor filling looses single color transparency).
+  - Fixed bug [GH-17373](https://github.com/php/php-src/issues/17373) (imagefttext() ignores clipping rect for palette images).
+  - Ported fix for libgd 223 (gdImageRotateGeneric() does not properly interpolate).
+- **Intl:**
+  - Fixed bug [GH-11874](https://github.com/php/php-src/issues/11874) (intl causing segfault in docker images).
+  - Fixed bug [GH-17469](https://github.com/php/php-src/issues/17469) (UConverter::transcode always emit E_WARNING on invalid encoding).
+- **Opcache:**
+  - Fixed bug [GH-17307](https://github.com/php/php-src/issues/17307) (Internal closure causes JIT failure).
+  - Fixed bug [GH-17564](https://github.com/php/php-src/issues/17564) (Potential UB when reading from / writing to struct padding).
+- **PDO:**
+  - Fixed a memory leak when the GC is used to free a PDOStatment.
+  - Fixed a crash in the PDO Firebird Statement destructor.
+  - Fixed UAFs when changing default fetch class ctor args.
+- **Phar:**
+  - Fixed bug [GH-17518](https://github.com/php/php-src/issues/17518) (offset overflow phar extractTo()).
+- **PHPDBG:**
+  - Fix crashes in function registration + test.
+- **Session:**
+  - Fix type confusion with session SID constant.
+  - Fixed bug [GH-17541](https://github.com/php/php-src/issues/17541) (ext/session NULL pointer dereferencement during ID reset).
+- **SimpleXML:**
+  - Fixed bug [GH-17409](https://github.com/php/php-src/issues/17409) (Assertion failure Zend/zend_hash.c:1730).
+- **SNMP:**
+  - Fixed bug [GH-17330](https://github.com/php/php-src/issues/17330) (SNMP::setSecurity segfault on closed session).
+- **SPL:**
+  - Fixed bug [GH-17463](https://github.com/php/php-src/issues/17463) (crash on SplTempFileObject::ftruncate with negative value).
+- **Zip:**
+  - Fixed bug [GH-17139](https://github.com/php/php-src/issues/17139) (Fix zip_entry_name() crash on invalid entry).
+
+## 8.3.16 – 2025-01-16
+
+- **Core:**
+  - Fixed bug [GH-17106](https://github.com/php/php-src/issues/17106) (ZEND_MATCH_ERROR misoptimization).
+  - Fixed bug [GH-17162](https://github.com/php/php-src/issues/17162) (zend_array_try_init() with dtor can cause engine UAF).
+  - Fixed bug [GH-17101](https://github.com/php/php-src/issues/17101) (AST->string does not reproduce constructor property promotion correctly).
+  - Fixed bug [GH-17211](https://github.com/php/php-src/issues/17211) (observer segfault on function loaded with dl()).
+  - Fixed bug [GH-17216](https://github.com/php/php-src/issues/17216) (Trampoline crash on error).
+- **Date:**
+  - Fixed bug [GH-14709](https://github.com/php/php-src/issues/14709) DatePeriod::__construct() overflow on recurrences.
+- **DBA:**
+  - Skip test if inifile is disabled.
+- **DOM:**
+  - Fixed bug [GH-17224](https://github.com/php/php-src/issues/17224) (UAF in importNode).
+- **Embed:**
+  - Make build command for program using embed portable.
+- **FFI:**
+  - Fixed bug [#79075](https://bugs.php.net/79075) (FFI header parser chokes on comments).
+  - Fix memory leak on ZEND_FFI_TYPE_CHAR conversion failure.
+  - Fixed bug [GH-16013](https://github.com/php/php-src/issues/16013) and bug #80857 (Big endian issues).
+- **Filter:**
+  - Fixed bug [GH-16944](https://github.com/php/php-src/issues/16944) (Fix filtering special IPv4 and IPv6 ranges, by using information from RFC 6890).
+- **FPM:**
+  - Fixed bug [GH-13437](https://github.com/php/php-src/issues/13437) (FPM: ERROR: scoreboard: failed to lock (already locked)).
+  - Fixed bug [GH-17112](https://github.com/php/php-src/issues/17112) (Macro redefinitions).
+  - Fixed bug [GH-17208](https://github.com/php/php-src/issues/17208) (bug64539-status-json-encoding.phpt fail on 32-bits).
+- **GD:**
+  - Fixed bug [GH-16255](https://github.com/php/php-src/issues/16255) (Unexpected nan value in ext/gd/libgd/gd_filter.c).
+  - Ported fix for libgd bug 276 (Sometimes pixels are missing when storing images as BMPs).
+- **Gettext:**
+  - Fixed bug [GH-17202](https://github.com/php/php-src/issues/17202) (Segmentation fault ext/gettext/gettext.c bindtextdomain()).
+- **Iconv:**
+  - Fixed bug [GH-17047](https://github.com/php/php-src/issues/17047) (UAF on iconv filter failure).
+- **LDAP:**
+  - Fixed bug [GH-17280](https://github.com/php/php-src/issues/17280) (ldap_search() fails when $attributes array has holes).
+- **LibXML:**
+  - Fixed bug [GH-17223](https://github.com/php/php-src/issues/17223) (Memory leak in libxml encoding handling).
+- **MBString:**
+  - Fixed bug [GH-17112](https://github.com/php/php-src/issues/17112) (Macro redefinitions).
+- **Opcache:**
+  - opcache_get_configuration() properly reports jit_prof_threshold.
+  - Fixed bug [GH-17246](https://github.com/php/php-src/issues/17246) (GC during SCCP causes segfault).
+- **PCNTL:**
+  - Fix memory leak in cleanup code of pcntl_exec() when a non stringable value is encountered past the first entry.
+- **PgSql:**
+  - Fixed bug [GH-17158](https://github.com/php/php-src/issues/17158) (pg_fetch_result Shows Incorrect ArgumentCountError Message when Called With 1 Argument).
+  - Fixed further ArgumentCountError for calls with flexible number of arguments.
+- **Phar:**
+  - Fixed bug [GH-17137](https://github.com/php/php-src/issues/17137) (Segmentation fault ext/phar/phar.c).
+- **SimpleXML:**
+  - Fixed bug [GH-17040](https://github.com/php/php-src/issues/17040) (SimpleXML's unset can break DOM objects).
+  - Fixed bug [GH-17153](https://github.com/php/php-src/issues/17153) (SimpleXML crash when using autovivification on document).
+- **Sockets:**
+  - Fixed bug [GH-16276](https://github.com/php/php-src/issues/16276) (socket_strerror overflow handling with INT_MIN).
+  - Fixed overflow on SO_LINGER values setting, strengthening values check on SO_SNDTIMEO/SO_RCVTIMEO for socket_set_option().
+- **SPL:**
+  - Fixed bug [GH-17225](https://github.com/php/php-src/issues/17225) (NULL deref in spl_directory.c).
+- **Streams:**
+  - Fixed bug [GH-17037](https://github.com/php/php-src/issues/17037) (UAF in user filter when adding existing filter name due to incorrect error handling).
+  - Fixed bug [GH-16810](https://github.com/php/php-src/issues/16810) (overflow on fopen HTTP wrapper timeout value).
+  - Fixed bug [GH-17067](https://github.com/php/php-src/issues/17067) (glob:// wrapper doesn't cater to CWD for ZTS builds).
+- **Windows:**
+  - Hardened proc_open() against cmd.exe hijacking.
+- **XML:**
+  - Fixed bug [GH-1718](https://github.com/php/php-src/issues/1718) (unreachable program point in zend_hash).
+
+## 8.3.15 – 2024-12-19
+
+- **Calendar:**
+  - Fixed jdtogregorian overflow.
+  - Fixed cal_to_jd julian_days argument overflow.
+- **COM:**
+  - Fixed bug [GH-16991](https://github.com/php/php-src/issues/16991) (Getting typeinfo of non DISPATCH variant segfaults).
+- **Core:**
+  - Fail early in *nix configuration build script.
+  - Fixed bug [GH-16727](https://github.com/php/php-src/issues/16727) (Opcache bad signal 139 crash in ZTS bookworm (frankenphp)).
+  - Fixed bug [GH-16799](https://github.com/php/php-src/issues/16799) (Assertion failure at Zend/zend_vm_execute.h:7469).
+  - Fixed bug [GH-16630](https://github.com/php/php-src/issues/16630) (UAF in lexer with encoding translation and heredocs).
+  - Fix is_zend_ptr() huge block comparison.
+  - Fixed potential OOB read in zend_dirname() on Windows.
+- **Curl:**
+  - Fixed bug [GH-16802](https://github.com/php/php-src/issues/16802) (open_basedir bypass using curl extension).
+  - Fix various memory leaks in curl mime handling.
+- **DOM:**
+  - Fixed bug [GH-16777](https://github.com/php/php-src/issues/16777) (Calling the constructor again on a DOM object after it is in a document causes UAF).
+  - Fixed bug [GH-16906](https://github.com/php/php-src/issues/16906) (Reloading document can cause UAF in iterator).
+- **FPM:**
+  - Fixed [GH-16432](https://github.com/php/php-src/issues/16432) (PHP-FPM 8.2 SIGSEGV in fpm_get_status).
+- **GD:**
+  - Fixed [GH-16776](https://github.com/php/php-src/issues/16776) (imagecreatefromstring overflow).
+- **GMP:**
+  - Fixed bug [GH-16890](https://github.com/php/php-src/issues/16890) (array_sum() with GMP can loose precision (LLP64)).
+- **Hash:**
+  - Fixed [GH-16711](https://github.com/php/php-src/issues/16711): Segfault in mhash().
+- **Opcache:**
+  - Fixed bug [GH-16770](https://github.com/php/php-src/issues/16770) (Tracing JIT type mismatch when returning UNDEF).
+  - Fixed bug [GH-16851](https://github.com/php/php-src/issues/16851) (JIT_G(enabled) not set correctly on other threads).
+  - Fixed bug [GH-16902](https://github.com/php/php-src/issues/16902) (Set of opcache tests fail zts+aarch64).
+- **OpenSSL:**
+  - Prevent unexpected array entry conversion when reading key.
+  - Fix various memory leaks related to openssl exports.
+  - Fix memory leak in php_openssl_pkey_from_zval().
+- **PDO:**
+  - Fixed memory leak of `setFetchMode()`.
+- **Phar:**
+  - Fixed bug [GH-16695](https://github.com/php/php-src/issues/16695) (phar:// tar parser and zero-length file header blocks).
+- **PHPDBG:**
+  - Fixed bug [GH-15208](https://github.com/php/php-src/issues/15208) (Segfault with breakpoint map and phpdbg_clear()).
+- **SAPI:**
+  - Fixed bug [GH-16998](https://github.com/php/php-src/issues/16998) (UBSAN warning in rfc1867).
+- **SimpleXML:**
+  - Fixed bug [GH-16808](https://github.com/php/php-src/issues/16808) (Segmentation fault in RecursiveIteratorIterator ->current() with a xml element input).
+- **SOAP:**
+  - Fix make check being invoked in ext/soap.
+- **Standard:**
+  - Fixed bug [GH-16905](https://github.com/php/php-src/issues/16905) (Internal iterator functions can't handle UNDEF properties).
+  - Fixed bug [GH-16957](https://github.com/php/php-src/issues/16957) (Assertion failure in array_shift with self-referencing array).
+- **Streams:**
+  - Fixed network connect poll interuption handling.
+- **Windows:**
+  - Fixed bug [GH-16849](https://github.com/php/php-src/issues/16849) (Error dialog causes process to hang).
+
+## 8.3.14 – 2024-11-21 (Security Release)
+
+- **CLI:**
+  - Fixed bug [GH-16373](https://github.com/php/php-src/issues/16373) (Shebang is not skipped for router script in cli-server started through shebang).
+  - Fixed bug [GHSA-4w77-75f9-2c8w](https://github.com/php/php-src/security/advisories/GHSA-4w77-75f9-2c8w) (Heap-Use-After-Free in sapi_read_post_data Processing in CLI SAPI Interface).
+- **COM:**
+  - Fixed out of bound writes to SafeArray data.
+- **Core:**
+  - Fixed bug [GH-16168](https://github.com/php/php-src/issues/16168) (php 8.1 and earlier crash immediately when compiled with Xcode 16 clang on macOS 15).
+  - Fixed bug [GH-16371](https://github.com/php/php-src/issues/16371) (Assertion failure in Zend/zend_weakrefs.c:646).
+  - Fixed bug [GH-16515](https://github.com/php/php-src/issues/16515) (Incorrect propagation of ZEND_ACC_RETURN_REFERENCE for call trampoline).
+  - Fixed bug [GH-16509](https://github.com/php/php-src/issues/16509) (Incorrect line number in function redeclaration error).
+  - Fixed bug [GH-16508](https://github.com/php/php-src/issues/16508) (Incorrect line number in inheritance errors of delayed early bound classes).
+  - Fixed bug [GH-16648](https://github.com/php/php-src/issues/16648) (Use-after-free during array sorting).
+- **Curl:**
+  - Fixed bug [GH-16302](https://github.com/php/php-src/issues/16302) (CurlMultiHandle holds a reference to CurlHandle if curl_multi_add_handle fails).
+- **Date:**
+  - Fixed bug [GH-16454](https://github.com/php/php-src/issues/16454) (Unhandled INF in date_sunset() with tiny $utcOffset).
+  - Fixed bug [GH-14732](https://github.com/php/php-src/issues/14732) (date_sun_info() fails for non-finite values).
+- **DBA:**
+  - Fixed bug [GH-16390](https://github.com/php/php-src/issues/16390) (dba_open() can segfault for "pathless" streams).
+- **DOM:**
+  - Fixed bug [GH-16316](https://github.com/php/php-src/issues/16316) (DOMXPath breaks when not initialized properly).
+  - Add missing hierarchy checks to replaceChild.
+  - Fixed bug [GH-16336](https://github.com/php/php-src/issues/16336) (Attribute intern document mismanagement).
+  - Fixed bug [GH-16338](https://github.com/php/php-src/issues/16338) (Null-dereference in ext/dom/node.c).
+  - Fixed bug [GH-16473](https://github.com/php/php-src/issues/16473) (dom_import_simplexml stub is wrong).
+  - Fixed bug [GH-16533](https://github.com/php/php-src/issues/16533) (Segfault when adding attribute to parent that is not an element).
+  - Fixed bug [GH-16535](https://github.com/php/php-src/issues/16535) (UAF when using document as a child).
+  - Fixed bug [GH-16593](https://github.com/php/php-src/issues/16593) (Assertion failure in DOM->replaceChild).
+  - Fixed bug [GH-16595](https://github.com/php/php-src/issues/16595) (Another UAF in DOM -> cloneNode).
+- **EXIF:**
+  - Fixed bug [GH-16409](https://github.com/php/php-src/issues/16409) (Segfault in exif_thumbnail when not dealing with a real file).
+- **FFI:**
+  - Fixed bug [GH-16397](https://github.com/php/php-src/issues/16397) (Segmentation fault when comparing FFI object).
+- **Filter:**
+  - Fixed bug [GH-16523](https://github.com/php/php-src/issues/16523) (FILTER_FLAG_HOSTNAME accepts ending hyphen).
+- **FPM:**
+  - Fixed bug [GH-16628](https://github.com/php/php-src/issues/16628) (FPM logs are getting corrupted with this log statement).
+- **GD:**
+  - Fixed bug [GH-16334](https://github.com/php/php-src/issues/16334) (imageaffine overflow on matrix elements).
+  - Fixed bug [GH-16427](https://github.com/php/php-src/issues/16427) (Unchecked libavif return values).
+  - Fixed bug [GH-16559](https://github.com/php/php-src/issues/16559) (UBSan abort in ext/gd/libgd/gd_interpolation.c:1007).
+- **GMP:**
+  - Fixed floating point exception bug with gmp_pow when using large exposant values. (David Carlier).
+  - Fixed bug [GH-16411](https://github.com/php/php-src/issues/16411) (gmp_export() can cause overflow).
+  - Fixed bug [GH-16501](https://github.com/php/php-src/issues/16501) (gmp_random_bits() can cause overflow).
+  - Fixed gmp_pow() overflow bug with large base/exponents.
+  - Fixed segfaults and other issues related to operator overloading with GMP objects.
+- **LDAP:**
+  - Fixed bug [GHSA-g665-fm4p-vhff](https://github.com/php/php-src/security/advisories/GHSA-g665-fm4p-vhff) (OOB access in ldap_escape). (CVE-2024-8932)
+- **MBstring:**
+  - Fixed bug [GH-16361](https://github.com/php/php-src/issues/16361) (mb_substr overflow on start/length arguments).
+- **MySQLnd:**
+  - Fixed bug [GHSA-h35g-vwh6-m678](https://github.com/php/php-src/security/advisories/GHSA-h35g-vwh6-m678) (Leak partial content of the heap through heap buffer over-read). (CVE-2024-8929)
+- **Opcache:**
+  - Fixed bug [GH-16408](https://github.com/php/php-src/issues/16408) (Array to string conversion warning emitted in optimizer).
+- **OpenSSL:**
+  - Fixed bug [GH-16357](https://github.com/php/php-src/issues/16357) (openssl may modify member types of certificate arrays).
+  - Fixed bug [GH-16433](https://github.com/php/php-src/issues/16433) (Large values for openssl_csr_sign() $days overflow).
+  - Fix various memory leaks on error conditions in openssl_x509_parse().
+- **PDO DBLIB:**
+  - Fixed bug [GHSA-5hqh-c84r-qjcv](https://github.com/php/php-src/security/advisories/GHSA-5hqh-c84r-qjcv) (Integer overflow in the dblib quoter causing OOB writes). (CVE-2024-11236)
+- **PDO Firebird:**
+  - Fixed bug [GHSA-5hqh-c84r-qjcv](https://github.com/php/php-src/security/advisories/GHSA-5hqh-c84r-qjcv) (Integer overflow in the firebird quoter causing OOB writes). (CVE-2024-11236)
+- **PDO ODBC:**
+  - Fixed bug [GH-16450](https://github.com/php/php-src/issues/16450) (PDO_ODBC can inject garbage into field values).
+- **Phar:**
+  - Fixed bug [GH-16406](https://github.com/php/php-src/issues/16406) (Assertion failure in ext/phar/phar.c:2808).
+- **PHPDBG:**
+  - Fixed bug [GH-16174](https://github.com/php/php-src/issues/16174) (Empty string is an invalid expression for ev).
+- **Reflection:**
+  - Fixed bug [GH-16601](https://github.com/php/php-src/issues/16601) (Memory leak in Reflection constructors).
+- **Session:**
+  - Fixed bug [GH-16385](https://github.com/php/php-src/issues/16385) (Unexpected null returned by session_set_cookie_params).
+  - Fixed bug [GH-16290](https://github.com/php/php-src/issues/16290) (overflow on cookie_lifetime ini value).
+- **SOAP:**
+  - Fixed bug [GH-16318](https://github.com/php/php-src/issues/16318) (Recursive array segfaults soap encoding).
+  - Fixed bug [GH-16429](https://github.com/php/php-src/issues/16429) (Segmentation fault access null pointer in SoapClient).
+- **Sockets:**
+  - Fixed bug with overflow socket_recvfrom $length argument.
+- **SPL:**
+  - Fixed bug [GH-16337](https://github.com/php/php-src/issues/16337) (Use-after-free in SplHeap).
+  - Fixed bug [GH-16464](https://github.com/php/php-src/issues/16464) (Use-after-free in SplDoublyLinkedList::offsetSet()).
+  - Fixed bug [GH-16479](https://github.com/php/php-src/issues/16479) (Use-after-free in SplObjectStorage::setInfo()).
+  - Fixed bug [GH-16478](https://github.com/php/php-src/issues/16478) (Use-after-free in SplFixedArray::unset()).
+  - Fixed bug [GH-16588](https://github.com/php/php-src/issues/16588) (UAF in Observer->serialize).
+  - Fix [GH-16477](https://github.com/php/php-src/issues/16477) (Segmentation fault when calling __debugInfo() after failed SplFileObject::__constructor).
+  - Fixed bug [GH-16589](https://github.com/php/php-src/issues/16589) (UAF in SplDoublyLinked->serialize()).
+  - Fixed bug [GH-14687](https://github.com/php/php-src/issues/14687) (segfault on SplObjectIterator instance).
+  - Fixed bug [GH-16604](https://github.com/php/php-src/issues/16604) (Memory leaks in SPL constructors).
+  - Fixed bug [GH-16646](https://github.com/php/php-src/issues/16646) (UAF in ArrayObject::unset() and ArrayObject::exchangeArray()).
+- **Standard:**
+  - Fixed bug [GH-16293](https://github.com/php/php-src/issues/16293) (Failed assertion when throwing in assert() callback with bail enabled).
+- **Streams:**
+  - Fixed bug [GHSA-c5f2-jwm7-mmq2](https://github.com/php/php-src/security/advisories/GHSA-c5f2-jwm7-mmq2) (Configuring a proxy in a stream context might allow for CRLF injection in URIs). (CVE-2024-11234)
+  - Fixed bug [GHSA-r977-prxv-hc43](https://github.com/php/php-src/security/advisories/GHSA-r977-prxv-hc43) (Single byte overread with convert.quoted-printable-decode filter). (CVE-2024-11233)
+- **SysVMsg:**
+  - Fixed bug [GH-16592](https://github.com/php/php-src/issues/16592) (msg_send() crashes when a type does not properly serialized).
+- **SysVShm:**
+  - Fixed bug [GH-16591](https://github.com/php/php-src/issues/16591) (Assertion error in shm_put_var).
+- **XMLReader:**
+  - Fixed bug [GH-16292](https://github.com/php/php-src/issues/16292) (Segmentation fault in ext/xmlreader/php_xmlreader.c).
+- **Zlib:**
+  - Fixed bug [GH-16326](https://github.com/php/php-src/issues/16326) (Memory management is broken for bad dictionaries.) (cmb)
+
+## 8.3.13 – 2024-10-24
+
+- **Calendar:**
+  - Fixed [GH-16240](https://github.com/php/php-src/issues/16240): jdtounix overflow on argument value.
+  - Fixed [GH-16241](https://github.com/php/php-src/issues/16241): easter_days/easter_date overflow on year argument.
+  - Fixed [GH-16263](https://github.com/php/php-src/issues/16263): jddayofweek overflow.
+  - Fixed [GH-16234](https://github.com/php/php-src/issues/16234): jewishtojd overflow.
+- **CLI:**
+  - Fixed bug [GH-16137](https://github.com/php/php-src/issues/16137): duplicate http headers when set several times by the client.
+- **Core:**
+  - Fixed bug [GH-16054](https://github.com/php/php-src/issues/16054) (Segmentation fault when resizing hash table iterator list while adding).
+  - Fixed bug [GH-15905](https://github.com/php/php-src/issues/15905) (Assertion failure for TRACK_VARS_SERVER).
+  - Fixed bug [GH-15907](https://github.com/php/php-src/issues/15907) (Failed assertion when promoting Serialize deprecation to exception).
+  - Fixed bug [GH-15851](https://github.com/php/php-src/issues/15851) (Segfault when printing backtrace during cleanup of nested generator frame).
+  - Fixed bug [GH-15866](https://github.com/php/php-src/issues/15866) (Core dumped in Zend/zend_generators.c).
+  - Fixed bug [GH-16188](https://github.com/php/php-src/issues/16188) (Assertion failure in Zend/zend_exceptions.c).
+  - Fixed bug [GH-16233](https://github.com/php/php-src/issues/16233) (Observer segfault when calling user function in internal function via trampoline).
+- **DOM:**
+  - Fixed bug [GH-16039](https://github.com/php/php-src/issues/16039) (Segmentation fault (access null pointer) in ext/dom/parentnode/tree.c).
+  - Fixed bug [GH-16149](https://github.com/php/php-src/issues/16149) (Null pointer dereference in DOMElement->getAttributeNames()).
+  - Fixed bug [GH-16151](https://github.com/php/php-src/issues/16151) (Assertion failure in ext/dom/parentnode/tree.c).
+  - Fixed bug [GH-16150](https://github.com/php/php-src/issues/16150) (Use after free in php_dom.c).
+  - Fixed bug [GH-16152](https://github.com/php/php-src/issues/16152) (Memory leak in DOMProcessingInstruction/DOMDocument).
+- **JSON:**
+  - Fixed bug [GH-15168](https://github.com/php/php-src/issues/15168) (stack overflow in json_encode()).
+- **GD:**
+  - Fixed bug [GH-16232](https://github.com/php/php-src/issues/16232) (bitshift overflow on wbmp file content reading / fix backport from upstream).
+  - Fixed bug [GH-12264](https://github.com/php/php-src/issues/12264) (overflow/underflow on imagerotate degrees value) (David Carlier)
+  - Fixed bug [GH-16274](https://github.com/php/php-src/issues/16274) (imagescale underflow on RBG channels / fix backport from upstream).
+- **LDAP:**
+  - Fixed bug [GH-16032](https://github.com/php/php-src/issues/16032) (Various NULL pointer dereferencements in ldap_modify_batch()).
+  - Fixed bug [GH-16101](https://github.com/php/php-src/issues/16101) (Segfault in ldap_list(), ldap_read(), and ldap_search() when LDAPs array is not a list).
+  - Fix [GH-16132](https://github.com/php/php-src/issues/16132) (php_ldap_do_modify() attempts to free pointer not allocated by ZMM.).
+  - Fix [GH-16136](https://github.com/php/php-src/issues/16136) (Memory leak in php_ldap_do_modify() when entry is not a proper dictionary).
+- **MBString:**
+  - Fixed bug [GH-16261](https://github.com/php/php-src/issues/16261) (Reference invariant broken in mb_convert_variables()).
+- **OpenSSL:**
+  - Fixed stub for openssl_csr_new.
+- **PCRE:**
+  - Fixed bug [GH-16189](https://github.com/php/php-src/issues/16189) (underflow on offset argument).
+  - Fixed bug [GH-16184](https://github.com/php/php-src/issues/16184) (UBSan address overflowed in ext/pcre/php_pcre.c).
+- **PHPDBG:**
+  - Fixed bug [GH-15901](https://github.com/php/php-src/issues/15901) (phpdbg: Assertion failure on i funcs).
+  - Fixed bug [GH-16181](https://github.com/php/php-src/issues/16181) (phpdbg: exit in exception handler reports fatal error).
+- **Reflection:**
+  - Fixed bug [GH-16187](https://github.com/php/php-src/issues/16187) (Assertion failure in ext/reflection/php_reflection.c).
+- **SAPI:**
+  - Fixed bug [GH-15395](https://github.com/php/php-src/issues/15395) (php-fpm: zend_mm_heap corrupted with cgi-fcgi request).
+- **SimpleXML:**
+  - Fixed bug [GH-15837](https://github.com/php/php-src/issues/15837) (Segmentation fault in ext/simplexml/simplexml.c).
+- **Sockets:**
+  - Fixed bug [GH-16267](https://github.com/php/php-src/issues/16267) (socket_strerror overflow on errno argument).
+- **SOAP:**
+  - Fixed bug [#73182](https://bugs.php.net/73182) (PHP SOAPClient does not support stream context HTTP headers in array form).
+  - Fixed bug [#62900](https://bugs.php.net/62900) (Wrong namespace on xsd import error message).
+  - Fixed bug [GH-15711](https://github.com/php/php-src/issues/15711) (SoapClient can't convert BackedEnum to scalar value).
+  - Fixed bug [GH-16237](https://github.com/php/php-src/issues/16237) (Segmentation fault when cloning SoapServer).
+  - Fix Soap leaking http_msg on error.
+  - Fixed bug [GH-16256](https://github.com/php/php-src/issues/16256) (Assertion failure in ext/soap/php_encoding.c:460).
+  - Fixed bug [GH-16259](https://github.com/php/php-src/issues/16259) (Soap segfault when classmap instantiation fails).
+- **SPL:**
+  - Fixed bug [GH-15918](https://github.com/php/php-src/issues/15918) (Assertion failure in ext/spl/spl_fixedarray.c).
+- **Standard:**
+  - Fixed bug [GH-16053](https://github.com/php/php-src/issues/16053) (Assertion failure in Zend/zend_hash.c).
+  - Fixed bug [GH-15169](https://github.com/php/php-src/issues/15169) (stack overflow when var serialization in ext/standard/var).
+- **Streams:**
+  - Fixed bugs [GH-15908](https://github.com/php/php-src/issues/15908) and [GH-15026](https://github.com/php/php-src/issues/15026) (leak / assertion failure in streams.c).
+  - Fixed bug [GH-15980](https://github.com/php/php-src/issues/15980) (Signed integer overflow in main/streams/streams.c).
+- **TSRM:**
+  - Prevent closing of unrelated handles.
+- **Windows:**
+  - Fixed minimal Windows version.
+
+## 8.3.12 – 2024-09-26 (Security Release)
+
+- **CGI:**
+  - Fixed bug [GHSA-p99j-rfp4-xqvq](https://github.com/php/php-src/security/advisories/GHSA-p99j-rfp4-xqvq) (Bypass of CVE-2024-4577, Parameter Injection Vulnerability). (CVE-2024-8926)
+  - Fixed bug [GHSA-94p6-54jq-9mwp](https://github.com/php/php-src/security/advisories/GHSA-94p6-54jq-9mwp) (cgi.force_redirect configuration is bypassable due to the environment variable collision). (CVE-2024-8927)
+- **Core:**
+  - Fixed bug [GH-15408](https://github.com/php/php-src/issues/15408) (MSan false-positve on zend_max_execution_timer).
+  - Fixed bug [GH-15515](https://github.com/php/php-src/issues/15515) (Configure error grep illegal option q).
+  - Fixed bug [GH-15514](https://github.com/php/php-src/issues/15514) (Configure error: genif.sh: syntax error).
+  - Fixed bug [GH-15565](https://github.com/php/php-src/issues/15565) (--disable-ipv6 during compilation produces error EAI_SYSTEM not found).
+  - Fixed bug [GH-15587](https://github.com/php/php-src/issues/15587) (CRC32 API build error on arm 32-bit).
+  - Fixed bug [GH-15330](https://github.com/php/php-src/issues/15330) (Do not scan generator frames more than once).
+  - Fixed uninitialized lineno in constant AST of internal enums.
+- **Curl:**
+  - FIxed bug [GH-15547](https://github.com/php/php-src/issues/15547) (curl_multi_select overflow on timeout argument).
+- **DOM:**
+  - Fixed bug [GH-15551](https://github.com/php/php-src/issues/15551) (Segmentation fault (access null pointer) in ext/dom/xml_common.h).
+  - Fixed bug [GH-15654](https://github.com/php/php-src/issues/15654) (Signed integer overflow in ext/dom/nodelist.c).
+- **Fileinfo:**
+  - Fixed bug [GH-15752](https://github.com/php/php-src/issues/15752) (Incorrect error message for finfo_file with an empty filename argument).
+- **FPM:**
+  - Fixed bug [GHSA-865w-9rf3-2wh5](https://github.com/php/php-src/security/advisories/GHSA-865w-9rf3-2wh5) (Logs from childrens may be altered). (CVE-2024-9026)
+- **MySQLnd:**
+  - Fixed bug [GH-15432](https://github.com/php/php-src/issues/15432) (Heap corruption when querying a vector).
+- **Opcache:**
+  - Fixed bug [GH-15661](https://github.com/php/php-src/issues/15661) (Access null pointer in Zend/Optimizer/zend_inference.c).
+  - Fixed bug [GH-15658](https://github.com/php/php-src/issues/15658) (Segmentation fault in Zend/zend_vm_execute.h).
+- **SAPI:**
+  - Fixed bug [GHSA-9pqp-7h25-4f32](https://github.com/php/php-src/security/advisories/GHSA-9pqp-7h25-4f32) (Erroneous parsing of multipart form data). (CVE-2024-8925)
+- **Standard:**
+  - Fixed bug [GH-15552](https://github.com/php/php-src/issues/15552) (Signed integer overflow in ext/standard/scanf.c).
+- **Streams:**
+  - Fixed bug [GH-15628](https://github.com/php/php-src/issues/15628) (php_stream_memory_get_buffer() not zero-terminated).
+
+## 8.3.11 – 2024-08-29
+
+- **Core:**
+  - Fixed bug [GH-15020](https://github.com/php/php-src/issues/15020) (Memory leak in Zend/Optimizer/escape_analysis.c).
+  - Fixed bug [GH-15023](https://github.com/php/php-src/issues/15023) (Memory leak in Zend/zend_ini.c).
+  - Fixed bug [GH-13330](https://github.com/php/php-src/issues/13330) (Append -Wno-implicit-fallthrough flag conditionally).
+  - Fix uninitialized memory in network.c.
+  - Fixed bug [GH-15108](https://github.com/php/php-src/issues/15108) (Segfault when destroying generator during shutdown).
+  - Fixed bug [GH-15275](https://github.com/php/php-src/issues/15275) (Crash during GC of suspended generator delegate).
+- **Curl:**
+  - Fixed case when curl_error returns an empty string.
+- **DOM:**
+  - Fix UAF when removing doctype and using foreach iteration.
+- **FFI:**
+  - Fixed bug [GH-14286](https://github.com/php/php-src/issues/14286) (ffi enum type (when enum has no name) make memory leak).
+- **Hash:**
+  - Fix crash when converting array data for array in shm in xxh3.
+- **Intl:**
+  - Fixed bug [GH-15087](https://github.com/php/php-src/issues/15087) (IntlChar::foldCase()'s $option is not optional).
+- **Opcache:**
+  - Fixed bug [GH-13817](https://github.com/php/php-src/issues/13817) (Segmentation fault for enabled observers after pass 4).
+  - Fixed bug [GH-13775](https://github.com/php/php-src/issues/13775) (Memory leak possibly related to opcache SHM placement).
+- **Output:**
+  - Fixed bug [GH-15179](https://github.com/php/php-src/issues/15179) (Segmentation fault (null pointer dereference) in ext/standard/url_scanner_ex.re).
+- **PDO_Firebird:**
+  - Fix bogus fallthrough path in firebird_handle_get_attribute().
+- **PHPDBG:**
+  - Fixed bug [GH-13199](https://github.com/php/php-src/issues/13199) (EOF emits redundant prompt in phpdbg local console mode with libedit/readline).
+  - Fixed bug [GH-15268](https://github.com/php/php-src/issues/15268) (heap buffer overflow in phpdbg (zend_hash_num_elements() Zend/zend_hash.h)).
+  - Fixed bug [GH-15210](https://github.com/php/php-src/issues/15210) use-after-free on watchpoint allocations.
+- **Soap:**
+  - Fixed bug [#55639](https://bugs.php.net/55639) (Digest autentication dont work).
+  - Fix SoapFault property destruction.
+  - Fixed bug [GH-15252](https://github.com/php/php-src/issues/15252) (SOAP XML broken since PHP 8.3.9 when using classmap constructor option).
+- **Standard:**
+  - Fix passing non-finite timeout values in stream functions.
+  - Fixed [GH-14780](https://github.com/php/php-src/issues/14780) p(f)sockopen timeout overflow.
+- **Streams:**
+  - Fixed bug [GH-15028](https://github.com/php/php-src/issues/15028) (Memory leak in ext/phar/stream.c).
+  - Fixed bug [GH-15034](https://github.com/php/php-src/issues/15034) (Integer overflow on stream_notification_callback byte_max parameter with files bigger than 2GB).
+  - Reverted fix for [GH-14930](https://github.com/php/php-src/issues/14930) (Custom stream wrapper dir_readdir output truncated to 255 characters).
+- **Tidy:**
+  - Fix memory leaks in ext/tidy basedir restriction code.
+
+## 8.3.10 – 2024-08-01
+
+- **Core:**
+  - Fixed bug [GH-13922](https://github.com/php/php-src/issues/13922) (Fixed support for systems with sysconf(_SC_GETPW_R_SIZE_MAX) == -1).
+  - Fixed bug [GH-14626](https://github.com/php/php-src/issues/14626) (Fix is_zend_ptr() for huge blocks).
+  - Fixed bug [GH-14590](https://github.com/php/php-src/issues/14590) (Memory leak in FPM test gh13563-conf-bool-env.phpt.
+  - Fixed OSS-Fuzz #69765.
+  - Fixed bug [GH-14741](https://github.com/php/php-src/issues/14741) (Segmentation fault in Zend/zend_types.h).
+  - Fixed bug [GH-14969](https://github.com/php/php-src/issues/14969) (Use-after-free in property coercion with __toString()).
+- **Dom:**
+  - Fixed bug [GH-14702](https://github.com/php/php-src/issues/14702) (DOMDocument::xinclude() crash).
+- **Fileinfo:**
+  - Fixed bug [GH-14888](https://github.com/php/php-src/issues/14888) (README.REDIST.BINS refers to non-existing LICENSE).
+- **Gd:**
+  - ext/gd/tests/gh10614.phpt: skip if no PNG support.
+  - restored warning instead of fata error.
+- **LibXML:**
+  - Fixed bug [GH-14563](https://github.com/php/php-src/issues/14563) (Build failure with libxml2 v2.13.0).
+- **Opcache:**
+  - Fixed bug [GH-14550](https://github.com/php/php-src/issues/14550) (No warning message when Zend DTrace is enabled that opcache.jit is implictly disabled).
+- **Output:**
+  - Fixed bug [GH-14808](https://github.com/php/php-src/issues/14808) (Unexpected null pointer in Zend/zend_string.h with empty output buffer).
+- **PDO:**
+  - Fixed bug [GH-14712](https://github.com/php/php-src/issues/14712) (Crash with PDORow access to null property).
+- **Phar:**
+  - Fixed bug [GH-14603](https://github.com/php/php-src/issues/14603) (null string from zip entry).
+- **PHPDBG:**
+  - Fixed bug [GH-14596](https://github.com/php/php-src/issues/14596) (crashes with ASAN and ZEND_RC_DEBUG=1).
+  - Fixed bug [GH-14553](https://github.com/php/php-src/issues/14553) (echo output trimmed at NULL byte).
+- **Shmop:**
+  - Fixed bug [GH-14537](https://github.com/php/php-src/issues/14537) (shmop Windows 11 crashes the process).
+- **SPL:**
+  - Fixed bug [GH-14639](https://github.com/php/php-src/issues/14639) (Member access within null pointer in ext/spl/spl_observer.c).
+- **Standard:**
+  - Fixed bug [GH-14775](https://github.com/php/php-src/issues/14775) (range function overflow with negative step argument).
+  - Fix 32-bit wordwrap test failures.
+  - Fixed bug [GH-14774](https://github.com/php/php-src/issues/14774) (time_sleep_until overflow).
+- **Streams:**
+  - Fixed bug [GH-14930](https://github.com/php/php-src/issues/14930) (Custom stream wrapper dir_readdir output truncated to 255 characters in PHP 8.3).
+- **Tidy:**
+  - Fix memory leak in tidy_repair_file().
+- **Treewide:**
+  - Fix compatibility with libxml2 2.13.2.
+- **XML:**
+  - Move away from to-be-deprecated libxml fields.
+  - Fixed bug [GH-14834](https://github.com/php/php-src/issues/14834) (Error installing PHP when --with-pear is used).
+
+## 8.3.9 – 2024-07-04
+
+- **Core:**
+  - Fixed bug [GH-14315](https://github.com/php/php-src/issues/14315) (Incompatible pointer type warnings).
+  - Fixed bug [GH-12814](https://github.com/php/php-src/issues/12814) (max_execution_time reached too early on MacOS 14 when running on Apple Silicon).
+  - Fixed bug [GH-14387](https://github.com/php/php-src/issues/14387) (Crash when stack walking in destructor of yielded from values during Generator->throw()).
+  - Fixed bug [GH-14456](https://github.com/php/php-src/issues/14456) (Attempting to initialize class with private constructor calls destructor).
+  - Fixed bug [GH-14510](https://github.com/php/php-src/issues/14510) (memleak due to missing pthread_attr_destroy()-call).
+  - Fixed bug [GH-14549](https://github.com/php/php-src/issues/14549) (Incompatible function pointer type for fclose).
+- **BCMatch:**
+  - Fixed bug (bcpowmod() with mod = -1 returns 1 when it must be 0).
+- **Curl:**
+  - Fixed bug [GH-14307](https://github.com/php/php-src/issues/14307) (Test curl_basic_024 fails with curl 8.8.0).
+- **DOM:**
+  - Fixed bug [GH-14343](https://github.com/php/php-src/issues/14343) (Memory leak in xml and dom).
+- **FPM:**
+  - Fixed bug [GH-14037](https://github.com/php/php-src/issues/14037) (PHP-FPM ping.path and ping.response config vars are ignored in status pool).
+- **GD:**
+  - Fix parameter numbers for imagecolorset().
+- **Intl:**
+  - Fix reference handling in SpoofChecker.
+- **MySQLnd:**
+  - Partially fix bug [GH-10599](https://github.com/php/php-src/issues/10599) (Apache crash on Windows when using a self-referencing anonymous function inside a class with an active mysqli connection).
+- **Opcache:**
+  - Fixed bug [GH-14267](https://github.com/php/php-src/issues/14267) (opcache.jit=off does not allow enabling JIT at runtime).
+  - Fixed TLS access in JIT on FreeBSD/amd64.
+  - Fixed bug [GH-11188](https://github.com/php/php-src/issues/11188) (Error when building TSRM in ARM64).
+- **PDO ODBC:**
+  - Fixed bug [GH-14367](https://github.com/php/php-src/issues/14367) (incompatible SDWORD type with iODBC).
+- **PHPDBG:**
+  - Fixed bug [GH-13681](https://github.com/php/php-src/issues/13681) (segfault on watchpoint addition failure).
+- **Soap:**
+  - Fixed bug [#47925](https://bugs.php.net/47925) (PHPClient can't decompress response).
+  - Fix missing error restore code.
+  - Fix memory leak if calling SoapServer::setObject() twice.
+  - Fix memory leak if calling SoapServer::setClass() twice.
+  - Fix reading zlib ini settings in ext-soap.
+  - Fix memory leaks with string function name lookups.
+  - Fixed bug [#69280](https://bugs.php.net/69280) (SoapClient classmap doesn't support fully qualified class name).
+  - Fixed bug [#76232](https://bugs.php.net/76232) (SoapClient Cookie Header Semicolon).
+  - Fixed memory leaks when calling SoapFault::__construct() twice.
+- **Sodium:**
+  - Fix memory leaks in ext/sodium on failure of some functions.
+- **SPL:**
+  - Fixed bug [GH-14290](https://github.com/php/php-src/issues/14290) (Member access within null pointer in extension spl).
+- **Standard:**
+  - Fixed bug [GH-14483](https://github.com/php/php-src/issues/14483) (Fixed off-by-one error in checking length of abstract namespace Unix sockets).
+- **Streams:**
+  - Fixed bug [GH-11078](https://github.com/php/php-src/issues/11078) (PHP Fatal error triggers pointer being freed was not allocated and malloc: double free for ptr errors).
+
+## 8.3.8 – 2024-06-06 (Security Release)
+
+- **CGI:**
+  - Fixed buffer limit on Windows, replacing read call usage by _read.
+  - Fixed bug GHSA-3qgc-jrrr-25jv (Bypass of CVE-2012-1823, Argument Injection in PHP-CGI). (CVE-2024-4577)
+- **CLI:**
+  - Fixed bug [GH-14189](https://github.com/php/php-src/issues/14189) (PHP Interactive shell input state incorrectly handles quoted heredoc literals.).
+- **Core:**
+  - Fixed bug [GH-13970](https://github.com/php/php-src/issues/13970) (Incorrect validation of #[Attribute] flags type for non-compile-time expressions).
+- **DOM:**
+  - Fix crashes when entity declaration is removed while still having entity references.
+  - Fix references not handled correctly in C14N.
+  - Fix crash when calling childNodes next() when iterator is exhausted.
+  - Fix crash in ParentNode::append() when dealing with a fragment containing text nodes.
+- **Filter:**
+  - Fixed bug GHSA-w8qr-v226-r27w (Filter bypass in filter_var FILTER_VALIDATE_URL). (CVE-2024-5458)
+- **FPM:**
+  - Fix bug [GH-14175](https://github.com/php/php-src/issues/14175) (Show decimal number instead of scientific notation in systemd status).
+- **Hash:**
+  - ext/hash: Swap the checking order of `__has_builtin` and `__GNUC__` (Saki Takamachi)
+- **Intl:**
+  - Fixed build regression on systems without C++17 compilers.
+- **MySQLnd:**
+  - Fix bug [GH-14255](https://github.com/php/php-src/issues/14255) (mysqli_fetch_assoc reports error from nested query).
+- **Opcache:**
+  - Fixed bug [GH-14109](https://github.com/php/php-src/issues/14109) (Fix accidental persisting of internal class constant in shm).
+- **OpenSSL:**
+  - The openssl_private_decrypt function in PHP, when using PKCS1 padding (OPENSSL_PKCS1_PADDING, which is the default), is vulnerable to the Marvin Attack unless it is used with an OpenSSL version that includes the changes from this pull request: https://github.com/openssl/openssl/pull/13817 (rsa_pkcs1_implicit_rejection). These changes are part of OpenSSL 3.2 and have also been backported to stable versions of various Linux distributions, as well as to the PHP builds provided for Windows since the previous release. All distributors and builders should ensure that this version is used to prevent PHP from being vulnerable.
+- **Standard:**
+  - Fixed bug GHSA-9fcc-425m-g385 (Bypass of CVE-2024-1874). (CVE-2024-5585)
+- **XML:**
+  - Fixed bug [GH-14124](https://github.com/php/php-src/issues/14124) (Segmentation fault with XML extension under certain memory limit).
+- **XMLReader:**
+  - Fixed bug [GH-14183](https://github.com/php/php-src/issues/14183) (XMLReader::open() can't be overridden).
+
+## 8.3.7 – 2024-05-09
+
+- **Core:**
+  - Fixed zend_call_stack build with Linux/uclibc-ng without thread support.
+  - Fixed bug [GH-13772](https://github.com/php/php-src/issues/13772) (Invalid execute_data->opline pointers in observer fcall handlers when JIT is enabled).
+  - Fixed bug [GH-13931](https://github.com/php/php-src/issues/13931) (Applying zero offset to null pointer in Zend/zend_opcode.c).
+  - Fixed bug [GH-13942](https://github.com/php/php-src/issues/13942) (Align the behavior of zend-max-execution-timers with other timeout implementations).
+  - Fixed bug [GH-14003](https://github.com/php/php-src/issues/14003) (Broken cleanup of unfinished calls with callable convert parameters).
+  - Fixed bug [GH-14013](https://github.com/php/php-src/issues/14013) (Erroneous dnl appended in configure).
+  - Fixed bug [GH-10232](https://github.com/php/php-src/issues/10232) (If autoloading occurs during constant resolution filename and lineno are identified incorrectly).
+  - Fixed bug [GH-13727](https://github.com/php/php-src/issues/13727) (Missing void keyword).
+- **Fibers:**
+  - Fixed bug [GH-13903](https://github.com/php/php-src/issues/13903) (ASAN false positive underflow when executing copy()).
+- **Fileinfo:**
+  - Fixed bug [GH-13795](https://github.com/php/php-src/issues/13795) (Test failing in ext/fileinfo/tests/bug78987.phpt on big-endian PPC).
+- **FPM:**
+  - Fixed bug [GH-13563](https://github.com/php/php-src/issues/13563) (Setting bool values via env in FPM config fails).
+- **Intl:**
+  - Fixed build for icu 74 and onwards.
+- **MySQLnd:**
+  - Fix shift out of bounds on 32-bit non-fast-path platforms.
+- **Opcache:**
+  - Fixed bug [GH-13433](https://github.com/php/php-src/issues/13433) (Segmentation Fault in zend_class_init_statics when using opcache.preload).
+  - Fixed incorrect assumptions across compilation units for static calls.
+- **OpenSSL:**
+  - Fixed bug [GH-10495](https://github.com/php/php-src/issues/10495) (feof on OpenSSL stream hangs indefinitely).
+- **PDO SQLite:**
+  - Fix [GH-13984](https://github.com/php/php-src/issues/13984) (Buffer size is now checked before memcmp).
+  - Fix [GH-13998](https://github.com/php/php-src/issues/13998) (Manage refcount of agg_context->val correctly).
+- **Phar:**
+  - Fixed bug [GH-13836](https://github.com/php/php-src/issues/13836) (Renaming a file in a Phar to an already existing filename causes a NULL pointer dereference).
+  - Fixed bug [GH-13833](https://github.com/php/php-src/issues/13833) (Applying zero offset to null pointer in zend_hash.c).
+  - Fix potential NULL pointer dereference before calling EVP_SignInit.
+- **PHPDBG:**
+  - Fixed bug [GH-13827](https://github.com/php/php-src/issues/13827) (Null pointer access of type 'zval' in phpdbg_frame).
+- **Posix:**
+  - Fix usage of reentrant functions in ext/posix.
+- **Session:**
+  - Fixed bug [GH-13856](https://github.com/php/php-src/issues/13856) (Member access within null pointer of type 'ps_files' in ext/session/mod_files.c).
+  - Fixed bug [GH-13891](https://github.com/php/php-src/issues/13891) (memleak and segfault when using ini_set with session.trans_sid_hosts).
+  - Fixed buffer _read/_write size limit on windows for the file mode.
+- **Streams:**
+  - Fixed file_get_contents() on Windows fails with "errno=22 Invalid argument".
+  - Fixed bug [GH-13264](https://github.com/php/php-src/issues/13264) (Part 1 - Memory leak on stream filter failure).
+  - Fixed bug [GH-13860](https://github.com/php/php-src/issues/13860) (Incorrect PHP_STREAM_OPTION_CHECK_LIVENESS case in ext/openssl/xp_ssl.c - causing use of dead socket).
+  - Fixed bug [GH-11678](https://github.com/php/php-src/issues/11678) (Build fails on musl 1.2.4 - lfs64).
+- **Treewide:**
+  - Fix gcc-14 Wcalloc-transposed-args warnings.
+
+## 8.3.6 – 2024-04-11 (Security Release)
+
+- **Core:**
+  - Fixed [GH-13569](https://github.com/php/php-src/issues/13569) (GC buffer unnecessarily grows up to GC_MAX_BUF_SIZE when scanning WeakMaps).
+  - Fixed bug [GH-13612](https://github.com/php/php-src/issues/13612) (Corrupted memory in destructor with weak references).
+  - Fixed bug [GH-13446](https://github.com/php/php-src/issues/13446) (Restore exception handler after it finishes).
+  - Fixed bug [GH-13784](https://github.com/php/php-src/issues/13784) (AX_GCC_FUNC_ATTRIBUTE failure).
+  - Fixed bug [GH-13670](https://github.com/php/php-src/issues/13670) (GC does not scale well with a lot of objects created in destructor).
+- **DOM:**
+  - Add some missing ZPP checks.
+  - Fix potential memory leak in XPath evaluation results.
+- **FPM:**
+  - Fixed [GH-11086](https://github.com/php/php-src/issues/11086) (FPM: config test runs twice in daemonised mode).
+  - Fix incorrect check in fpm_shm_free().
+- **GD:**
+  - Fixed bug [GH-12019](https://github.com/php/php-src/issues/12019) (add GDLIB_CFLAGS in feature tests).
+- **Gettext:**
+  - Fixed sigabrt raised with dcgettext/dcngettext calls with gettext 0.22.5 with category set to LC_ALL.
+- **MySQLnd:**
+  - Fix [GH-13452](https://github.com/php/php-src/issues/13452) (Fixed handshake response [mysqlnd]).
+  - Fix incorrect charset length in check_mb_eucjpms().
+- **Opcache:**
+  - Fixed [GH-13508](https://github.com/php/php-src/issues/13508) (JITed QM_ASSIGN may be optimized out when op1 is null).
+  - Fixed [GH-13712](https://github.com/php/php-src/issues/13712) (Segmentation fault for enabled observers when calling trait method of internal trait when opcache is loaded).
+- **Random:**
+  - Fixed bug [GH-13544](https://github.com/php/php-src/issues/13544) (Pre-PHP 8.2 compatibility for mt_srand with unknown modes).
+  - Fixed bug [GH-13690](https://github.com/php/php-src/issues/13690) (Global Mt19937 is not properly reset in-between requests when MT_RAND_PHP is used).
+- **Session:**
+  - Fixed bug [GH-13680](https://github.com/php/php-src/issues/13680) (Segfault with session_decode and compilation error).
+- **SPL:**
+  - Fixed bug [GH-13685](https://github.com/php/php-src/issues/13685) (Unexpected null pointer in zend_string.h).
+- **Standard:**
+  - Fixed bug [GH-11808](https://github.com/php/php-src/issues/11808) (Live filesystem modified by tests).
+  - Fixed [GH-13402](https://github.com/php/php-src/issues/13402) (Added validation of `\n` in $additional_headers of mail()).
+  - Fixed bug [GH-13203](https://github.com/php/php-src/issues/13203) (file_put_contents fail on strings over 4GB on Windows).
+  - Fixed bug GHSA-pc52-254m-w9w7 (Command injection via array-ish $command parameter of proc_open). (CVE-2024-1874)
+  - Fixed bug GHSA-wpj3-hf5j-x4v4 (__Host-/__Secure- cookie bypass due to partial CVE-2022-31629 fix). (CVE-2024-2756)
+  - Fixed bug GHSA-h746-cjrr-wfmr (password_verify can erroneously return true, opening ATO risk). (CVE-2024-3096)
+  - Fixed bug GHSA-fjp9-9hwx-59fq (mb_encode_mimeheader runs endlessly for some inputs). (CVE-2024-2757)
+  - Fix bug [GH-13932](https://github.com/php/php-src/issues/13932) (Attempt to fix mbstring on windows build) (msvc).
+
+## 8.3.4 – 2024-03-14
+
+- **Core:**
+  - Fix ZTS persistent resource crashes on shutdown.
+- **Curl:**
+  - Fix failing tests due to string changes in libcurl 8.6.0.
+- **DOM:**
+  - Fix unlikely memory leak in case of namespace removal with extremely deep trees.
+  - Fix reference access in dimensions for DOMNodeList and DOMNodeMap.
+- **Fileinfo:**
+  - Fixed bug [GH-13344](https://github.com/php/php-src/issues/13344) (finfo::buffer(): Failed identify data 0:(null), backport).
+- **FPM:**
+  - Fixed bug [#75712](https://bugs.php.net/75712) (getenv in php-fpm should not read $_ENV, $_SERVER).
+- **GD:**
+  - Fixed bug [GH-12019](https://github.com/php/php-src/issues/12019) (detection of image formats in system gd library).
+- **MySQLnd:**
+  - Fixed bug [GH-11950](https://github.com/php/php-src/issues/11950) ([mysqlnd] Fixed not to set CR_MALFORMED_PACKET to error if CR_SERVER_GONE_ERROR is already set).
+- **PDO:**
+  - Fix various PDORow bugs.
+- **PGSQL:**
+  - Fixed bug [GH-13354](https://github.com/php/php-src/issues/13354) (pg_execute/pg_send_query_params/pg_send_execute with null value passed by reference).
+- **SPL:**
+  - Fixed bug [GH-13531](https://github.com/php/php-src/issues/13531) (Unable to resize SplfixedArray after being unserialized in PHP 8.2.15).
+- **Standard:**
+  - Fixed bug [GH-13279](https://github.com/php/php-src/issues/13279) (Instable array during in-place modification in uksort).
+  - Fixed array key as hash to string (case insensitive) comparison typo for the second operand buffer size (albeit unused for now).
+- **XML:**
+  - Fixed bug [GH-13517](https://github.com/php/php-src/issues/13517) (Multiple test failures when building with --with-expat).
+
+## 8.3.3 – 2024-02-15
+
+- **Core:**
+  - Fixed timer leak in zend-max-execution-timers builds.
+  - Fixed bug [GH-12349](https://github.com/php/php-src/issues/12349) (linking failure on ARM with mold).
+  - Fixed bug [GH-13097](https://github.com/php/php-src/issues/13097) (Anonymous class reference in trigger_error / thrown Exception).
+  - Fixed bug [GH-13177](https://github.com/php/php-src/issues/13177) (PHP 8.3.2: final private constructor not allowed when used in trait).
+  - Fixed bug [GH-13215](https://github.com/php/php-src/issues/13215) (GCC 14 build failure).
+- **Curl:**
+  - Fix missing error check in curl_multi_init().
+- **FPM:**
+  - Fixed bug [GH-12996](https://github.com/php/php-src/issues/12996) (Incorrect SCRIPT_NAME with Apache ProxyPassMatch when plus in path).
+- **GD:**
+  - Fixed bug [GH-10344](https://github.com/php/php-src/issues/10344) (imagettfbbox(): Could not find/open font UNC path).
+  - Fixed bug [GH-10614](https://github.com/php/php-src/issues/10614) (imagerotate will turn the picture all black, when rotated 90).
+- **LibXML:**
+  - Fix crashes with entity references and predefined entities.
+- **MySQLnd:**
+  - Fixed bug [GH-12107](https://github.com/php/php-src/issues/12107) (When running a stored procedure (that returns a result set) twice, PHP crashes).
+- **Opcache:**
+  - Fixed bug [GH-13145](https://github.com/php/php-src/issues/13145) (strtok() is not comptime).
+  - Fixed type inference of range().
+  - Fixed bug [GH-13232](https://github.com/php/php-src/issues/13232) (Segmentation fault will be reported when JIT is off but JIT_debug is still on).
+- **OpenSSL:**
+  - Fixed LibreSSL undefined reference when OPENSSL_NO_ENGINE not set. (David Carlier).
+- **PDO_Firebird:**
+  - Fix [GH-13119](https://github.com/php/php-src/issues/13119) (Changed to convert float and double values ​​into strings using `H` format).
+- **Phar:**
+  - Fixed bug [#71465](https://bugs.php.net/71465) (PHAR doesn't know about litespeed).
+  - Fixed bug [GH-13037](https://github.com/php/php-src/issues/13037) (PharData incorrectly extracts zip file).
+- **Random:**
+  - Fixed bug [GH-13138](https://github.com/php/php-src/issues/13138) (Randomizer::pickArrayKeys() does not detect broken engines).
+- **Session:**
+  - Fixed bug [GH-12504](https://github.com/php/php-src/issues/12504) (Corrupted session written when there's a fatal error in autoloader).
+- **Standard:**
+  - Fixed bug [GH-13094](https://github.com/php/php-src/issues/13094) (range(9.9, '0') causes segmentation fault).
+- **Streams:**
+  - Fixed bug [GH-13071](https://github.com/php/php-src/issues/13071) (Copying large files using mmap-able source streams may exhaust available memory and fail).
+
+## 8.3.2 – 2024-01-18
+
+- **Core:**
+  - Fixed bug [GH-12953](https://github.com/php/php-src/issues/12953) (false positive SSA integrity verification failed when loading composer classmaps with more than 11k elements).
+  - Fixed bug [GH-12999](https://github.com/php/php-src/issues/12999) (zend_strnlen build when strnlen is unsupported).
+  - Fixed bug [GH-12966](https://github.com/php/php-src/issues/12966) (missing cross-compiling 3rd argument so Autoconf doesn't emit warnings).
+  - Fixed bug [GH-12854](https://github.com/php/php-src/issues/12854) (8.3 - as final trait-used method does not correctly report visibility in Reflection).
+- **Cli:**
+  - Fix incorrect timeout in built-in web server when using router script and max_input_time.
+- **DOM:**
+  - Fixed bug [GH-12870](https://github.com/php/php-src/issues/12870) (Creating an xmlns attribute results in a DOMException).
+  - Fix crash when toggleAttribute() is used without a document.
+  - Fix crash in adoptNode with attribute references.
+  - Fixed bug [GH-13012](https://github.com/php/php-src/issues/13012) (DOMNode::isEqualNode() is incorrect when attribute order is different).
+- **FFI:**
+  - Fixed bug [GH-9698](https://github.com/php/php-src/issues/9698) (stream_wrapper_register crashes with FFI\CData).
+  - Fixed bug [GH-12905](https://github.com/php/php-src/issues/12905) (FFI::new interacts badly with observers).
+- **Intl:**
+  - Fixed [GH-12943](https://github.com/php/php-src/issues/12943) (IntlDateFormatter::__construct accepts 'C' as valid locale).
+- **Hash:**
+  - Fixed bug [GH-12936](https://github.com/php/php-src/issues/12936) (hash() function hangs endlessly if using sha512 on strings >= 4GiB).
+- **ODBC:**
+  - Fix crash on Apache shutdown with persistent connections.
+- **Opcache:**
+  - Fixed oss-fuzz #64727 (JIT undefined array key warning may overwrite DIM with NULL when DIM is the same var as result).
+  - Added workaround for SELinux mprotect execheap issue. See https://bugzilla.kernel.org/show_bug.cgi?id=218258.
+- **OpenSSL:**
+  - Fixed bug [GH-12987](https://github.com/php/php-src/issues/12987) (openssl_csr_sign might leak new cert on error).
+- **PDO:**
+  - Fix [GH-12969](https://github.com/php/php-src/issues/12969) (Fixed PDO::getAttribute() to get PDO::ATTR_STRINGIFY_FETCHES).
+- **PDO_ODBC:**
+  - Fixed bug [GH-12767](https://github.com/php/php-src/issues/12767) (Unable to turn on autocommit mode with setAttribute()).
+- **PGSQL:**
+  - Fixed auto_reset_persistent handling and allow_persistent type.
+  - Fixed bug [GH-12974](https://github.com/php/php-src/issues/12974) (Apache crashes on shutdown when using pg_pconnect()).
+- **Phar:**
+  - Fixed bug [#77432](https://bugs.php.net/77432) (Segmentation fault on including phar file).
+- **PHPDBG:**
+  - Fixed bug [GH-12962](https://github.com/php/php-src/issues/12962) (Double free of init_file in phpdbg_prompt.c).
+- **SimpleXML:**
+  - Fix getting the address of an uninitialized property of a SimpleXMLElement resulting in a crash.
+  - Fixed bug [GH-12929](https://github.com/php/php-src/issues/12929) (SimpleXMLElement with stream_wrapper_register can segfault).
+- **Tidy:**
+  - Fixed bug [GH-12980](https://github.com/php/php-src/issues/12980) (tidynode.props.attribute is missing "Boolean Attributes" and empty attributes).
+
+## 8.3.1 – 2023-12-21
+
+- **Core:**
+  - Fixed bug [GH-12758](https://github.com/php/php-src/issues/12758) / [GH-12768](https://github.com/php/php-src/issues/12768) (Invalid opline in OOM handlers within ZEND_FUNC_GET_ARGS and ZEND_BIND_STATIC).
+  - Fix various missing NULL checks.
+  - Fixed bug [GH-12835](https://github.com/php/php-src/issues/12835) (Leak of call->extra_named_params on internal __call).
+  - Fixed bug [GH-12826](https://github.com/php/php-src/issues/12826) (Weird pointers issue in nested loops).
+- **FPM:**
+  - Fixed bug [GH-12705](https://github.com/php/php-src/issues/12705) (Segmentation fault in fpm_status_export_to_zval).
+- **FTP:**
+  - Fixed bug [GH-9348](https://github.com/php/php-src/issues/9348) (FTP & SSL session reuse).
+- **LibXML:**
+  - Fixed test failures for libxml2 2.12.0.
+- **MySQLnd:**
+  - Avoid using uninitialised struct.
+  - Fixed bug [GH-12791](https://github.com/php/php-src/issues/12791) (Possible dereference of NULL in MySQLnd debug code).
+- **Opcache:**
+  - Fixed JIT bug (Function JIT emits "Uninitialized string offset" warning at the same time as invalid offset Error).
+  - Fixed JIT bug (JIT emits "Attempt to assign property of non-object" warning at the same time as Error is being thrown).
+- **PDO PGSQL:**
+  - Fixed the default value of $fetchMode in PDO::pgsqlGetNotify() (kocsismate)
+- **SOAP:**
+  - Fixed bug [GH-12838](https://github.com/php/php-src/issues/12838) ([SOAP] Temporary WSDL cache files not being deleted).
+- **Standard:**
+  - Fixed [GH-12745](https://github.com/php/php-src/issues/12745) (http_build_query() default null argument for $arg_separator is implicitly coerced to string).
+
+## 8.3.0 – 2023-11-23
+
+- **Bcmath:**
+  - Fixed [GH-11761](https://github.com/php/php-src/issues/11761) (removing trailing zeros from numbers) (jorgsowa)
+- **CLI:**
+  - Added pdeathsig to builtin server to terminate workers when the master process is killed.
+  - Fixed bug [GH-11104](https://github.com/php/php-src/issues/11104) (STDIN/STDOUT/STDERR is not available for CLI without a script).
+  - Implement [GH-10024](https://github.com/php/php-src/issues/10024) (support linting multiple files at once using php -l).
+- **Core:**
+  - Fix [GH-11388](https://github.com/php/php-src/issues/11388) (Allow "final" modifier when importing a method from a trait).
+  - Fixed bug [GH-11406](https://github.com/php/php-src/issues/11406) (segfault with unpacking and magic method closure).
+  - Fixed bug [GH-9388](https://github.com/php/php-src/issues/9388) (Improve unset property and __get type incompatibility error message).
+  - SA_ONSTACK is now set for signal handlers to be friendlier to other in-process code such as Go's cgo.
+  - SA_ONSTACK is now set when signals are disabled.
+  - Fix [GH-9649](https://github.com/php/php-src/issues/9649): Signal handlers now do a no-op instead of crashing when executed on threads not managed by TSRM.
+  - Added shadow stack support for fibers.
+  - Fix bug [GH-9965](https://github.com/php/php-src/issues/9965) (Fix accidental caching of default arguments with side effects).
+  - Implement [GH-10217](https://github.com/php/php-src/issues/10217) (Use strlen() for determining the class_name length).
+  - Fix bug [GH-8821](https://github.com/php/php-src/issues/8821) (Improve line numbers for errors in constant expressions).
+  - Fix bug [GH-10083](https://github.com/php/php-src/issues/10083) (Allow comments between & and parameter).
+  - Zend Max Execution Timers is now enabled by default for ZTS builds on Linux.
+  - Fix bug [GH-10469](https://github.com/php/php-src/issues/10469) (Disallow .. in open_basedir paths set at runtime).
+  - Fix bug [GH-10168](https://github.com/php/php-src/issues/10168), [GH-10582](https://github.com/php/php-src/issues/10582) (Various segfaults with destructors and VM return values).
+  - Fix bug [GH-10935](https://github.com/php/php-src/issues/10935) (Use of trait doesn't redeclare static property if class has inherited it from its parent).
+  - Fix bug [GH-11154](https://github.com/php/php-src/issues/11154) (Negative indices on empty array don't affect next chosen index).
+  - Fix bug [GH-8846](https://github.com/php/php-src/issues/8846) (Implement delayed early binding for classes without parents).
+  - Fix bug #79836 (Segfault in concat_function).
+  - Fix bug #81705 (type confusion/UAF on set_error_handler with concat operation).
+  - Fix [GH-11348](https://github.com/php/php-src/issues/11348) (Closure created from magic method does not accept named arguments).
+  - Fix [GH-11388](https://github.com/php/php-src/issues/11388) (Allow "final" modifier when importing a method from a trait).
+  - Fixed bug [GH-11406](https://github.com/php/php-src/issues/11406) (segfault with unpacking and magic method closure).
+  - Fixed bug [GH-11507](https://github.com/php/php-src/issues/11507) (String concatenation performance regression in 8.3).
+  - Fixed [GH-11488](https://github.com/php/php-src/issues/11488) (Missing "Optional parameter before required" deprecation on union null type).
+  - Implement the #[\Override] attribute RFC.
+  - Fixed bug [GH-11601](https://github.com/php/php-src/issues/11601) (Incorrect handling of unwind and graceful exit exceptions).
+  - Added zend_call_stack_get implementation for OpenBSD.
+  - Add stack limit check in zend_eval_const_expr().
+  - Expose time spent collecting cycles in gc_status().
+  - Remove WeakMap entries whose key is only reachable through the entry value.
+  - Resolve open_basedir paths on INI update.
+  - Fixed oss-fuzz #60741 (Leak in open_basedir).
+  - Fixed segfault during freeing of some incompletely initialized objects due to OOM error (PDO, SPL, XSL).
+  - Introduced Zend guard recursion protection to fix __debugInfo issue.
+  - Fixed oss-fuzz #61712 (assertion failure with error handler during binary op).
+  - Fixed [GH-11847](https://github.com/php/php-src/issues/11847) (DTrace enabled build is broken).
+  - Fixed OSS Fuzz #61865 (Undef variable in ++/-- for declared property that is unset in error handler).
+  - Fixed warning emitted when checking if a user stream is castable.
+  - Fixed bug [GH-12123](https://github.com/php/php-src/issues/12123) (Compile error on MacOS with C++ extension when using ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX).
+  - Fixed bug [GH-12189](https://github.com/php/php-src/issues/12189) (#[Override] attribute in trait does not check for parent class implementations).
+  - Fixed OSS Fuzz #62294 (Unsetting variable after ++/-- on string variable warning).
+  - Fixed buffer underflow when compiling memoized expression.
+  - Fixed oss-fuzz #63802 (OP1 leak in error path of post inc/dec).
+- **Curl:**
+  - Added Curl options and constants up to (including) version 7.87.
+- **Date:**
+  - Implement More Appropriate Date/Time Exceptions RFC.
+- **DOM:**
+  - Fix bug [GH-8388](https://github.com/php/php-src/issues/8388) (DOMAttr unescapes character reference).
+  - Fix bug [GH-11308](https://github.com/php/php-src/issues/11308) (getElementsByTagName() is O(N^2)).
+  - Fix #79700 (wrong use of libxml oldNs leads to performance problem).
+  - Fix #77894 (DOMNode::C14N() very slow on generated DOMDocuments even after normalisation).
+  - Revert changes to DOMAttr::$value and DOMAttr::$nodeValue expansion.
+  - Fixed bug [GH-11500](https://github.com/php/php-src/issues/11500) (Namespace reuse in createElementNS() generates wrong output).
+  - Implemented DOMDocument::adoptNode(). Previously this always threw a "not yet implemented" exception.
+  - Fixed bug [GH-9628](https://github.com/php/php-src/issues/9628) (Implicitly removing nodes from \DOMDocument breaks existing references).
+  - Added DOMNode::contains() and DOMNameSpaceNode::contains().
+  - Added DOMElement::getAttributeNames().
+  - Added DOMNode::getRootNode().
+  - Added DOMElement::className and DOMElement::id.
+  - Added DOMParentNode::replaceChildren().
+  - Added DOMNode::isConnected and DOMNameSpaceNode::isConnected.
+  - Added DOMNode::parentElement and DOMNameSpaceNode::parentElement.
+  - Added DOMNode::isEqualNode().
+  - Added DOMElement::insertAdjacentElement() and DOMElement::insertAdjacentText().
+  - Added DOMElement::toggleAttribute().
+  - Fixed bug [GH-11792](https://github.com/php/php-src/issues/11792) (LIBXML_NOXMLDECL is not implemented or broken).
+  - adoptNode now respects the strict error checking property.
+  - Align DOMChildNode parent checks with spec.
+  - Fixed bug [#80927](https://bugs.php.net/80927) (Removing documentElement after creating attribute node: possible use-after-free).
+  - Fix various namespace prefix conflict resolution bugs.
+  - Fix calling createAttributeNS() without prefix causing the default namespace of the element to change.
+  - Fixed [GH-11952](https://github.com/php/php-src/issues/11952) (Confusing warning when blocking entity loading via libxml_set_external_entity_loader).
+  - Fix broken cache invalidation with deallocated and reallocated document node.
+  - Fix compile error when php_libxml.h header is included in C++.
+  - Fixed bug [#47531](https://bugs.php.net/47531) (No way of removing redundant xmlns: declarations).
+- **Exif:**
+  - Removed unneeded codepaths in exif_process_TIFF_in_JPEG().
+- **FFI:**
+  - Implement [GH-11934](https://github.com/php/php-src/issues/11934) (Allow to pass CData into struct and/or union fields).
+- **Fileinfo:**
+  - Upgrade bundled libmagic to 5.43.
+  - Fix [GH-11408](https://github.com/php/php-src/issues/11408) (Unable to build PHP 8.3.0 alpha 1 / fileinfo extension).
+- **FPM:**
+  - The status.listen shared pool now uses the same php_values (including expose_php) and php_admin_value as the pool it is shared with.
+  - Added warning to log when fpm socket was not registered on the expected path.
+  - Fixed bug [#76067](https://bugs.php.net/76067) (system() function call leaks php-fpm listening sockets).
+  - Fixed [GH-12077](https://github.com/php/php-src/issues/12077) (PHP 8.3.0RC1 borked socket-close-on-exec.phpt).
+- **GD:**
+  - Removed imagerotate "ignore_transparent" argument since it has no effect.
+- **Intl:**
+  - Added pattern format error infos for numfmt_set_pattern.
+  - Added MIXED_NUMBERS and HIDDEN_OVERLAY constants for the Spoofchecker's class.
+  - Updated datefmt_set_timezone/IntlDateformatter::setTimezone returns type. (David Carlier).
+  - Updated IntlBreakInterator::setText return type.
+  - Updated IntlChar::enumCharNames return type.
+  - Removed the BC break on IntlDateFormatter::construct which threw an exception with an invalid locale.
+- **JSON:**
+  - Added json_validate().
+- **LDAP:**
+  - Deprecate calling ldap_connect() with separate hostname and port.
+- **LibXML:**
+  - Fix compile error with -Werror=incompatible-function-pointer-types and old libxml2.
+- **MBString:**
+  - mb_detect_encoding is better able to identify the correct encoding for Turkish text.
+  - mb_detect_encoding's "non-strict" mode now behaves as described in the documentation. Previously, it would return false if the same byte (for example, the first byte) of the input string was invalid in all candidate encodings. More generally, it would eliminate candidate encodings from consideration when an invalid byte was seen, and if the same input byte eliminated all remaining encodings still under consideration, it would return false. On the other hand, if all candidate encodings but one were eliminated from consideration, it would return the last remaining one without regard for how many encoding errors might be encountered later in the string. This is different from the behavior described in the documentation, which says: "If strict is set to false, the closest matching encoding will be returned." (Alex Dowad)
+  - mb_strtolower, mb_strtotitle, and mb_convert_case implement conditional casing rules for the Greek letter sigma. For mb_convert_case, conditional casing only applies to MB_CASE_LOWER and MB_CASE_TITLE modes, not to MB_CASE_LOWER_SIMPLE and MB_CASE_TITLE_SIMPLE.
+  - mb_detect_encoding is better able to identify UTF-8 and UTF-16 strings with a byte-order mark.
+  - mb_decode_mimeheader interprets underscores in QPrint-encoded MIME encoded words as required by RFC 2047; they are converted to spaces. Underscores must be encoded as "=5F" in such MIME encoded words.
+  - mb_encode_mimeheader no longer drops NUL (zero) bytes when QPrint-encoding the input string. This previously caused strings in certain text encodings, especially UTF-16 and UTF-32, to be corrupted by mb_encode_mimeheader.
+  - Implement mb_str_pad() RFC.
+  - Fixed bug [GH-11514](https://github.com/php/php-src/issues/11514) (PHP 8.3 build fails with --enable-mbstring enabled).
+  - Fix use-after-free of mb_list_encodings() return value.
+  - Fixed bug [GH-11992](https://github.com/php/php-src/issues/11992) (utf_encodings.phpt fails on Windows 32-bit).
+- **mysqli:**
+  - mysqli_fetch_object raises a ValueError instead of an Exception.
+- **Opcache:**
+  - Added start, restart and force restart time to opcache's phpinfo section.
+  - Fix [GH-9139](https://github.com/php/php-src/issues/9139): Allow FFI in opcache.preload when opcache.preload_user=root.
+  - Made opcache.preload_user always optional in the cli and phpdbg SAPIs.
+  - Allows W/X bits on page creation on FreeBSD despite system settings.
+  - Added memfd api usage, on Linux, for zend_shared_alloc_create_lock() to create an abstract anonymous file for the opcache's lock.
+  - Avoid resetting JIT counter handlers from multiple processes/threads.
+  - Fixed COPY_TMP type inference for references.
+- **OpenSSL:**
+  - Added OPENSSL_CMS_OLDMIMETYPE and PKCS7_NOOLDMIMETYPE contants to switch between mime content types.
+  - Fixed [GH-11054](https://github.com/php/php-src/issues/11054): Reset OpenSSL errors when using a PEM public key.
+  - Added support for additional EC parameters in openssl_pkey_new.
+- **PCNTL:**
+  - SA_ONSTACK is now set for pcntl_signal.
+  - Added SIGINFO constant.
+- **PCRE:**
+  - Update bundled libpcre2 to 10.42.
+- **PGSQL:**
+  - pg_fetch_object raises a ValueError instead of an Exception.
+  - pg_cancel use thread safe PQcancel api instead.
+  - pg_trace new PGSQL_TRACE_SUPPRESS_TIMESTAMPS/PGSQL_TRACE_REGRESS_MODE contants support.
+  - pg_set_error_verbosity adding PGSQL_ERRORS_STATE constant.
+  - pg_convert/pg_insert E_WARNING on type errors had been converted to ValueError/TypeError exceptions.
+  - Added pg_set_error_context_visibility to set the context's visibility within the error messages.
+- **Phar:**
+  - Fix memory leak in phar_rename_archive().
+- **POSIX:**
+  - Added posix_sysconf.
+  - Added posix_pathconf.
+  - Added posix_fpathconf.
+  - Fixed zend_parse_arg_long's bool pointer argument assignment.
+  - Added posix_eaccess.
+- **Random:**
+  - Added Randomizer::getBytesFromString().
+  - Added Randomizer::nextFloat(), ::getFloat(), and IntervalBoundary.
+  - Enable getrandom() for NetBSD (from 10.x).
+  - Deprecate MT_RAND_PHP.
+  - Fix Randomizer::getFloat() returning incorrect results under certain circumstances.
+- **Reflection:**
+  - Fix [GH-9470](https://github.com/php/php-src/issues/9470) (ReflectionMethod constructor should not find private parent method).
+  - Fix [GH-10259](https://github.com/php/php-src/issues/10259) (ReflectionClass::getStaticProperties doesn't need null return type).
+- **SAPI:**
+  - Fixed [GH-11141](https://github.com/php/php-src/issues/11141) (Could not open input file: should be sent to stderr).
+- **Session:**
+  - Fixed bug [GH-11529](https://github.com/php/php-src/issues/11529) (Crash after dealing with an Apache request).
+- **SimpleXML:**
+  - Fixed bug [GH-12192](https://github.com/php/php-src/issues/12192) (SimpleXML infinite loop when getName() is called within foreach).
+  - Fixed bug [GH-12208](https://github.com/php/php-src/issues/12208) (SimpleXML infinite loop when a cast is used inside a foreach).
+  - Fixed bug [#55098](https://bugs.php.net/55098) (SimpleXML iteration produces infinite loop).
+- **Sockets:**
+  - Added SO_ATTACH_REUSEPORT_CBPF socket option, to give tighter control over socket binding for a cpu core.
+  - Added SKF_AD_QUEUE for cbpf filters.
+  - Added socket_atmark if send/recv needs using MSG_OOB.
+  - Added TCP_QUICKACK constant, to give tigher control over ACK delays.
+  - Added DONTFRAGMENT support for path MTU discovery purpose.
+  - Added AF_DIVERT for raw socket for divert ports.
+  - Added SOL_UPDLITE, UDPLITE_RECV_CSCOV and UDPLITE_SEND_CSCOV for updlite protocol support.
+  - Added SO_RERROR, SO_ZEROIZE and SO_SPLICE netbsd and openbsd constants.
+  - Added TCP_REPAIR for quietly close a connection.
+  - Added SO_REUSEPORT_LB freebsd constant.
+  - Added IP_BIND_ADDRESS_NO_PORT.
+- **SPL:**
+  - Fixed [GH-11573](https://github.com/php/php-src/issues/11573) (RecursiveDirectoryIterator::hasChildren is slow).
+- **Standard:**
+  - E_NOTICEs emitted by unserialize() have been promoted to E_WARNING.
+  - unserialize() now emits a new E_WARNING if the input contains unconsumed bytes.
+  - Make array_pad's $length warning less confusing.
+  - E_WARNING emitted by strtok in the caase both arguments are not provided when starting tokenisation.
+  - password_hash() will now chain the original RandomException to the ValueError on salt generation failure.
+  - Fix [GH-10239](https://github.com/php/php-src/issues/10239) (proc_close after proc_get_status always returns -1).
+  - Improve the warning message for unpack() in case not enough values were provided.
+  - Fix [GH-11010](https://github.com/php/php-src/issues/11010) (parse_ini_string() now preserves formatting of unquoted strings starting with numbers when the INI_SCANNER_TYPED flag is specified).
+  - Fix [GH-10742](https://github.com/php/php-src/issues/10742) (http_response_code emits no error when headers were already sent).
+  - Added support for rounding negative places in number_format().
+  - Prevent precision loss on formatting decimal integers in number_format().
+  - Added usage of posix_spawn for proc_open when supported by OS.
+  - Added $before_needle argument to strrchr().
+  - Fixed [GH-11982](https://github.com/php/php-src/issues/11982) (str_getcsv returns null byte for unterminated enclosure).
+  - Fixed str_decrement() on "1".
+- **Streams:**
+  - Fixed bug [#51056](https://bugs.php.net/51056): blocking fread() will block even if data is available.
+  - Added storing of the original path used to open xport stream.
+  - Implement [GH-8641](https://github.com/php/php-src/issues/8641) (STREAM_NOTIFY_COMPLETED over HTTP never emitted).
+  - Fix bug [GH-10406](https://github.com/php/php-src/issues/10406) (fgets on a redis socket connection fails on PHP 8.3).
+  - Implemented [GH-11242](https://github.com/php/php-src/issues/11242) (_php_stream_copy_to_mem: Allow specifying a maximum length without allocating a buffer of that size).
+  - Fixed bug [#52335](https://bugs.php.net/52335) (fseek() on memory stream behavior different than file).
+  - Fixed bug [#76857](https://bugs.php.net/76857) (Can read "non-existant" files).
+- **XSLTProcessor:**
+  - Fixed bug [#69168](https://bugs.php.net/69168) (DomNode::getNodePath() returns invalid path).
+- **ZIP:**
+  - zip extension version 1.22.0 for libzip 1.10.0.
+  - add new error macros (ER_DATA_LENGTH and ER_NOT_ALLOWED).
+  - add new archive global flags (ER_AFL_*).
+  - add ZipArchive::setArchiveFlag and ZipArchive::getArchiveFlag methods.
+
+## 8.2.35 – 2026-10-22 (Security Release)
+
+- **Core:**
+  - Fixed [GHSA-w8hw-w9fx-j79w](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w), [GHSA-6wmf-4rv5-p3rp](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp) (Avoid state corruption via bailout).
+
+## 8.2.34 – 2026-09-24 (Security Release)
+
+- **Filter:**
+  - Fixed [GHSA-ch8v-r6jh-4vvr](https://github.com/php/php-src/security/advisories/GHSA-ch8v-r6jh-4vvr) (FILTER_SANITIZE_ENCODED does not encode 0xFF).
+- **FPM:**
+  - Fixed [GHSA-62xp-839h-2637](https://github.com/php/php-src/security/advisories/GHSA-62xp-839h-2637) (IPv6 ACL bypass in FastCGI listen.allowed_clients due to partial address comparison). (CVE-2026-91768)
+- **MySQLnd:**
+  - Fixed [GHSA-r6x9-5r99-36j7](https://github.com/php/php-src/security/advisories/GHSA-r6x9-5r99-36j7) (Various packet overreads in mysqlnd wire protocol). (CVE-2025-1218)
+- **OpenSSL:**
+  - Fixed [GHSA-vvx9-73fr-5jjx](https://github.com/php/php-src/security/advisories/GHSA-vvx9-73fr-5jjx) (TLS hostname verification falls back to CN after SAN mismatch). (CVE-2026-91769)
+  - Fixed [GHSA-xr7j-rvgx-xq5p](https://github.com/php/php-src/security/advisories/GHSA-xr7j-rvgx-xq5p) (Heap buffer overflow in php_openssl_matches_wildcard_name() on crafted server certificate wildcard CN). (CVE-2026-91767)
+- **Phar:**
+  - Fixed [GHSA-j3wh-g957-2m85](https://github.com/php/php-src/security/advisories/GHSA-j3wh-g957-2m85) (Integer overflow in phar_tar_number() allowing TAR archive entry injection). (CVE-2026-6103)
+- **SOAP:**
+  - Fixed [GHSA-rgrp-mwpx-f6rm](https://github.com/php/php-src/security/advisories/GHSA-rgrp-mwpx-f6rm) (Unbounded recursion in server-side cleanup_xml_node()). (CVE-2026-91765)
+  - Fixed [GHSA-cj93-vc83-wgqv](https://github.com/php/php-src/security/advisories/GHSA-cj93-vc83-wgqv) (Integer overflow to buffer overflow in SOAP HTTP parsing). (CVE-2025-14181)
+- **Standard:**
+  - Fixed [GHSA-88hq-2827-7pg6](https://github.com/php/php-src/security/advisories/GHSA-88hq-2827-7pg6) (Out-of-bounds read in convert.* stream filters when line-break-chars contains NUL). (CVE-2026-92842)
+  - Fixed [GHSA-fpwc-w8rq-cr92](https://github.com/php/php-src/security/advisories/GHSA-fpwc-w8rq-cr92) (Cross-origin credential leak in HTTP stream wrapper redirects). (CVE-2026-91766)
+  - Fixed [GHSA-7875-c8px-7q5f](https://github.com/php/php-src/security/advisories/GHSA-7875-c8px-7q5f) (Out-of-bounds read in the HTTP stream wrapper when following a redirect with an empty Location header). (CVE-2026-93682)
+- **Windows:**
+  - Fixed [GHSA-9f67-6fw4-hpfp](https://github.com/php/php-src/security/advisories/GHSA-9f67-6fw4-hpfp) (Reserved device names are not rejected before file and stream I/O). (CVE-2026-17545)
+
+## 8.2.33 – 2026-07-30 (Security Release)
+
+- **Date:**
+  - Fixed leak on double DatePeriod::__construct() call.
+- **GD:**
+  - Upgrade libgd. (CVE-2026-9672)
+- **PGSQL:**
+  - Fixed [GHSA-7qpv-r5mr-78m4](https://github.com/php/php-src/security/advisories/GHSA-7qpv-r5mr-78m4) (SQL injection via E'...' backslash breakout). (CVE-2026-17543)
+- **Phar:**
+  - Fixed [GHSA-vc5h-9ppw-p5f3](https://github.com/php/php-src/security/advisories/GHSA-vc5h-9ppw-p5f3) (Crash via recursive symlinks). (CVE-2026-7260)
+
+## 8.2.32 – 2026-07-02 (Security Release)
+
+- **OpenSSL:**
+  - Fixed bug [GH-22187](https://github.com/php/php-src/issues/22187) (Memory corruption (zend_mm_heap corrupted) in openssl_encrypt with AES-WRAP-PAD). (CVE-2026-14355)
+
+## 8.2.31 – 2026-05-07 (Security Release)
+
+- **Curl:**
+  - Add support for brotli and zstd on Windows.
+- **FPM:**
+  - Fixed [GHSA-7qg2-v9fj-4mwv](https://github.com/php/php-src/security/advisories/GHSA-7qg2-v9fj-4mwv) (XSS within status endpoint). (CVE-2026-6735)
+- **MBString:**
+  - Fixed [GHSA-wm6j-2649-pv75](https://github.com/php/php-src/security/advisories/GHSA-wm6j-2649-pv75) (Null pointer dereference in php_mb_check_encoding() via mb_ereg_search_init()). (CVE-2026-7259)
+- **OpenSSL:**
+  - Fix compatibility issues with OpenSSL 4.0.
+- **PDO_Firebird:**
+  - Fixed [GHSA-w476-322c-wpvm](https://github.com/php/php-src/security/advisories/GHSA-w476-322c-wpvm) (SQL injection via NUL bytes in quoted strings). (CVE-2025-14179)
+- **SOAP:**
+  - Fixed [GHSA-85c2-q967-79q5](https://github.com/php/php-src/security/advisories/GHSA-85c2-q967-79q5) (Stale SOAP_GLOBAL(ref_map) pointer with Apache Map). (CVE-2026-6722)
+  - Fixed [GHSA-m33r-qmcv-p97q](https://github.com/php/php-src/security/advisories/GHSA-m33r-qmcv-p97q) (Use-after-free after header parsing failure with SOAP_PERSISTENCE_SESSION). (CVE-2026-7261)
+  - Fixed [GHSA-hmxp-6pc4-f3vv](https://github.com/php/php-src/security/advisories/GHSA-hmxp-6pc4-f3vv) (Broken Apache map value NULL check). (CVE-2026-7262)
+- **Standard:**
+  - Fixed [GHSA-96wq-48vp-hh57](https://github.com/php/php-src/security/advisories/GHSA-96wq-48vp-hh57) (Signed integer overflow of char array offset). (CVE-2026-7568)
+  - Fixed [GHSA-m8rr-4c36-8gq4](https://github.com/php/php-src/security/advisories/GHSA-m8rr-4c36-8gq4) (Consistently pass unsigned char to ctype.h functions). (CVE-2026-7258)
+
+## 8.2.30 – 2025-12-18 (Security Release)
+
+- **Curl:**
+  - Fix curl build and test failures with version 8.16.
+- **Opcache:**
+  - Reset global pointers to prevent use-after-free in zend_jit_status().
+- **PDO:**
+  - Fixed [GHSA-8xr5-qppj-gvwj](https://github.com/php/php-src/security/advisories/GHSA-8xr5-qppj-gvwj) (PDO quoting result null deref). (CVE-2025-14180)
+- **Standard:**
+  - Fixed [GHSA-www2-q4fc-65wf](https://github.com/php/php-src/security/advisories/GHSA-www2-q4fc-65wf) (Null byte termination in dns_get_record()).
+  - Fixed [GHSA-h96m-rvf9-jgm2](https://github.com/php/php-src/security/advisories/GHSA-h96m-rvf9-jgm2) (Heap buffer overflow in array_merge()). (CVE-2025-14178)
+  - Fixed [GHSA-3237-qqm7-mfv7](https://github.com/php/php-src/security/advisories/GHSA-3237-qqm7-mfv7) (Information Leak of Memory in getimagesize). (CVE-2025-14177)
+
+## 8.2.29 – 2025-07-03 (Security Release)
+
+- **PGSQL:**
+  - Fixed [GHSA-hrwm-9436-5mv3](https://github.com/php/php-src/security/advisories/GHSA-hrwm-9436-5mv3) (pgsql extension does not check for errors during escaping). (CVE-2025-1735)
+- **SOAP:**
+  - Fixed [GHSA-453j-q27h-5p8x](https://github.com/php/php-src/security/advisories/GHSA-453j-q27h-5p8x) (NULL Pointer Dereference in PHP SOAP Extension via Large XML Namespace Prefix). (CVE-2025-6491)
+- **Standard:**
+  - Fixed [GHSA-3cr5-j632-f35r](https://github.com/php/php-src/security/advisories/GHSA-3cr5-j632-f35r) (Null byte termination in hostnames). (CVE-2025-1220)
+
+## 8.2.28 – 2025-03-13 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-17211](https://github.com/php/php-src/issues/17211) (observer segfault on function loaded with dl()).
+- **LibXML:**
+  - Fixed [GHSA-wg4p-4hqh-c3g9](https://github.com/php/php-src/security/advisories/GHSA-wg4p-4hqh-c3g9) (Reocurrence of #72714).
+  - Fixed [GHSA-p3x9-6h7p-cgfc](https://github.com/php/php-src/security/advisories/GHSA-p3x9-6h7p-cgfc) (libxml streams use wrong `content-type` header when requesting a redirected resource). (CVE-2025-1219)
+- **Streams:**
+  - Fixed [GHSA-hgf5-96fm-v528](https://github.com/php/php-src/security/advisories/GHSA-hgf5-96fm-v528) (Stream HTTP wrapper header check might omit basic auth header). (CVE-2025-1736)
+  - Fixed [GHSA-52jp-hrpf-2jff](https://github.com/php/php-src/security/advisories/GHSA-52jp-hrpf-2jff) (Stream HTTP wrapper truncate redirect location to 1024 bytes). (CVE-2025-1861)
+  - Fixed [GHSA-pcmh-g36c-qc44](https://github.com/php/php-src/security/advisories/GHSA-pcmh-g36c-qc44) (Streams HTTP wrapper does not fail for headers without colon). (CVE-2025-1734)
+  - Fixed [GHSA-v8xr-gpvj-cx9g](https://github.com/php/php-src/security/advisories/GHSA-v8xr-gpvj-cx9g) (Header parser of `http` stream wrapper does not handle folded headers). (CVE-2025-1217)
+- **Windows:**
+  - Fixed phpize for Windows 11 (24H2).
+
+## 8.2.27 – 2024-12-19
+
+- **Calendar:**
+  - Fixed jdtogregorian overflow.
+  - Fixed cal_to_jd julian_days argument overflow.
+- **COM:**
+  - Fixed bug [GH-16991](https://github.com/php/php-src/issues/16991) (Getting typeinfo of non DISPATCH variant segfaults).
+- **Core:**
+  - Fail early in *nix configuration build script.
+  - Fixed bug [GH-16727](https://github.com/php/php-src/issues/16727) (Opcache bad signal 139 crash in ZTS bookworm (frankenphp)).
+  - Fixed bug [GH-16799](https://github.com/php/php-src/issues/16799) (Assertion failure at Zend/zend_vm_execute.h:7469).
+  - Fixed bug [GH-16630](https://github.com/php/php-src/issues/16630) (UAF in lexer with encoding translation and heredocs).
+  - Fix is_zend_ptr() huge block comparison.
+  - Fixed potential OOB read in zend_dirname() on Windows.
+- **Curl:**
+  - Fix various memory leaks in curl mime handling.
+- **FPM:**
+  - Fixed [GH-16432](https://github.com/php/php-src/issues/16432) (PHP-FPM 8.2 SIGSEGV in fpm_get_status).
+- **GD:**
+  - Fixed [GH-16776](https://github.com/php/php-src/issues/16776) (imagecreatefromstring overflow).
+- **GMP:**
+  - Revert gmp_pow() overly restrictive overflow checks.
+- **Hash:**
+  - Fixed [GH-16711](https://github.com/php/php-src/issues/16711): Segfault in mhash().
+- **Opcache:**
+  - Fixed bug [GH-16770](https://github.com/php/php-src/issues/16770) (Tracing JIT type mismatch when returning UNDEF).
+  - Fixed bug [GH-16851](https://github.com/php/php-src/issues/16851) (JIT_G(enabled) not set correctly on other threads).
+  - Fixed bug [GH-16902](https://github.com/php/php-src/issues/16902) (Set of opcache tests fail zts+aarch64).
+- **OpenSSL:**
+  - Prevent unexpected array entry conversion when reading key.
+  - Fix various memory leaks related to openssl exports.
+  - Fix memory leak in php_openssl_pkey_from_zval().
+- **PDO:**
+  - Fixed memory leak of `setFetchMode()`.
+- **Phar:**
+  - Fixed bug [GH-16695](https://github.com/php/php-src/issues/16695) (phar:// tar parser and zero-length file header blocks).
+- **PHPDBG:**
+  - Fixed bug [GH-15208](https://github.com/php/php-src/issues/15208) (Segfault with breakpoint map and phpdbg_clear()).
+- **SAPI:**
+  - Fixed bug [GH-16998](https://github.com/php/php-src/issues/16998) (UBSAN warning in rfc1867).
+- **SimpleXML:**
+  - Fixed bug [GH-16808](https://github.com/php/php-src/issues/16808) (Segmentation fault in RecursiveIteratorIterator ->current() with a xml element input).
+- **SNMP:**
+  - Fixed bug [GH-16959](https://github.com/php/php-src/issues/16959) (snmget modifies the object_id array).
+- **Standard:**
+  - Fixed bug [GH-16905](https://github.com/php/php-src/issues/16905) (Internal iterator functions can't handle UNDEF properties).
+- **Streams:**
+  - Fixed network connect poll interuption handling.
+- **Windows:**
+  - Fixed bug [GH-16849](https://github.com/php/php-src/issues/16849) (Error dialog causes process to hang).
+
+## 8.2.26 – 2024-11-21 (Security Release)
+
+- **CLI:**
+  - Fixed bug [GH-16373](https://github.com/php/php-src/issues/16373) (Shebang is not skipped for router script in cli-server started through shebang).
+  - Fixed bug [GHSA-4w77-75f9-2c8w](https://github.com/php/php-src/security/advisories/GHSA-4w77-75f9-2c8w) (Heap-Use-After-Free in sapi_read_post_data Processing in CLI SAPI Interface).
+- **COM:**
+  - Fixed out of bound writes to SafeArray data.
+- **Core:**
+  - Fixed bug [GH-16168](https://github.com/php/php-src/issues/16168) (php 8.1 and earlier crash immediately when compiled with Xcode 16 clang on macOS 15).
+  - Fixed bug [GH-16371](https://github.com/php/php-src/issues/16371) (Assertion failure in Zend/zend_weakrefs.c:646).
+  - Fixed bug [GH-16515](https://github.com/php/php-src/issues/16515) (Incorrect propagation of ZEND_ACC_RETURN_REFERENCE for call trampoline).
+  - Fixed bug [GH-16509](https://github.com/php/php-src/issues/16509) (Incorrect line number in function redeclaration error).
+  - Fixed bug [GH-16508](https://github.com/php/php-src/issues/16508) (Incorrect line number in inheritance errors of delayed early bound classes).
+  - Fixed bug [GH-16648](https://github.com/php/php-src/issues/16648) (Use-after-free during array sorting).
+- **Curl:**
+  - Fixed bug [GH-16302](https://github.com/php/php-src/issues/16302) (CurlMultiHandle holds a reference to CurlHandle if curl_multi_add_handle fails).
+- **Date:**
+  - Fixed bug [GH-16454](https://github.com/php/php-src/issues/16454) (Unhandled INF in date_sunset() with tiny $utcOffset).
+  - Fixed bug [GH-16037](https://github.com/php/php-src/issues/16037) (Assertion failure in ext/date/php_date.c).
+  - Fixed bug [GH-14732](https://github.com/php/php-src/issues/14732) (date_sun_info() fails for non-finite values).
+- **DBA:**
+  - Fixed bug [GH-16390](https://github.com/php/php-src/issues/16390) (dba_open() can segfault for "pathless" streams).
+- **DOM:**
+  - Fixed bug [GH-16316](https://github.com/php/php-src/issues/16316) (DOMXPath breaks when not initialized properly).
+  - Fixed bug [GH-16473](https://github.com/php/php-src/issues/16473) (dom_import_simplexml stub is wrong).
+  - Fixed bug [GH-16533](https://github.com/php/php-src/issues/16533) (Segfault when adding attribute to parent that is not an element).
+  - Fixed bug [GH-16535](https://github.com/php/php-src/issues/16535) (UAF when using document as a child).
+  - Fixed bug [GH-16593](https://github.com/php/php-src/issues/16593) (Assertion failure in DOM->replaceChild).
+  - Fixed bug [GH-16595](https://github.com/php/php-src/issues/16595) (Another UAF in DOM -> cloneNode).
+- **EXIF:**
+  - Fixed bug [GH-16409](https://github.com/php/php-src/issues/16409) (Segfault in exif_thumbnail when not dealing with a real file).
+- **FFI:**
+  - Fixed bug [GH-16397](https://github.com/php/php-src/issues/16397) (Segmentation fault when comparing FFI object).
+- **Filter:**
+  - Fixed bug [GH-16523](https://github.com/php/php-src/issues/16523) (FILTER_FLAG_HOSTNAME accepts ending hyphen).
+- **FPM:**
+  - Fixed bug [GH-16628](https://github.com/php/php-src/issues/16628) (FPM logs are getting corrupted with this log statement).
+- **GD:**
+  - Fixed bug [GH-16334](https://github.com/php/php-src/issues/16334) (imageaffine overflow on matrix elements).
+  - Fixed bug [GH-16427](https://github.com/php/php-src/issues/16427) (Unchecked libavif return values).
+  - Fixed bug [GH-16559](https://github.com/php/php-src/issues/16559) (UBSan abort in ext/gd/libgd/gd_interpolation.c:1007).
+- **GMP:**
+  - Fixed floating point exception bug with gmp_pow when using large exposant values. (David Carlier).
+  - Fixed bug [GH-16411](https://github.com/php/php-src/issues/16411) (gmp_export() can cause overflow).
+  - Fixed bug [GH-16501](https://github.com/php/php-src/issues/16501) (gmp_random_bits() can cause overflow).
+  - Fixed gmp_pow() overflow bug with large base/exponents.
+  - Fixed segfaults and other issues related to operator overloading with GMP objects.
+- **LDAP:**
+  - Fixed bug [GHSA-g665-fm4p-vhff](https://github.com/php/php-src/security/advisories/GHSA-g665-fm4p-vhff) (OOB access in ldap_escape). (CVE-2024-8932)
+- **MBstring:**
+  - Fixed bug [GH-16361](https://github.com/php/php-src/issues/16361) (mb_substr overflow on start/length arguments).
+- **MySQLnd:**
+  - Fixed bug [GHSA-h35g-vwh6-m678](https://github.com/php/php-src/security/advisories/GHSA-h35g-vwh6-m678) (Leak partial content of the heap through heap buffer over-read). (CVE-2024-8929)
+- **OpenSSL:**
+  - Fixed bug [GH-16357](https://github.com/php/php-src/issues/16357) (openssl may modify member types of certificate arrays).
+  - Fixed bug [GH-16433](https://github.com/php/php-src/issues/16433) (Large values for openssl_csr_sign() $days overflow).
+  - Fix various memory leaks on error conditions in openssl_x509_parse().
+- **PDO DBLIB:**
+  - Fixed bug [GHSA-5hqh-c84r-qjcv](https://github.com/php/php-src/security/advisories/GHSA-5hqh-c84r-qjcv) (Integer overflow in the dblib quoter causing OOB writes). (CVE-2024-11236)
+- **PDO Firebird:**
+  - Fixed bug [GHSA-5hqh-c84r-qjcv](https://github.com/php/php-src/security/advisories/GHSA-5hqh-c84r-qjcv) (Integer overflow in the firebird quoter causing OOB writes). (CVE-2024-11236)
+- **PDO ODBC:**
+  - Fixed bug [GH-16450](https://github.com/php/php-src/issues/16450) (PDO_ODBC can inject garbage into field values).
+- **Phar:**
+  - Fixed bug [GH-16406](https://github.com/php/php-src/issues/16406) (Assertion failure in ext/phar/phar.c:2808).
+- **PHPDBG:**
+  - Fixed bug [GH-16174](https://github.com/php/php-src/issues/16174) (Empty string is an invalid expression for ev).
+- **Reflection:**
+  - Fixed bug [GH-16601](https://github.com/php/php-src/issues/16601) (Memory leak in Reflection constructors).
+- **Session:**
+  - Fixed bug [GH-16385](https://github.com/php/php-src/issues/16385) (Unexpected null returned by session_set_cookie_params).
+  - Fixed bug [GH-16290](https://github.com/php/php-src/issues/16290) (overflow on cookie_lifetime ini value).
+- **SOAP:**
+  - Fixed bug [GH-16429](https://github.com/php/php-src/issues/16429) (Segmentation fault access null pointer in SoapClient).
+- **Sockets:**
+  - Fixed bug with overflow socket_recvfrom $length argument.
+- **SPL:**
+  - Fixed bug [GH-16337](https://github.com/php/php-src/issues/16337) (Use-after-free in SplHeap).
+  - Fixed bug [GH-16464](https://github.com/php/php-src/issues/16464) (Use-after-free in SplDoublyLinkedList::offsetSet()).
+  - Fixed bug [GH-16479](https://github.com/php/php-src/issues/16479) (Use-after-free in SplObjectStorage::setInfo()).
+  - Fixed bug [GH-16478](https://github.com/php/php-src/issues/16478) (Use-after-free in SplFixedArray::unset()).
+  - Fixed bug [GH-16588](https://github.com/php/php-src/issues/16588) (UAF in Observer->serialize).
+  - Fix [GH-16477](https://github.com/php/php-src/issues/16477) (Segmentation fault when calling __debugInfo() after failed SplFileObject::__constructor).
+  - Fixed bug [GH-16589](https://github.com/php/php-src/issues/16589) (UAF in SplDoublyLinked->serialize()).
+  - Fixed bug [GH-14687](https://github.com/php/php-src/issues/14687) (segfault on SplObjectIterator instance).
+  - Fixed bug [GH-16604](https://github.com/php/php-src/issues/16604) (Memory leaks in SPL constructors).
+  - Fixed bug [GH-16646](https://github.com/php/php-src/issues/16646) (UAF in ArrayObject::unset() and ArrayObject::exchangeArray()).
+- **Standard:**
+  - Fixed bug [GH-16293](https://github.com/php/php-src/issues/16293) (Failed assertion when throwing in assert() callback with bail enabled).
+- **Streams:**
+  - Fixed bug [GHSA-c5f2-jwm7-mmq2](https://github.com/php/php-src/security/advisories/GHSA-c5f2-jwm7-mmq2) (Configuring a proxy in a stream context might allow for CRLF injection in URIs). (CVE-2024-11234)
+  - Fixed bug [GHSA-r977-prxv-hc43](https://github.com/php/php-src/security/advisories/GHSA-r977-prxv-hc43) (Single byte overread with convert.quoted-printable-decode filter). (CVE-2024-11233)
+- **SysVMsg:**
+  - Fixed bug [GH-16592](https://github.com/php/php-src/issues/16592) (msg_send() crashes when a type does not properly serialized).
+- **SysVShm:**
+  - Fixed bug [GH-16591](https://github.com/php/php-src/issues/16591) (Assertion error in shm_put_var).
+- **XMLReader:**
+  - Fixed bug [GH-16292](https://github.com/php/php-src/issues/16292) (Segmentation fault in ext/xmlreader/php_xmlreader.c).
+- **Zlib:**
+  - Fixed bug [GH-16326](https://github.com/php/php-src/issues/16326) (Memory management is broken for bad dictionaries.) (cmb)
+
+## 8.2.25 – 2024-10-24
+
+- **Calendar:**
+  - Fixed [GH-16240](https://github.com/php/php-src/issues/16240): jdtounix overflow on argument value.
+  - Fixed [GH-16241](https://github.com/php/php-src/issues/16241): easter_days/easter_date overflow on year argument.
+  - Fixed [GH-16263](https://github.com/php/php-src/issues/16263): jddayofweek overflow.
+  - Fixed [GH-16234](https://github.com/php/php-src/issues/16234): jewishtojd overflow.
+- **CLI:**
+  - Fixed bug [GH-16137](https://github.com/php/php-src/issues/16137): duplicate http headers when set several times by the client.
+- **Core:**
+  - Fixed bug [GH-15712](https://github.com/php/php-src/issues/15712): zend_strtod overflow with precision INI set on large value.
+  - Fixed bug [GH-15905](https://github.com/php/php-src/issues/15905) (Assertion failure for TRACK_VARS_SERVER).
+  - Fixed bug [GH-15907](https://github.com/php/php-src/issues/15907) (Failed assertion when promoting Serialize deprecation to exception).
+  - Fixed bug [GH-15851](https://github.com/php/php-src/issues/15851) (Segfault when printing backtrace during cleanup of nested generator frame).
+  - Fixed bug [GH-15866](https://github.com/php/php-src/issues/15866) (Core dumped in Zend/zend_generators.c).
+  - Fixed bug [GH-16188](https://github.com/php/php-src/issues/16188) (Assertion failure in Zend/zend_exceptions.c).
+  - Fixed bug [GH-16233](https://github.com/php/php-src/issues/16233) (Observer segfault when calling user function in internal function via trampoline).
+- **Date:**
+  - Fixed bug [GH-15582](https://github.com/php/php-src/issues/15582): Crash when not calling parent constructor of DateTimeZone.
+  - Fixed regression where signs after the first one were ignored while parsing a signed integer, with the DateTimeInterface::modify() function.
+- **DOM:**
+  - Fixed bug [GH-16039](https://github.com/php/php-src/issues/16039) (Segmentation fault (access null pointer) in ext/dom/parentnode/tree.c).
+  - Fixed bug [GH-16151](https://github.com/php/php-src/issues/16151) (Assertion failure in ext/dom/parentnode/tree.c).
+- **GD:**
+  - Fixed bug [GH-16232](https://github.com/php/php-src/issues/16232) (bitshift overflow on wbmp file content reading / fix backport from upstream).
+  - Fixed bug [GH-12264](https://github.com/php/php-src/issues/12264) (overflow/underflow on imagerotate degrees value) (David Carlier)
+  - Fixed bug [GH-16274](https://github.com/php/php-src/issues/16274) (imagescale underflow on RBG channels / fix backport from upstream).
+- **LDAP:**
+  - Fixed bug [GH-16032](https://github.com/php/php-src/issues/16032) (Various NULL pointer dereferencements in ldap_modify_batch()).
+  - Fixed bug [GH-16101](https://github.com/php/php-src/issues/16101) (Segfault in ldap_list(), ldap_read(), and ldap_search() when LDAPs array is not a list).
+  - Fix [GH-16132](https://github.com/php/php-src/issues/16132) (php_ldap_do_modify() attempts to free pointer not allocated by ZMM.).
+  - Fix [GH-16136](https://github.com/php/php-src/issues/16136) (Memory leak in php_ldap_do_modify() when entry is not a proper dictionary).
+- **MBString:**
+  - Fixed bug [GH-16261](https://github.com/php/php-src/issues/16261) (Reference invariant broken in mb_convert_variables()).
+- **OpenSSL:**
+  - Fixed stub for openssl_csr_new.
+- **PCRE:**
+  - Fixed bug [GH-16189](https://github.com/php/php-src/issues/16189) (underflow on offset argument).
+  - Fixed bug [GH-16184](https://github.com/php/php-src/issues/16184) (UBSan address overflowed in ext/pcre/php_pcre.c).
+- **PHPDBG:**
+  - Fixed bug [GH-15901](https://github.com/php/php-src/issues/15901) (phpdbg: Assertion failure on i funcs).
+  - Fixed bug [GH-16181](https://github.com/php/php-src/issues/16181) (phpdbg: exit in exception handler reports fatal error).
+- **Reflection:**
+  - Fixed bug [GH-16187](https://github.com/php/php-src/issues/16187) (Assertion failure in ext/reflection/php_reflection.c).
+- **SAPI:**
+  - Fixed bug [GH-15395](https://github.com/php/php-src/issues/15395) (php-fpm: zend_mm_heap corrupted with cgi-fcgi request).
+- **SimpleXML:**
+  - Fixed bug [GH-15837](https://github.com/php/php-src/issues/15837) (Segmentation fault in ext/simplexml/simplexml.c).
+- **Sockets:**
+  - Fixed bug [GH-16267](https://github.com/php/php-src/issues/16267) (socket_strerror overflow on errno argument).
+- **SOAP:**
+  - Fixed bug [#62900](https://bugs.php.net/62900) (Wrong namespace on xsd import error message).
+  - Fixed bug [GH-16237](https://github.com/php/php-src/issues/16237) (Segmentation fault when cloning SoapServer).
+  - Fix Soap leaking http_msg on error.
+  - Fixed bug [GH-16256](https://github.com/php/php-src/issues/16256) (Assertion failure in ext/soap/php_encoding.c:460).
+  - Fixed bug [GH-16259](https://github.com/php/php-src/issues/16259) (Soap segfault when classmap instantiation fails).
+- **Standard:**
+  - Fixed bug [GH-15613](https://github.com/php/php-src/issues/15613) (overflow on unpack call hex string repeater).
+  - Fixed bug [GH-15937](https://github.com/php/php-src/issues/15937) (overflow on stream timeout option value).
+  - Fixed bug [GH-16053](https://github.com/php/php-src/issues/16053) (Assertion failure in Zend/zend_hash.c).
+- **Streams:**
+  - Fixed bugs [GH-15908](https://github.com/php/php-src/issues/15908) and [GH-15026](https://github.com/php/php-src/issues/15026) (leak / assertion failure in streams.c).
+  - Fixed bug [GH-15980](https://github.com/php/php-src/issues/15980) (Signed integer overflow in main/streams/streams.c).
+- **TSRM:**
+  - Prevent closing of unrelated handles.
+- **XML:**
+  - Fixed bug [GH-15868](https://github.com/php/php-src/issues/15868) (Assertion failure in xml_parse_into_struct after exception).
+
+## 8.2.24 – 2024-09-26 (Security Release)
+
+- **CGI:**
+  - Fixed bug GHSA-p99j-rfp4-xqvq (Bypass of CVE-2024-4577, Parameter Injection Vulnerability). (CVE-2024-8926)
+  - Fixed bug GHSA-94p6-54jq-9mwp (cgi.force_redirect configuration is bypassable due to the environment variable collision). (CVE-2024-8927)
+- **Core:**
+  - Fixed bug [GH-15408](https://github.com/php/php-src/issues/15408) (MSan false-positve on zend_max_execution_timer).
+  - Fixed bug [GH-15515](https://github.com/php/php-src/issues/15515) (Configure error grep illegal option q).
+  - Fixed bug [GH-15514](https://github.com/php/php-src/issues/15514) (Configure error: genif.sh: syntax error).
+  - Fixed bug [GH-15565](https://github.com/php/php-src/issues/15565) (--disable-ipv6 during compilation produces error EAI_SYSTEM not found).
+  - Fixed bug [GH-15587](https://github.com/php/php-src/issues/15587) (CRC32 API build error on arm 32-bit).
+  - Fixed bug [GH-15330](https://github.com/php/php-src/issues/15330) (Do not scan generator frames more than once).
+  - Fixed uninitialized lineno in constant AST of internal enums.
+- **Curl:**
+  - FIxed bug [GH-15547](https://github.com/php/php-src/issues/15547) (curl_multi_select overflow on timeout argument).
+- **DOM:**
+  - Fixed bug [GH-15551](https://github.com/php/php-src/issues/15551) (Segmentation fault (access null pointer) in ext/dom/xml_common.h).
+- **Fileinfo:**
+  - Fixed bug [GH-15752](https://github.com/php/php-src/issues/15752) (Incorrect error message for finfo_file with an empty filename argument).
+- **FPM:**
+  - Fixed bug GHSA-865w-9rf3-2wh5 (Logs from childrens may be altered). (CVE-2024-9026)
+- **MySQLnd:**
+  - Fixed bug [GH-15432](https://github.com/php/php-src/issues/15432) (Heap corruption when querying a vector).
+- **Opcache:**
+  - Fixed bug [GH-15661](https://github.com/php/php-src/issues/15661) (Access null pointer in Zend/Optimizer/zend_inference.c).
+  - Fixed bug [GH-15658](https://github.com/php/php-src/issues/15658) (Segmentation fault in Zend/zend_vm_execute.h).
+- **SAPI:**
+  - Fixed bug GHSA-9pqp-7h25-4f32 (Erroneous parsing of multipart form data). (CVE-2024-8925)
+- **SOAP:**
+  - Fixed bug [#73182](https://bugs.php.net/73182) (PHP SOAPClient does not support stream context HTTP headers in array form).
+- **Standard:**
+  - Fixed bug [GH-15552](https://github.com/php/php-src/issues/15552) (Signed integer overflow in ext/standard/scanf.c).
+- **Streams:**
+  - Fixed bug [GH-15628](https://github.com/php/php-src/issues/15628) (php_stream_memory_get_buffer() not zero-terminated).
+
+## 8.2.23 – 2024-08-29
+
+- **Core:**
+  - Fixed bug [GH-15020](https://github.com/php/php-src/issues/15020) (Memory leak in Zend/Optimizer/escape_analysis.c).
+  - Fixed bug [GH-15023](https://github.com/php/php-src/issues/15023) (Memory leak in Zend/zend_ini.c).
+  - Fixed bug [GH-13330](https://github.com/php/php-src/issues/13330) (Append -Wno-implicit-fallthrough flag conditionally).
+  - Fix uninitialized memory in network.c.
+  - Fixed bug [GH-15108](https://github.com/php/php-src/issues/15108) (Segfault when destroying generator during shutdown).
+  - Fixed bug [GH-15275](https://github.com/php/php-src/issues/15275) (Crash during GC of suspended generator delegate).
+- **Curl:**
+  - Fixed case when curl_error returns an empty string.
+- **DOM:**
+  - Fix UAF when removing doctype and using foreach iteration.
+- **FFI:**
+  - Fixed bug [GH-14286](https://github.com/php/php-src/issues/14286) (ffi enum type (when enum has no name) make memory leak).
+- **Hash:**
+  - Fix crash when converting array data for array in shm in xxh3.
+- **Intl:**
+  - Fixed bug [GH-15087](https://github.com/php/php-src/issues/15087) (IntlChar::foldCase()'s $option is not optional).
+- **Opcache:**
+  - Fixed bug [GH-13817](https://github.com/php/php-src/issues/13817) (Segmentation fault for enabled observers after pass 4).
+  - Fixed bug [GH-13775](https://github.com/php/php-src/issues/13775) (Memory leak possibly related to opcache SHM placement).
+- **Output:**
+  - Fixed bug [GH-15179](https://github.com/php/php-src/issues/15179) (Segmentation fault (null pointer dereference) in ext/standard/url_scanner_ex.re).
+- **PDO_Firebird:**
+  - Fix bogus fallthrough path in firebird_handle_get_attribute().
+- **PHPDBG:**
+  - Fixed bug [GH-13199](https://github.com/php/php-src/issues/13199) (EOF emits redundant prompt in phpdbg local console mode with libedit/readline).
+  - Fixed bug [GH-15268](https://github.com/php/php-src/issues/15268) (heap buffer overflow in phpdbg (zend_hash_num_elements() Zend/zend_hash.h)).
+  - Fixed bug [GH-15210](https://github.com/php/php-src/issues/15210) use-after-free on watchpoint allocations.
+- **Soap:**
+  - Fixed bug [#55639](https://bugs.php.net/55639) (Digest autentication dont work).
+  - Fix SoapFault property destruction.
+  - Fixed bug [GH-15252](https://github.com/php/php-src/issues/15252) (SOAP XML broken since PHP 8.3.9 when using classmap constructor option).
+- **Standard:**
+  - Fix passing non-finite timeout values in stream functions.
+  - Fixed [GH-14780](https://github.com/php/php-src/issues/14780) p(f)sockopen timeout overflow.
+- **Streams:**
+  - Fixed bug [GH-15028](https://github.com/php/php-src/issues/15028) (Memory leak in ext/phar/stream.c).
+  - Fixed bug [GH-15034](https://github.com/php/php-src/issues/15034) (Integer overflow on stream_notification_callback byte_max parameter with files bigger than 2GB).
+- **Tidy:**
+  - Fix memory leaks in ext/tidy basedir restriction code.
+
+## 8.2.22 – 2024-08-01
+
+- **Core:**
+  - Fixed bug [GH-13922](https://github.com/php/php-src/issues/13922) (Fixed support for systems with sysconf(_SC_GETPW_R_SIZE_MAX) == -1).
+  - Fixed bug [GH-14626](https://github.com/php/php-src/issues/14626) (Fix is_zend_ptr() for huge blocks).
+  - Fixed bug [GH-14590](https://github.com/php/php-src/issues/14590) (Memory leak in FPM test gh13563-conf-bool-env.phpt.
+  - Fixed OSS-Fuzz #69765.
+  - Fixed bug [GH-14741](https://github.com/php/php-src/issues/14741) (Segmentation fault in Zend/zend_types.h).
+  - Fixed bug [GH-14969](https://github.com/php/php-src/issues/14969) (Use-after-free in property coercion with __toString()).
+- **Dom:**
+  - Fixed bug [GH-14702](https://github.com/php/php-src/issues/14702) (DOMDocument::xinclude() crash).
+- **Gd:**
+  - ext/gd/tests/gh10614.phpt: skip if no PNG support.
+  - restored warning instead of fata error.
+- **LibXML:**
+  - Fixed bug [GH-14563](https://github.com/php/php-src/issues/14563) (Build failure with libxml2 v2.13.0).
+- **Opcache:**
+  - Fixed bug [GH-14550](https://github.com/php/php-src/issues/14550) (No warning message when Zend DTrace is enabled that opcache.jit is implictly disabled).
+- **Output:**
+  - Fixed bug [GH-14808](https://github.com/php/php-src/issues/14808) (Unexpected null pointer in Zend/zend_string.h with empty output buffer).
+- **PDO:**
+  - Fixed bug [GH-14712](https://github.com/php/php-src/issues/14712) (Crash with PDORow access to null property).
+- **Phar:**
+  - Fixed bug [GH-14603](https://github.com/php/php-src/issues/14603) (null string from zip entry).
+- **PHPDBG:**
+  - Fixed bug [GH-14596](https://github.com/php/php-src/issues/14596) (crashes with ASAN and ZEND_RC_DEBUG=1).
+  - Fixed bug [GH-14553](https://github.com/php/php-src/issues/14553) (echo output trimmed at NULL byte).
+- **Shmop:**
+  - Fixed bug [GH-14537](https://github.com/php/php-src/issues/14537) (shmop Windows 11 crashes the process).
+- **SimpleXML:**
+  - Fixed bug [GH-14638](https://github.com/php/php-src/issues/14638) (null dereference after XML parsing failure).
+- **SPL:**
+  - Fixed bug [GH-14639](https://github.com/php/php-src/issues/14639) (Member access within null pointer in ext/spl/spl_observer.c).
+- **Standard:**
+  - Fix 32-bit wordwrap test failures.
+  - Fixed bug [GH-14774](https://github.com/php/php-src/issues/14774) (time_sleep_until overflow).
+- **Tidy:**
+  - Fix memory leak in tidy_repair_file().
+- **Treewide:**
+  - Fix compatibility with libxml2 2.13.2.
+- **XML:**
+  - Move away from to-be-deprecated libxml fields.
+  - Fixed bug [GH-14834](https://github.com/php/php-src/issues/14834) (Error installing PHP when --with-pear is used).
+
+## 8.2.21 – 2024-07-04
+
+- **Core:**
+  - Fixed bug [GH-14315](https://github.com/php/php-src/issues/14315) (Incompatible pointer type warnings).
+  - Fixed bug [GH-12814](https://github.com/php/php-src/issues/12814) (max_execution_time reached too early on MacOS 14 when running on Apple Silicon).
+  - Fixed bug [GH-14387](https://github.com/php/php-src/issues/14387) (Crash when stack walking in destructor of yielded from values during Generator->throw()).
+  - Fixed bug [GH-14456](https://github.com/php/php-src/issues/14456) (Attempting to initialize class with private constructor calls destructor).
+  - Fixed bug [GH-14549](https://github.com/php/php-src/issues/14549) (Incompatible function pointer type for fclose).
+- **BCMatch:**
+  - Fixed bug (bcpowmod() with mod = -1 returns 1 when it must be 0).
+- **Curl:**
+  - Fixed bug [GH-14307](https://github.com/php/php-src/issues/14307) (Test curl_basic_024 fails with curl 8.8.0).
+- **DOM:**
+  - Fixed bug [GH-14343](https://github.com/php/php-src/issues/14343) (Memory leak in xml and dom).
+- **FPM:**
+  - Fixed bug [GH-14037](https://github.com/php/php-src/issues/14037) (PHP-FPM ping.path and ping.response config vars are ignored in status pool).
+- **GD:**
+  - Fix parameter numbers for imagecolorset().
+- **Intl:**
+  - Fix reference handling in SpoofChecker.
+- **MySQLnd:**
+  - Partially fix bug [GH-10599](https://github.com/php/php-src/issues/10599) (Apache crash on Windows when using a self-referencing anonymous function inside a class with an active mysqli connection).
+- **Opcache:**
+  - Fixed bug [GH-14267](https://github.com/php/php-src/issues/14267) (opcache.jit=off does not allow enabling JIT at runtime).
+  - Fixed TLS access in JIT on FreeBSD/amd64.
+  - Fixed bug [GH-11188](https://github.com/php/php-src/issues/11188) (Error when building TSRM in ARM64).
+- **PDO ODBC:**
+  - Fixed bug [GH-14367](https://github.com/php/php-src/issues/14367) (incompatible SDWORD type with iODBC).
+- **PHPDBG:**
+  - Fixed bug [GH-13681](https://github.com/php/php-src/issues/13681) (segfault on watchpoint addition failure).
+- **Soap:**
+  - Fixed bug [#47925](https://bugs.php.net/47925) (PHPClient can't decompress response).
+  - Fix missing error restore code.
+  - Fix memory leak if calling SoapServer::setObject() twice.
+  - Fix memory leak if calling SoapServer::setClass() twice.
+  - Fix reading zlib ini settings in ext-soap.
+  - Fix memory leaks with string function name lookups.
+  - Fixed bug [#69280](https://bugs.php.net/69280) (SoapClient classmap doesn't support fully qualified class name).
+  - Fixed bug [#76232](https://bugs.php.net/76232) (SoapClient Cookie Header Semicolon).
+  - Fixed memory leaks when calling SoapFault::__construct() twice.
+- **Sodium:**
+  - Fix memory leaks in ext/sodium on failure of some functions.
+- **SPL:**
+  - Fixed bug [GH-14290](https://github.com/php/php-src/issues/14290) (Member access within null pointer in extension spl).
+- **Standard:**
+  - Fixed bug [GH-14483](https://github.com/php/php-src/issues/14483) (Fixed off-by-one error in checking length of abstract namespace Unix sockets).
+- **Streams:**
+  - Fixed bug [GH-11078](https://github.com/php/php-src/issues/11078) (PHP Fatal error triggers pointer being freed was not allocated and malloc: double free for ptr errors).
+
+## 8.2.20 – 2024-06-06 (Security Release)
+
+- **CGI:**
+  - Fixed buffer limit on Windows, replacing read call usage by _read.
+  - Fixed bug GHSA-3qgc-jrrr-25jv (Bypass of CVE-2012-1823, Argument Injection in PHP-CGI). (CVE-2024-4577)
+- **CLI:**
+  - Fixed bug [GH-14189](https://github.com/php/php-src/issues/14189) (PHP Interactive shell input state incorrectly handles quoted heredoc literals.).
+- **Core:**
+  - Fixed bug [GH-13970](https://github.com/php/php-src/issues/13970) (Incorrect validation of #[Attribute] flags type for non-compile-time expressions).
+  - Fixed bug [GH-14140](https://github.com/php/php-src/issues/14140) (Floating point bug in range operation on Apple Silicon hardware).
+- **DOM:**
+  - Fix crashes when entity declaration is removed while still having entity references.
+  - Fix references not handled correctly in C14N.
+  - Fix crash when calling childNodes next() when iterator is exhausted.
+  - Fix crash in ParentNode::append() when dealing with a fragment containing text nodes.
+- **FFI:**
+  - Fixed bug [GH-14215](https://github.com/php/php-src/issues/14215) (Cannot use FFI::load on CRLF header file with apache2handler).
+- **Filter:**
+  - Fixed bug GHSA-w8qr-v226-r27w (Filter bypass in filter_var FILTER_VALIDATE_URL). (CVE-2024-5458)
+- **FPM:**
+  - Fix bug [GH-14175](https://github.com/php/php-src/issues/14175) (Show decimal number instead of scientific notation in systemd status).
+- **Hash:**
+  - ext/hash: Swap the checking order of `__has_builtin` and `__GNUC__` (Saki Takamachi)
+- **Intl:**
+  - Fixed build regression on systems without C++17 compilers.
+- **Ini:**
+  - Fixed bug [GH-14100](https://github.com/php/php-src/issues/14100) (Corrected spelling mistake in php.ini files).
+- **MySQLnd:**
+  - Fix bug [GH-14255](https://github.com/php/php-src/issues/14255) (mysqli_fetch_assoc reports error from nested query).
+- **Opcache:**
+  - Fixed bug [GH-14109](https://github.com/php/php-src/issues/14109) (Fix accidental persisting of internal class constant in shm).
+- **OpenSSL:**
+  - The openssl_private_decrypt function in PHP, when using PKCS1 padding (OPENSSL_PKCS1_PADDING, which is the default), is vulnerable to the Marvin Attack unless it is used with an OpenSSL version that includes the changes from this pull request: https://github.com/openssl/openssl/pull/13817 (rsa_pkcs1_implicit_rejection). These changes are part of OpenSSL 3.2 and have also been backported to stable versions of various Linux distributions, as well as to the PHP builds provided for Windows since the previous release. All distributors and builders should ensure that this version is used to prevent PHP from being vulnerable.
+- **Standard:**
+  - Fixed bug GHSA-9fcc-425m-g385 (Bypass of CVE-2024-1874). (CVE-2024-5585)
+- **XML:**
+  - Fixed bug [GH-14124](https://github.com/php/php-src/issues/14124) (Segmentation fault with XML extension under certain memory limit).
+- **XMLReader:**
+  - Fixed bug [GH-14183](https://github.com/php/php-src/issues/14183) (XMLReader::open() can't be overridden).
+
+## 8.2.19 – 2024-05-09
+
+- **Core:**
+  - Fixed bug [GH-13772](https://github.com/php/php-src/issues/13772) (Invalid execute_data->opline pointers in observer fcall handlers when JIT is enabled).
+  - Fixed bug [GH-13931](https://github.com/php/php-src/issues/13931) (Applying zero offset to null pointer in Zend/zend_opcode.c).
+  - Fixed bug [GH-13942](https://github.com/php/php-src/issues/13942) (Align the behavior of zend-max-execution-timers with other timeout implementations).
+  - Fixed bug [GH-14003](https://github.com/php/php-src/issues/14003) (Broken cleanup of unfinished calls with callable convert parameters).
+  - Fixed bug [GH-14013](https://github.com/php/php-src/issues/14013) (Erroneous dnl appended in configure).
+  - Fixed bug [GH-10232](https://github.com/php/php-src/issues/10232) (If autoloading occurs during constant resolution filename and lineno are identified incorrectly).
+  - Fixed bug [GH-13727](https://github.com/php/php-src/issues/13727) (Missing void keyword).
+- **Fibers:**
+  - Fixed bug [GH-13903](https://github.com/php/php-src/issues/13903) (ASAN false positive underflow when executing copy()).
+- **FPM:**
+  - Fixed bug [GH-13563](https://github.com/php/php-src/issues/13563) (Setting bool values via env in FPM config fails).
+- **Intl:**
+  - Fixed build for icu 74 and onwards.
+- **MySQLnd:**
+  - Fix shift out of bounds on 32-bit non-fast-path platforms.
+- **Opcache:**
+  - Fixed incorrect assumptions across compilation units for static calls.
+- **OpenSSL:**
+  - Fixed bug [GH-10495](https://github.com/php/php-src/issues/10495) (feof on OpenSSL stream hangs indefinitely).
+- **PDO SQLite:**
+  - Fix [GH-13984](https://github.com/php/php-src/issues/13984) (Buffer size is now checked before memcmp).
+  - Fix [GH-13998](https://github.com/php/php-src/issues/13998) (Manage refcount of agg_context->val correctly).
+- **Phar:**
+  - Fixed bug [GH-13836](https://github.com/php/php-src/issues/13836) (Renaming a file in a Phar to an already existing filename causes a NULL pointer dereference).
+  - Fixed bug [GH-13833](https://github.com/php/php-src/issues/13833) (Applying zero offset to null pointer in zend_hash.c).
+  - Fix potential NULL pointer dereference before calling EVP_SignInit.
+- **PHPDBG:**
+  - Fixed bug [GH-13827](https://github.com/php/php-src/issues/13827) (Null pointer access of type 'zval' in phpdbg_frame).
+- **Posix:**
+  - Fix usage of reentrant functions in ext/posix.
+- **Session:**
+  - Fixed bug [GH-13856](https://github.com/php/php-src/issues/13856) (Member access within null pointer of type 'ps_files' in ext/session/mod_files.c).
+  - Fixed bug [GH-13891](https://github.com/php/php-src/issues/13891) (memleak and segfault when using ini_set with session.trans_sid_hosts).
+  - Fixed buffer _read/_write size limit on windows for the file mode.
+- **Streams:**
+  - Fixed file_get_contents() on Windows fails with "errno=22 Invalid argument".
+  - Fixed bug [GH-13264](https://github.com/php/php-src/issues/13264) (Part 1 - Memory leak on stream filter failure).
+  - Fixed bug [GH-13860](https://github.com/php/php-src/issues/13860) (Incorrect PHP_STREAM_OPTION_CHECK_LIVENESS case in ext/openssl/xp_ssl.c - causing use of dead socket).
+  - Fixed bug [GH-11678](https://github.com/php/php-src/issues/11678) (Build fails on musl 1.2.4 - lfs64).
+- **Treewide:**
+  - Fix gcc-14 Wcalloc-transposed-args warnings.
+
+## 8.2.18 – 2024-04-11 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-13612](https://github.com/php/php-src/issues/13612) (Corrupted memory in destructor with weak references).
+  - Fixed bug [GH-13784](https://github.com/php/php-src/issues/13784) (AX_GCC_FUNC_ATTRIBUTE failure).
+  - Fixed bug [GH-13670](https://github.com/php/php-src/issues/13670) (GC does not scale well with a lot of objects created in destructor).
+- **DOM:**
+  - Add some missing ZPP checks.
+  - Fix potential memory leak in XPath evaluation results.
+  - Fix phpdoc for DOMDocument load methods.
+- **FPM:**
+  - Fix incorrect check in fpm_shm_free().
+- **GD:**
+  - Fixed bug [GH-12019](https://github.com/php/php-src/issues/12019) (add GDLIB_CFLAGS in feature tests).
+- **Gettext:**
+  - Fixed sigabrt raised with dcgettext/dcngettext calls with gettext 0.22.5 with category set to LC_ALL.
+- **MySQLnd:**
+  - Fix [GH-13452](https://github.com/php/php-src/issues/13452) (Fixed handshake response [mysqlnd]).
+  - Fix incorrect charset length in check_mb_eucjpms().
+- **Opcache:**
+  - Fixed [GH-13508](https://github.com/php/php-src/issues/13508) (JITed QM_ASSIGN may be optimized out when op1 is null).
+  - Fixed [GH-13712](https://github.com/php/php-src/issues/13712) (Segmentation fault for enabled observers when calling trait method of internal trait when opcache is loaded).
+- **PDO:**
+  - Fix various PDORow bugs.
+- **Random:**
+  - Fixed bug [GH-13544](https://github.com/php/php-src/issues/13544) (Pre-PHP 8.2 compatibility for mt_srand with unknown modes).
+  - Fixed bug [GH-13690](https://github.com/php/php-src/issues/13690) (Global Mt19937 is not properly reset in-between requests when MT_RAND_PHP is used).
+- **Session:**
+  - Fixed bug [GH-13680](https://github.com/php/php-src/issues/13680) (Segfault with session_decode and compilation error).
+- **Sockets:**
+  - Fixed bug [GH-13604](https://github.com/php/php-src/issues/13604) (socket_getsockname returns random characters in the end of the socket name).
+- **SPL:**
+  - Fixed bug [GH-13531](https://github.com/php/php-src/issues/13531) (Unable to resize SplfixedArray after being unserialized in PHP 8.2.15).
+  - Fixed bug [GH-13685](https://github.com/php/php-src/issues/13685) (Unexpected null pointer in zend_string.h).
+- **Standard:**
+  - Fixed bug [GH-11808](https://github.com/php/php-src/issues/11808) (Live filesystem modified by tests).
+  - Fixed [GH-13402](https://github.com/php/php-src/issues/13402) (Added validation of `\n` in $additional_headers of mail()).
+  - Fixed bug [GH-13203](https://github.com/php/php-src/issues/13203) (file_put_contents fail on strings over 4GB on Windows).
+  - Fixed bug GHSA-pc52-254m-w9w7 (Command injection via array-ish $command parameter of proc_open). (CVE-2024-1874)
+  - Fixed bug GHSA-wpj3-hf5j-x4v4 (__Host-/__Secure- cookie bypass due to partial CVE-2022-31629 fix). (CVE-2024-2756)
+  - Fixed bug GHSA-h746-cjrr-wfmr (password_verify can erroneously return true, opening ATO risk). (CVE-2024-3096)
+- **XML:**
+  - Fixed bug [GH-13517](https://github.com/php/php-src/issues/13517) (Multiple test failures when building with --with-expat).
+
+## 8.2.17 – 2024-03-14
+
+- **Core:**
+  - Fix ZTS persistent resource crashes on shutdown.
+- **Curl:**
+  - Fix failing tests due to string changes in libcurl 8.6.0.
+- **DOM:**
+  - Fix reference access in dimensions for DOMNodeList and DOMNodeMap.
+- **Fileinfo:**
+  - Fixed bug [GH-13344](https://github.com/php/php-src/issues/13344) (finfo::buffer(): Failed identify data 0:(null), backport).
+- **FPM:**
+  - Fixed bug [#75712](https://bugs.php.net/75712) (getenv in php-fpm should not read $_ENV, $_SERVER).
+- **GD:**
+  - Fixed bug [GH-12019](https://github.com/php/php-src/issues/12019) (detection of image formats in system gd library).
+- **MySQLnd:**
+  - Fixed bug [GH-11950](https://github.com/php/php-src/issues/11950) ([mysqlnd] Fixed not to set CR_MALFORMED_PACKET to error if CR_SERVER_GONE_ERROR is already set).
+- **PGSQL:**
+  - Fixed bug [GH-13354](https://github.com/php/php-src/issues/13354) (pg_execute/pg_send_query_params/pg_send_execute with null value passed by reference).
+- **Standard:**
+  - Fixed array key as hash to string (case insensitive) comparison typo for the second operand buffer size (albeit unused for now).
+
+## 8.2.16 – 2024-02-15
+
+- **Core:**
+  - Fixed timer leak in zend-max-execution-timers builds.
+  - Fixed bug [GH-12349](https://github.com/php/php-src/issues/12349) (linking failure on ARM with mold).
+  - Fixed bug [GH-13097](https://github.com/php/php-src/issues/13097) (Anonymous class reference in trigger_error / thrown Exception).
+  - Fixed bug [GH-13215](https://github.com/php/php-src/issues/13215) (GCC 14 build failure).
+- **Curl:**
+  - Fix missing error check in curl_multi_init().
+- **FPM:**
+  - Fixed bug [GH-12996](https://github.com/php/php-src/issues/12996) (Incorrect SCRIPT_NAME with Apache ProxyPassMatch when plus in path).
+- **GD:**
+  - Fixed bug [GH-10344](https://github.com/php/php-src/issues/10344) (imagettfbbox(): Could not find/open font UNC path).
+  - Fixed bug [GH-10614](https://github.com/php/php-src/issues/10614) (imagerotate will turn the picture all black, when rotated 90).
+- **MySQLnd:**
+  - Fixed bug [GH-12107](https://github.com/php/php-src/issues/12107) (When running a stored procedure (that returns a result set) twice, PHP crashes).
+- **Opcache:**
+  - Fixed bug [GH-13232](https://github.com/php/php-src/issues/13232) (Segmentation fault will be reported when JIT is off but JIT_debug is still on).
+- **OpenSSL:**
+  - Fixed LibreSSL undefined reference when OPENSSL_NO_ENGINE not set. (David Carlier).
+- **PDO_Firebird:**
+  - Fix [GH-13119](https://github.com/php/php-src/issues/13119) (Changed to convert float and double values ​​into strings using `H` format).
+- **Phar:**
+  - Fixed bug [#71465](https://bugs.php.net/71465) (PHAR doesn't know about litespeed).
+  - Fixed bug [GH-13037](https://github.com/php/php-src/issues/13037) (PharData incorrectly extracts zip file).
+- **Random:**
+  - Fixed bug [GH-13138](https://github.com/php/php-src/issues/13138) (Randomizer::pickArrayKeys() does not detect broken engines).
+- **Session:**
+  - Fixed bug [GH-12504](https://github.com/php/php-src/issues/12504) (Corrupted session written when there's a fatal error in autoloader).
+- **Streams:**
+  - Fixed bug [GH-13071](https://github.com/php/php-src/issues/13071) (Copying large files using mmap-able source streams may exhaust available memory and fail).
+
+## 8.2.15 – 2024-01-18
+
+- **Core:**
+  - Fixed bug [GH-12953](https://github.com/php/php-src/issues/12953) (false positive SSA integrity verification failed when loading composer classmaps with more than 11k elements).
+  - Fixed bug [GH-12966](https://github.com/php/php-src/issues/12966) (missing cross-compiling 3rd argument so Autoconf doesn't emit warnings).
+- **Cli:**
+  - Fix incorrect timeout in built-in web server when using router script and max_input_time.
+- **FFI:**
+  - Fixed bug [GH-9698](https://github.com/php/php-src/issues/9698) (stream_wrapper_register crashes with FFI\CData).
+  - Fixed bug [GH-12905](https://github.com/php/php-src/issues/12905) (FFI::new interacts badly with observers).
+- **Intl:**
+  - Fixed [GH-12943](https://github.com/php/php-src/issues/12943) (IntlDateFormatter::__construct accepts 'C' as valid locale).
+- **Hash:**
+  - Fixed bug [GH-12936](https://github.com/php/php-src/issues/12936) (hash() function hangs endlessly if using sha512 on strings >= 4GiB).
+- **ODBC:**
+  - Fix crash on Apache shutdown with persistent connections.
+- **Opcache:**
+  - Fixed oss-fuzz #64727 (JIT undefined array key warning may overwrite DIM with NULL when DIM is the same var as result).
+  - Added workaround for SELinux mprotect execheap issue. See https://bugzilla.kernel.org/show_bug.cgi?id=218258.
+- **OpenSSL:**
+  - Fixed bug [GH-12987](https://github.com/php/php-src/issues/12987) (openssl_csr_sign might leak new cert on error).
+- **PDO:**
+  - Fix [GH-12969](https://github.com/php/php-src/issues/12969) (Fixed PDO::getAttribute() to get PDO::ATTR_STRINGIFY_FETCHES).
+- **PDO_ODBC:**
+  - Fixed bug [GH-12767](https://github.com/php/php-src/issues/12767) (Unable to turn on autocommit mode with setAttribute()).
+- **PGSQL:**
+  - Fixed auto_reset_persistent handling and allow_persistent type.
+  - Fixed bug [GH-12974](https://github.com/php/php-src/issues/12974) (Apache crashes on shutdown when using pg_pconnect()).
+- **Phar:**
+  - Fixed bug [#77432](https://bugs.php.net/77432) (Segmentation fault on including phar file).
+- **PHPDBG:**
+  - Fixed bug [GH-12962](https://github.com/php/php-src/issues/12962) (Double free of init_file in phpdbg_prompt.c).
+- **SimpleXML:**
+  - Fix getting the address of an uninitialized property of a SimpleXMLElement resulting in a crash.
+- **Tidy:**
+  - Fixed bug [GH-12980](https://github.com/php/php-src/issues/12980) (tidynode.props.attribute is missing "Boolean Attributes" and empty attributes).
+
+## 8.2.14 – 2023-12-21
+
+- **Core:**
+  - Fixed oss-fuzz #54325 (Use-after-free of name in var-var with malicious error handler).
+  - Fixed oss-fuzz #64209 (In-place modification of filename in php_message_handler_for_zend).
+  - Fixed bug [GH-12758](https://github.com/php/php-src/issues/12758) / [GH-12768](https://github.com/php/php-src/issues/12768) (Invalid opline in OOM handlers within ZEND_FUNC_GET_ARGS and ZEND_BIND_STATIC).
+  - Fix various missing NULL checks.
+  - Fixed bug [GH-12835](https://github.com/php/php-src/issues/12835) (Leak of call->extra_named_params on internal __call).
+- **Date:**
+  - Fixed improbably integer overflow while parsing really large (or small) Unix timestamps.
+- **DOM:**
+  - Fixed bug [GH-12616](https://github.com/php/php-src/issues/12616) (DOM: Removing XMLNS namespace node results in invalid default: prefix).
+- **FPM:**
+  - Fixed bug [GH-12705](https://github.com/php/php-src/issues/12705) (Segmentation fault in fpm_status_export_to_zval).
+- **FTP:**
+  - Fixed bug [GH-9348](https://github.com/php/php-src/issues/9348) (FTP & SSL session reuse).
+- **Intl:**
+  - Fixed bug [GH-12635](https://github.com/php/php-src/issues/12635) (Test bug69398.phpt fails with ICU 74.1).
+- **LibXML:**
+  - Fixed bug [GH-12702](https://github.com/php/php-src/issues/12702) (libxml2 2.12.0 issue building from src).
+  - Fixed test failures for libxml2 2.12.0.
+- **MySQLnd:**
+  - Avoid using uninitialised struct.
+  - Fixed bug [GH-12791](https://github.com/php/php-src/issues/12791) (Possible dereference of NULL in MySQLnd debug code).
+- **Opcache:**
+  - Fixed JIT bug (Function JIT emits "Uninitialized string offset" warning at the same time as invalid offset Error).
+  - Fixed JIT bug (JIT emits "Attempt to assign property of non-object" warning at the same time as Error is being thrown).
+- **OpenSSL:**
+  - Fixed bug [#50713](https://bugs.php.net/50713) (openssl_pkcs7_verify() may ignore untrusted CAs).
+- **PCRE:**
+  - Fixed bug [GH-12628](https://github.com/php/php-src/issues/12628) (The gh11374 test fails on Alpinelinux).
+- **PDO PGSQL:**
+  - Fixed the default value of $fetchMode in PDO::pgsqlGetNotify() (kocsismate)
+- **PGSQL:**
+  - Fixed bug [GH-12763](https://github.com/php/php-src/issues/12763) wrong argument type for pg_untrace.
+- **PHPDBG:**
+  - Fixed bug [GH-12675](https://github.com/php/php-src/issues/12675) (MEMORY_LEAK in phpdbg_prompt.c).
+- **SOAP:**
+  - Fixed bug [GH-12838](https://github.com/php/php-src/issues/12838) ([SOAP] Temporary WSDL cache files not being deleted).
+- **SPL:**
+  - Fixed bug [GH-12721](https://github.com/php/php-src/issues/12721) (SplFileInfo::getFilename() segfault in combination with GlobIterator and no directory separator).
+- **SQLite3:**
+  - Fixed bug [GH-12633](https://github.com/php/php-src/issues/12633) (sqlite3_defensive.phpt fails with sqlite 3.44.0).
+- **Standard:**
+  - Fix memory leak in syslog device handling.
+  - Fixed bug [GH-12621](https://github.com/php/php-src/issues/12621) (browscap segmentation fault when configured in the vhost).
+  - Fixed bug [GH-12655](https://github.com/php/php-src/issues/12655) (proc_open() does not take into account references in the descriptor array).
+- **Streams:**
+  - Fixed bug [#79945](https://bugs.php.net/79945) (Stream wrappers in imagecreatefrompng causes segfault).
+- **Zip:**
+  - Fixed bug [GH-12661](https://github.com/php/php-src/issues/12661) (Inconsistency in ZipArchive::addGlob remove_path Option Behavior).
+
+## 8.2.13 – 2023-11-23
+
+- **Core:**
+  - Fixed double-free of non-interned enum case name.
+  - Fixed bug [GH-12457](https://github.com/php/php-src/issues/12457) (Incorrect result of stripos with single character needle).
+  - Fixed bug [GH-12468](https://github.com/php/php-src/issues/12468) (Double-free of doc_comment when overriding static property via trait).
+  - Fixed segfault caused by weak references to FFI objects.
+  - Fixed max_execution_time: don't delete an unitialized timer.
+  - Fixed bug [GH-12558](https://github.com/php/php-src/issues/12558) (Arginfo soft-breaks with namespaced class return type if the class name starts with N).
+- **DOM:**
+  - Fix registerNodeClass with abstract class crashing.
+  - Add missing NULL pointer error check.
+  - Fix validation logic of php:function() callbacks.
+- **Fiber:**
+  - Fixed bug [GH-11121](https://github.com/php/php-src/issues/11121) (ReflectionFiber segfault).
+- **FPM:**
+  - Fixed bug [GH-9921](https://github.com/php/php-src/issues/9921) (Loading ext in FPM config does not register module handlers).
+  - Fixed bug [GH-12232](https://github.com/php/php-src/issues/12232) (FPM: segfault dynamically loading extension without opcache).
+  - Fixed bug [#76922](https://bugs.php.net/76922) (FastCGI terminates conn after FCGI_GET_VALUES).
+- **Intl:**
+  - Removed the BC break on IntlDateFormatter::construct which threw an exception with an invalid locale.
+- **Opcache:**
+  - Added warning when JIT cannot be enabled.
+  - Fixed bug [GH-8143](https://github.com/php/php-src/issues/8143) (Crashes in zend_accel_inheritance_cache_find since upgrading to 8.1.3 due to corrupt on-disk file cache).
+- **OpenSSL:**
+  - Fixed bug [GH-12489](https://github.com/php/php-src/issues/12489) (Missing sigbio creation checking in openssl_cms_verify).
+- **PCRE:**
+  - Fixed bug [GH-11374](https://github.com/php/php-src/issues/11374) (Backport upstream fix, Different preg_match result with -d pcre.jit=0).
+- **SOAP:**
+  - Fixed bug [GH-12392](https://github.com/php/php-src/issues/12392) (Segmentation fault on SoapClient::__getTypes).
+  - Fixed bug [#66150](https://bugs.php.net/66150) (SOAP WSDL cache race condition causes Segmentation Fault).
+  - Fixed bug [#67617](https://bugs.php.net/67617) (SOAP leaves incomplete cache file on ENOSPC).
+  - Fix incorrect uri check in SOAP caching.
+  - Fix segfault and assertion failure with refcounted props and arrays.
+  - Fix potential crash with an edge case of persistent encoders.
+  - Fixed bug [#75306](https://bugs.php.net/75306) (Memleak in SoapClient).
+- **Streams:**
+  - Fixed bug [#75708](https://bugs.php.net/75708) (getimagesize with "&$imageinfo" fails on StreamWrappers).
+- **XMLReader:**
+  - Add missing NULL pointer error check.
+- **XMLWriter:**
+  - Add missing NULL pointer error check.
+- **XSL:**
+  - Add missing module dependency.
+  - Fix validation logic of php:function() callbacks.
+
+## 8.2.12 – 2023-10-26
+
+- **Core:**
+  - Fixed bug [GH-12207](https://github.com/php/php-src/issues/12207) (memory leak when class using trait with doc block).
+  - Fixed bug [GH-12215](https://github.com/php/php-src/issues/12215) (Module entry being overwritten causes type errors in ext/dom).
+  - Fixed bug [GH-12273](https://github.com/php/php-src/issues/12273) (__builtin_cpu_init check).
+  - Fixed bug [#80092](https://bugs.php.net/80092) (ZTS + preload = segfault on shutdown).
+- **CLI:**
+  - Ensure a single Date header is present.
+- **CType:**
+  - Fixed bug [GH-11997](https://github.com/php/php-src/issues/11997) (ctype_alnum 5 times slower in PHP 8.1 or greater).
+- **DOM:**
+  - Restore old namespace reconciliation behaviour.
+  - Fixed bug [GH-8996](https://github.com/php/php-src/issues/8996) (DOMNode serialization on PHP ^8.1).
+- **Fileinfo:**
+  - Fixed bug [GH-11891](https://github.com/php/php-src/issues/11891) (fileinfo returns text/xml for some svg files).
+- **Filter:**
+  - Fix explicit FILTER_REQUIRE_SCALAR with FILTER_CALLBACK (ilutov)
+- **Hash:**
+  - Fixed bug [GH-12186](https://github.com/php/php-src/issues/12186) (segfault copying/cloning a finalized HashContext).
+- **Intl:**
+  - Fixed bug [GH-12243](https://github.com/php/php-src/issues/12243) (segfault on IntlDateFormatter::construct).
+  - Fixed bug [GH-12282](https://github.com/php/php-src/issues/12282) (IntlDateFormatter::construct should throw an exception on an invalid locale).
+- **MySQLnd:**
+  - Fixed bug [GH-12297](https://github.com/php/php-src/issues/12297) (PHP Startup: Invalid library (maybe not a PHP library) 'mysqlnd.so' in Unknown on line).
+- **Opcache:**
+  - Fixed opcache_invalidate() on deleted file.
+  - Fixed bug [GH-12380](https://github.com/php/php-src/issues/12380) (JIT+private array property access inside closure accesses private property in child class).
+- **PCRE:**
+  - Fixed bug [GH-11956](https://github.com/php/php-src/issues/11956) (Backport upstream fix, PCRE regular expressions with JIT enabled gives different result).
+- **SimpleXML:**
+  - Fixed bug [GH-12170](https://github.com/php/php-src/issues/12170) (Can't use xpath with comments in SimpleXML).
+  - Fixed bug [GH-12223](https://github.com/php/php-src/issues/12223) (Entity reference produces infinite loop in var_dump/print_r).
+  - Fixed bug [GH-12167](https://github.com/php/php-src/issues/12167) (Unable to get processing instruction contents in SimpleXML).
+  - Fixed bug [GH-12169](https://github.com/php/php-src/issues/12169) (Unable to get comment contents in SimpleXML).
+- **Streams:**
+  - Fixed bug [GH-12190](https://github.com/php/php-src/issues/12190) (binding ipv4 address with both address and port at 0).
+- **XML:**
+  - Fix return type of stub of xml_parse_into_struct().
+  - Fix memory leak when calling xml_parse_into_struct() twice.
+- **XSL:**
+  - Fix type error on XSLTProcessor::transformToDoc return value with SimpleXML.
+
+## 8.2.11 – 2023-09-28
+
+- **Core:**
+  - Fixed bug [GH-11937](https://github.com/php/php-src/issues/11937) (Constant ASTs containing objects).
+  - Fixed bug [GH-11790](https://github.com/php/php-src/issues/11790) (On riscv64 require libatomic if actually needed).
+  - Fixed bug [GH-11876](https://github.com/php/php-src/issues/11876): ini_parse_quantity() accepts invalid quantities.
+  - Fixed bug [GH-12073](https://github.com/php/php-src/issues/12073) (Segfault when freeing incompletely initialized closures).
+  - Fixed bug [GH-12060](https://github.com/php/php-src/issues/12060) (Internal iterator rewind handler is called twice).
+  - Fixed bug [GH-12102](https://github.com/php/php-src/issues/12102) (Incorrect compile error when using array access on TMP value in function call).
+- **DOM:**
+  - Fix memory leak when setting an invalid DOMDocument encoding.
+- **Iconv:**
+  - Fixed build for NetBSD which still uses the old iconv signature.
+- **Intl:**
+  - Fixed bug [GH-12020](https://github.com/php/php-src/issues/12020) (intl_get_error_message() broken after MessageFormatter::formatMessage() fails).
+- **MySQLnd:**
+  - Fixed bug [GH-10270](https://github.com/php/php-src/issues/10270) (Invalid error message when connection via SSL fails: "trying to connect via (null)").
+- **ODBC:**
+  - Fixed memory leak with failed SQLPrepare.
+  - Fixed persistent procedural ODBC connections not getting closed.
+- **SimpleXML:**
+  - Fixed bug [#52751](https://bugs.php.net/52751) (XPath processing-instruction() function is not supported).
+- **SPL:**
+  - Fixed bug [GH-11972](https://github.com/php/php-src/issues/11972) (RecursiveCallbackFilterIterator regression in 8.1.18).
+- **SQLite3:**
+  - Fixed bug [GH-11878](https://github.com/php/php-src/issues/11878) (SQLite3 callback functions cause a memory leak with a callable array).
+
+## 8.2.10 – 2023-08-31
+
+- **CLI:**
+  - Fixed bug [GH-11716](https://github.com/php/php-src/issues/11716) (cli server crashes on SIGINT when compiled with ZEND_RC_DEBUG=1).
+  - Fixed bug [GH-10964](https://github.com/php/php-src/issues/10964) (Improve man page about the built-in server).
+- **Date:**
+  - Fixed bug [GH-11416](https://github.com/php/php-src/issues/11416) (Crash with DatePeriod when uninitialised objects are passed in).
+- **Core:**
+  - Fixed strerror_r detection at configuration time.
+  - Fixed trait typed properties using a DNF type not being correctly bound.
+  - Fixed trait property types not being arena allocated if copied from an internal trait.
+  - Fixed deep copy of property DNF type during lazy class load.
+  - Fixed memory freeing of DNF types for non arena allocated types.
+- **DOM:**
+  - Fix DOMEntity field getter bugs.
+  - Fix incorrect attribute existence check in DOMElement::setAttributeNodeNS.
+  - Fix DOMCharacterData::replaceWith() with itself.
+  - Fix empty argument cases for DOMParentNode methods.
+  - Fixed bug [GH-11791](https://github.com/php/php-src/issues/11791) (Wrong default value of DOMDocument::xmlStandalone).
+  - Fix json_encode result on DOMDocument.
+  - Fix manually calling __construct() on DOM classes.
+  - Fixed bug [GH-11830](https://github.com/php/php-src/issues/11830) (ParentNode methods should perform their checks upfront).
+  - Fix viable next sibling search for replaceWith.
+  - Fix segfault when DOMParentNode::prepend() is called when the child disappears.
+- **FFI:**
+  - Fix leaking definitions when using FFI::cdef()->new(...).
+- **Hash:**
+  - Fix use-of-uninitialized-value in hash_pbkdf2(), fix missing $options parameter in signature.
+- **MySQLnd:**
+  - Fixed bug [GH-11440](https://github.com/php/php-src/issues/11440) (authentication to a sha256_password account fails over SSL).
+  - Fixed bug [GH-11438](https://github.com/php/php-src/issues/11438) (mysqlnd fails to authenticate with sha256_password accounts using passwords longer than 19 characters).
+  - Fixed bug [GH-11550](https://github.com/php/php-src/issues/11550) (MySQL Statement has a empty query result when the response field has changed, also Segmentation fault).
+  - Fixed invalid error message "Malformed packet" when connection is dropped.
+- **Opcache:**
+  - Fixed bug [GH-11715](https://github.com/php/php-src/issues/11715) (opcache.interned_strings_buffer either has no effect or opcache_get_status() / phpinfo() is wrong).
+  - Avoid adding an unnecessary read-lock when loading script from shm if restart is in progress.
+- **PCNTL:**
+  - Revert behaviour of receiving SIGCHLD signals back to the behaviour before 8.1.22.
+- **SPL:**
+  - Fixed bug [#81992](https://bugs.php.net/81992) (SplFixedArray::setSize() causes use-after-free).
+- **Standard:**
+  - Prevent int overflow on $decimals in number_format.
+  - Fixed bug [GH-11870](https://github.com/php/php-src/issues/11870) (Fix off-by-one bug when truncating tempnam prefix) (athos-ribeiro)
+
+## 8.2.9 – 2023-08-03 (Security Release)
+
+- **Build:**
+  - Fixed bug [GH-11522](https://github.com/php/php-src/issues/11522) (PHP version check fails with '-' separator).
+- **CLI:**
+  - Fix interrupted CLI output causing the process to exit.
+- **Core:**
+  - Fixed oss-fuzz #60011 (Mis-compilation of by-reference nullsafe operator).
+  - Fixed line number of JMP instruction over else block.
+  - Fixed use-of-uninitialized-value with ??= on assert.
+  - Fixed oss-fuzz #60411 (Fix double-compilation of arrow-functions).
+  - Fixed build for FreeBSD before the 11.0 releases.
+- **Curl:**
+  - Fix crash when an invalid callback function is passed to CURLMOPT_PUSHFUNCTION.
+- **Date:**
+  - Fixed bug [GH-11368](https://github.com/php/php-src/issues/11368) (Date modify returns invalid datetime).
+  - Fixed bug [GH-11600](https://github.com/php/php-src/issues/11600) (Can't parse time strings which include (narrow) non-breaking space characters).
+  - Fixed bug [GH-11854](https://github.com/php/php-src/issues/11854) (DateTime:createFromFormat stopped parsing datetime with extra space).
+- **DOM:**
+  - Fixed bug [GH-11625](https://github.com/php/php-src/issues/11625) (DOMElement::replaceWith() doesn't replace node with DOMDocumentFragment but just deletes node or causes wrapping <></> depending on libxml2 version).
+- **Fileinfo:**
+  - Fixed bug [GH-11298](https://github.com/php/php-src/issues/11298) (finfo returns wrong mime type for xz files).
+- **FTP:**
+  - Fix context option check for "overwrite".
+  - Fixed bug [GH-10562](https://github.com/php/php-src/issues/10562) (Memory leak and invalid state with consecutive ftp_nb_fget).
+- **GD:**
+  - Fix most of the external libgd test failures.
+- **Intl:**
+  - Fix memory leak in MessageFormatter::format() on failure.
+- **Libxml:**
+  - Fixed bug GHSA-3qrf-m4j2-pcrr (Security issue with external entity loading in XML without enabling it). (CVE-2023-3823)
+- **MBString:**
+  - Fix [GH-11300](https://github.com/php/php-src/issues/11300) (license issue: restricted unicode license headers).
+- **Opcache:**
+  - Fixed bug [GH-10914](https://github.com/php/php-src/issues/10914) (OPCache with Enum and Callback functions results in segmentation fault).
+  - Prevent potential deadlock if accelerated globals cannot be allocated.
+- **PCNTL:**
+  - Fixed bug [GH-11498](https://github.com/php/php-src/issues/11498) (SIGCHLD is not always returned from proc_open).
+- **PDO:**
+  - Fix	[GH-11587](https://github.com/php/php-src/issues/11587) (After php8.1, when PDO::ATTR_EMULATE_PREPARES is true and PDO::ATTR_STRINGIFY_FETCHES is true, decimal zeros are no longer filled).
+- **PDO SQLite:**
+  - Fix [GH-11492](https://github.com/php/php-src/issues/11492) (Make test failure: ext/pdo_sqlite/tests/bug_42589.phpt).
+- **Phar:**
+  - Add missing check on EVP_VerifyUpdate() in phar util.
+  - Fixed bug GHSA-jqcx-ccgc-xwhv (Buffer mismanagement in phar_dir_read()). (CVE-2023-3824)
+- **PHPDBG:**
+  - Fixed bug [GH-9669](https://github.com/php/php-src/issues/9669) (phpdbg -h options doesn't list the -z option).
+- **Session:**
+  - Removed broken url support for transferring session ID.
+- **Standard:**
+  - Fix serialization of RC1 objects appearing in object graph twice.
+- **Streams:**
+  - Fixed bug [GH-11735](https://github.com/php/php-src/issues/11735) (Use-after-free when unregistering user stream wrapper from itself).
+- **SQLite3:**
+  - Fix replaced error handling in SQLite3Stmt::__construct.
+- **XMLReader:**
+  - Fix [GH-11548](https://github.com/php/php-src/issues/11548) (Argument corruption when calling XMLReader::open or XMLReader::XML non-statically with observer active).
+
+## 8.2.8 – 2023-07-06
+
+- **CLI:**
+  - Fixed bug [GH-11246](https://github.com/php/php-src/issues/11246) (cli/get_set_process_title fails on MacOS).
+- **Core:**
+  - Fixed build for the riscv64 architecture/GCC 12.
+- **Curl:**
+  - Fixed bug [GH-11433](https://github.com/php/php-src/issues/11433) (Unable to set CURLOPT_ACCEPT_ENCODING to NULL).
+- **Date:**
+  - Fixed bug [GH-11455](https://github.com/php/php-src/issues/11455) (Segmentation fault with custom object date properties).
+- **DOM:**
+  - Fixed bugs [GH-11288](https://github.com/php/php-src/issues/11288) and [GH-11289](https://github.com/php/php-src/issues/11289) and [GH-11290](https://github.com/php/php-src/issues/11290) and [GH-9142](https://github.com/php/php-src/issues/9142) (DOMExceptions and segfaults with replaceWith).
+  - Fixed bug [GH-10234](https://github.com/php/php-src/issues/10234) (Setting DOMAttr::textContent results in an empty attribute value).
+  - Fix return value in stub file for DOMNodeList::item.
+  - Fix spec compliance error with '*' namespace for DOMDocument::getElementsByTagNameNS.
+  - Fix DOMElement::append() and DOMElement::prepend() hierarchy checks.
+  - Fixed bug [GH-11347](https://github.com/php/php-src/issues/11347) (Memory leak when calling a static method inside an xpath query).
+  - Fixed bug [#67440](https://bugs.php.net/67440) (append_node of a DOMDocumentFragment does not reconcile namespaces).
+  - Fixed bug [#81642](https://bugs.php.net/81642) (DOMChildNode::replaceWith() bug when replacing a node with itself).
+  - Fixed bug [#77686](https://bugs.php.net/77686) (Removed elements are still returned by getElementById).
+  - Fixed bug [#70359](https://bugs.php.net/70359) (print_r() on DOMAttr causes Segfault in php_libxml_node_free_list()).
+  - Fixed bug [#78577](https://bugs.php.net/78577) (Crash in DOMNameSpace debug info handlers).
+  - Fix lifetime issue with getAttributeNodeNS().
+  - Fix "invalid state error" with cloned namespace declarations.
+  - Fixed bug [#55294](https://bugs.php.net/55294) and #47530 and #47847 (various namespace reconciliation issues).
+  - Fixed bug [#80332](https://bugs.php.net/80332) (Completely broken array access functionality with DOMNamedNodeMap).
+- **Opcache:**
+  - Fix allocation loop in zend_shared_alloc_startup().
+  - Access violation on smm_shared_globals with ALLOC_FALLBACK.
+  - Fixed bug [GH-11336](https://github.com/php/php-src/issues/11336) (php still tries to unlock the shared memory ZendSem with opcache.file_cache_only=1 but it was never locked).
+- **OpenSSL:**
+  - Fixed bug [GH-9356](https://github.com/php/php-src/issues/9356) Incomplete validation of IPv6 Address fields in subjectAltNames (James Lucas, Jakub Zelenka).
+- **PCRE:**
+  - Fix preg_replace_callback_array() pattern validation.
+- **PGSQL:**
+  - Fixed intermittent segfault with pg_trace.
+- **Phar:**
+  - Fix cross-compilation check in phar generation for FreeBSD.
+- **SPL:**
+  - Fixed bug [GH-11338](https://github.com/php/php-src/issues/11338) (SplFileInfo empty getBasename with more than one slash).
+- **Standard:**
+  - Fix access on NULL pointer in array_merge_recursive().
+  - Fix exception handling in array_multisort().
+- **SQLite3:**
+  - Fixed bug [GH-11451](https://github.com/php/php-src/issues/11451) (Invalid associative array containing duplicate keys).
+
+## 8.2.7 – 2023-06-08 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-11152](https://github.com/php/php-src/issues/11152) (Unable to alias namespaces containing reserved class names).
+  - Fixed bug [GH-9068](https://github.com/php/php-src/issues/9068) (Conditional jump or move depends on uninitialised value(s)).
+  - Fixed bug [GH-11189](https://github.com/php/php-src/issues/11189) (Exceeding memory limit in zend_hash_do_resize leaves the array in an invalid state).
+  - Fixed bug [GH-11063](https://github.com/php/php-src/issues/11063) (Compilation error on old GCC versions).
+  - Fixed bug [GH-11222](https://github.com/php/php-src/issues/11222) (foreach by-ref may jump over keys during a rehash).
+- **Date:**
+  - Fixed bug [GH-11281](https://github.com/php/php-src/issues/11281) (DateTimeZone::getName() does not include seconds in offset).
+- **Exif:**
+  - Fixed bug [GH-10834](https://github.com/php/php-src/issues/10834) (exif_read_data() cannot read smaller stream wrapper chunk sizes).
+- **FPM:**
+  - Fixed bug [GH-10461](https://github.com/php/php-src/issues/10461) (PHP-FPM segfault due to after free usage of child->ev_std(out|err)).
+  - Fixed bug [#64539](https://bugs.php.net/64539) (FPM status page: query_string not properly JSON encoded).
+  - Fixed memory leak for invalid primary script file handle.
+- **Hash:**
+  - Fixed bug [GH-11180](https://github.com/php/php-src/issues/11180) (hash_file() appears to be restricted to 3 arguments).
+- **LibXML:**
+  - Fixed bug [GH-11160](https://github.com/php/php-src/issues/11160) (Few tests failed building with new libxml 2.11.0).
+- **MBString:**
+  - Fix bug [GH-11217](https://github.com/php/php-src/issues/11217) (Segfault in mb_strrpos / mb_strripos when using negative offset and ASCII encoding).
+- **Opcache:**
+  - Fixed bug [GH-11134](https://github.com/php/php-src/issues/11134) (Incorrect match default branch optimization).
+  - Fixed too wide OR and AND range inference.
+  - Fixed missing class redeclaration error with OPcache enabled.
+  - Fixed bug [GH-11245](https://github.com/php/php-src/issues/11245) (In some specific cases SWITCH with one default statement will cause segfault).
+- **PCNTL:**
+  - Fixed maximum argument count of pcntl_forkx().
+- **PGSQL:**
+  - Fixed parameter parsing of pg_lo_export().
+- **Phar:**
+  - Fixed bug [GH-11099](https://github.com/php/php-src/issues/11099) (Generating phar.php during cross-compile can't be done).
+- **Soap:**
+  - Fixed bug GHSA-76gg-c692-v2mw (Missing error check and insufficient random bytes in HTTP Digest authentication for SOAP). (CVE-2023-3247)
+  - Fixed bug [GH-8426](https://github.com/php/php-src/issues/8426) (make test fail while soap extension build).
+- **SPL:**
+  - Fixed bug [GH-11178](https://github.com/php/php-src/issues/11178) (Segmentation fault in spl_array_it_get_current_data (PHP 8.1.18)).
+- **Standard:**
+  - Fixed bug [GH-11138](https://github.com/php/php-src/issues/11138) (move_uploaded_file() emits open_basedir warning for source file).
+  - Fixed bug [GH-11274](https://github.com/php/php-src/issues/11274) (POST/PATCH request switches to GET after a HTTP 308 redirect).
+- **Streams:**
+  - Fixed bug [GH-10031](https://github.com/php/php-src/issues/10031) ([Stream] STREAM_NOTIFY_PROGRESS over HTTP emitted irregularly for last chunk of data).
+  - Fixed bug [GH-11175](https://github.com/php/php-src/issues/11175) (Stream Socket Timeout).
+  - Fixed bug [GH-11177](https://github.com/php/php-src/issues/11177) (ASAN UndefinedBehaviorSanitizer when timeout = -1 passed to stream_socket_accept/stream_socket_client).
+
+## 8.2.6 – 2023-05-11
+
+- **Core:**
+  - Fix inconsistent float negation in constant expressions.
+  - Fixed bug [GH-8841](https://github.com/php/php-src/issues/8841) (php-cli core dump calling a badly formed function).
+  - Fixed bug [GH-10737](https://github.com/php/php-src/issues/10737) (PHP 8.1.16 segfaults on line 597 of sapi/apache2handler/sapi_apache2.c).
+  - Fixed bug [GH-11028](https://github.com/php/php-src/issues/11028) (Heap Buffer Overflow in zval_undefined_cv.).
+  - Fixed bug [GH-11108](https://github.com/php/php-src/issues/11108) (Incorrect CG(memoize_mode) state after bailout in ??=).
+- **Date:**
+  - Fixed bug where the diff() method would not return the right result around DST changeover for date/times associated with a timezone identifier.
+  - Fixed out-of-range bug when converting to/from around the LONG_MIN unix timestamp.
+- **DOM:**
+  - Fixed bug [#80602](https://bugs.php.net/80602) (Segfault when using DOMChildNode::before()).
+  - Fixed incorrect error handling in dom_zvals_to_fragment().
+- **Exif:**
+  - Fixed bug [GH-9397](https://github.com/php/php-src/issues/9397) (exif read : warnings and errors : Potentially invalid endianess, Illegal IFD size and Undefined index).
+- **Intl:**
+  - Fixed bug [GH-11071](https://github.com/php/php-src/issues/11071) (TZData version not displayed anymore).
+- **PCRE:**
+  - Fixed bug [GH-10968](https://github.com/php/php-src/issues/10968) (Segfault in preg_replace_callback_array()).
+- **Reflection:**
+  - Fixed bug [GH-10983](https://github.com/php/php-src/issues/10983) (State-dependant segfault in ReflectionObject::getProperties).
+- **SPL:**
+  - Handle indirect zvals and use up-to-date properties in SplFixedArray::__serialize.
+- **Standard:**
+  - Fixed bug [GH-10990](https://github.com/php/php-src/issues/10990) (mail() throws TypeError after iterating over $additional_headers array by reference).
+  - Fixed bug [GH-9775](https://github.com/php/php-src/issues/9775) (Duplicates returned by array_unique when using enums).
+- **Streams:**
+  - Fixed bug [GH-10406](https://github.com/php/php-src/issues/10406) (feof() behavior change for UNIX based socket resources).
+
+## 8.2.5 – 2023-04-13
+
+- **Core:**
+  - Added optional support for max_execution_time in ZTS/Linux builds (Kévin Dunglas)
+  - Fixed use-after-free in recursive AST evaluation.
+  - Fixed bug [GH-8646](https://github.com/php/php-src/issues/8646) (Memory leak PHP FPM 8.1).
+  - Re-add some CTE functions that were removed from being CTE by a mistake.
+  - Remove CTE flag from array_diff_ukey(), which was added by mistake.
+  - Fixed bug [GH-10801](https://github.com/php/php-src/issues/10801) (Named arguments in CTE functions cause a segfault).
+  - Fixed bug [GH-8789](https://github.com/php/php-src/issues/8789) (PHP 8.0.20 (ZTS) zend_signal_handler_defer crashes on apache).
+  - Fixed bug [GH-10015](https://github.com/php/php-src/issues/10015) (zend_signal_handler_defer crashes on apache shutdown).
+  - Fixed bug [GH-10810](https://github.com/php/php-src/issues/10810) (Fix NUL byte terminating Exception::__toString()).
+  - Fix potential memory corruption when mixing __callStatic() and FFI.
+- **Date:**
+  - Fixed bug [GH-10747](https://github.com/php/php-src/issues/10747) (Private and protected properties in serialized Date* objects throw).
+- **FPM:**
+  - Fixed bug [GH-10611](https://github.com/php/php-src/issues/10611) (fpm_env_init_main leaks environ).
+  - Destroy file_handle in fpm_main.
+  - Fixed bug [#74129](https://bugs.php.net/74129) (Incorrect SCRIPT_NAME with apache ProxyPassMatch when spaces are in path).
+- **FTP:**
+  - Propagate success status of ftp_close().
+  - Fixed bug [GH-10521](https://github.com/php/php-src/issues/10521) (ftp_get/ftp_nb_get resumepos offset is maximum 10GB).
+- **IMAP:**
+  - Fix build failure with Clang 16.
+- **MySQLnd:**
+  - Fixed bug [GH-8979](https://github.com/php/php-src/issues/8979) (Possible Memory Leak with SSL-enabled MySQL connections).
+- **Opcache:**
+  - Fixed build for macOS to cater with pkg-config settings.
+  - Fixed bug [GH-8065](https://github.com/php/php-src/issues/8065) (opcache.consistency_checks > 0 causes segfaults in PHP >= 8.1.5 in fpm context).
+- **OpenSSL:**
+  - Add missing error checks on file writing functions.
+- **PDO Firebird:**
+  - Fixed bug [GH-10908](https://github.com/php/php-src/issues/10908) (Bus error with PDO Firebird on RPI with 64 bit kernel and 32 bit userland).
+- **Phar:**
+  - Fixed bug [GH-10766](https://github.com/php/php-src/issues/10766) (PharData archive created with Phar::Zip format does not keep files metadata (datetime)).
+  - Add missing error checks on EVP_MD_CTX_create() and EVP_VerifyInit().
+- **PDO ODBC:**
+  - Fixed missing and inconsistent error checks on SQLAllocHandle.
+- **PGSQL:**
+  - Fixed typo in the array returned from pg_meta_data (extended mode).
+- **SPL:**
+  - Fixed bug [GH-10519](https://github.com/php/php-src/issues/10519) (Array Data Address Reference Issue).
+  - Fixed bug [GH-10907](https://github.com/php/php-src/issues/10907) (Unable to serialize processed SplFixedArrays in PHP 8.2.4).
+  - Fixed bug [GH-10844](https://github.com/php/php-src/issues/10844) (ArrayIterator allows modification of readonly props).
+- **Standard:**
+  - Fixed bug [GH-10885](https://github.com/php/php-src/issues/10885) (stream_socket_server context leaks).
+  - Fixed bug [GH-10052](https://github.com/php/php-src/issues/10052) (Browscap crashes PHP 8.1.12 on request shutdown (apache2)).
+  - Fixed oss-fuzz #57392 (Buffer-overflow in php_fgetcsv() with \0 delimiter and enclosure).
+  - Fixed undefined behaviour in unpack().
+
+## 8.2.4 – 2023-03-16
+
+- **Core:**
+  - Fixed incorrect check condition in ZEND_YIELD.
+  - Fixed incorrect check condition in type inference.
+  - Fix incorrect check in zend_internal_call_should_throw().
+  - Fixed overflow check in OnUpdateMemoryConsumption.
+  - Fixed bug [GH-9916](https://github.com/php/php-src/issues/9916) (Entering shutdown sequence with a fiber suspended in a Generator emits an unavoidable fatal error or crashes).
+  - Fixed bug [GH-10437](https://github.com/php/php-src/issues/10437) (Segfault/assertion when using fibers in shutdown function after bailout).
+  - Fixed SSA object type update for compound assignment opcodes.
+  - Fixed language scanner generation build.
+  - Fixed zend_update_static_property() calling zend_update_static_property_ex() misleadingly with the wrong return type.
+  - Fix bug [GH-10570](https://github.com/php/php-src/issues/10570) (Fixed unknown string hash on property fetch with integer constant name).
+  - Fixed php_fopen_primary_script() call resulted on zend_destroy_file_handle() freeing dangling pointers on the handle as it was uninitialized.
+- **Curl:**
+  - Fixed deprecation warning at compile time.
+  - Fixed bug [GH-10270](https://github.com/php/php-src/issues/10270) (Unable to return CURL_READFUNC_PAUSE in readfunc callback).
+- **Date:**
+  - Fix [GH-10447](https://github.com/php/php-src/issues/10447) ('p' format specifier does not yield 'Z' for 00:00).
+  - Fix [GH-10152](https://github.com/php/php-src/issues/10152) (Custom properties of Date's child classes are not serialised).
+  - Fixed bug [GH-10747](https://github.com/php/php-src/issues/10747) (Private and protected properties in serialized Date* objects throw).
+- **FFI:**
+  - Fixed incorrect bitshifting and masking in ffi bitfield.
+- **Fiber:**
+  - Fixed assembly on alpine x86.
+  - Fixed bug [GH-10496](https://github.com/php/php-src/issues/10496) (segfault when garbage collector is invoked inside of fiber).
+- **FPM:**
+  - Fixed bug [GH-10315](https://github.com/php/php-src/issues/10315) (FPM unknown child alert not valid).
+  - Fixed bug [GH-10385](https://github.com/php/php-src/issues/10385) (FPM successful config test early exit).
+- **GMP:**
+  - Properly implement GMP::__construct().
+- **Intl:**
+  - Fixed bug [GH-10647](https://github.com/php/php-src/issues/10647) (Spoolchecker isSuspicious/areConfusable methods error code's argument always returning NULL0.
+- **JSON:**
+  - Fixed JSON scanner and parser generation build.
+- **MBString:**
+  - ext/mbstring: fix new_value length check.
+  - Fix bug [GH-10627](https://github.com/php/php-src/issues/10627) (mb_convert_encoding crashes PHP on Windows).
+- **Opcache:**
+  - Fix incorrect page_size check.
+- **OpenSSL:**
+  - Fixed php_openssl_set_server_dh_param() DH params errors handling.
+- **PDO OCI:**
+  - Fixed bug [#60994](https://bugs.php.net/60994) (Reading a multibyte CLOB caps at 8192 chars).
+- **PHPDBG:**
+  - Fixed bug [GH-10715](https://github.com/php/php-src/issues/10715) (heap buffer overflow on --run option misuse).
+- **PGSQL:**
+  - Fix [GH-10672](https://github.com/php/php-src/issues/10672) (pg_lo_open segfaults in the strict_types mode).
+- **Phar:**
+  - Fix incorrect check in phar tar parsing.
+- **Random:**
+  - Fix [GH-10390](https://github.com/php/php-src/issues/10390) (Do not trust arc4random_buf() on glibc).
+  - Fix [GH-10292](https://github.com/php/php-src/issues/10292) (Made the default value of the first param of srand() and mt_srand() unknown).
+- **Reflection:**
+  - Fixed bug [GH-10623](https://github.com/php/php-src/issues/10623) (Reflection::getClosureUsedVariables opcode fix with variadic arguments).
+  - Fix Segfault when using ReflectionFiber suspended by an internal function.
+- **Session:**
+  - Fixed ps_files_cleanup_dir() on failure code paths with -1 instead of 0 as the latter was considered success by callers. (nielsdos).
+- **Standard:**
+  - Fixed bug [GH-8086](https://github.com/php/php-src/issues/8086) (Introduce mail.mixed_lf_and_crlf INI).
+  - Fixed bug [GH-10292](https://github.com/php/php-src/issues/10292) (Made the default value of the first param of srand() and mt_srand() unknown).
+  - Fix incorrect check in cs_8559_5 in map_from_unicode().
+  - Fix bug [GH-9697](https://github.com/php/php-src/issues/9697) for reset/end/next/prev() attempting to move pointer of properties table for certain internal classes such as FFI classes
+  - Fix incorrect error check in browsecap for pcre2_match().
+- **Streams:**
+  - Fixed bug [GH-10370](https://github.com/php/php-src/issues/10370) (File corruption in _php_stream_copy_to_stream_ex when using copy_file_range).
+  - Fixed bug [GH-10548](https://github.com/php/php-src/issues/10548) (copy() fails on cifs mounts because of incorrect copy_file_range() len).
+- **Tidy:**
+  - Fix memory leaks when attempting to open a non-existing file or a file over 4GB.
+  - Add missing error check on tidyLoadConfig.
+- **Zlib:**
+  - Fixed output_handler directive value's length which counted the string terminator.
+
+## 8.2.3 – 2023-02-14 (Security Release)
+
+- **Core:**
+  - Fixed bug [#81744](https://bugs.php.net/81744) (Password_verify() always return true with some hash). (CVE-2023-0567)
+  - Fixed bug [#81746](https://bugs.php.net/81746) (1-byte array overrun in common path resolve code). (CVE-2023-0568)
+- **SAPI:**
+  - Fixed bug GHSA-54hq-v5wp-fqgv (DOS vulnerability when parsing multipart request body). (CVE-2023-0662)
+
+## 8.2.2 – 2023-02-02
+
+- **Core:**
+  - Fixed bug [GH-10200](https://github.com/php/php-src/issues/10200) (zif_get_object_vars: Assertion `!(((__ht)->u.flags & (1<<2)) != 0)' failed).
+  - Fix [GH-10251](https://github.com/php/php-src/issues/10251) (Assertion `(flag & (1<<3)) == 0' failed).
+  - Fix [GH-10240](https://github.com/php/php-src/issues/10240) (Assertion failure when adding more than 2**30 elements to an unpacked array).
+  - Fix [GH-9735](https://github.com/php/php-src/issues/9735) (Fiber stack variables do not participate in cycle collector).
+  - Fix [GH-9675](https://github.com/php/php-src/issues/9675) (Broken run_time_cache init for internal enum methods).
+- **FPM:**
+  - Fixed bug [#77106](https://bugs.php.net/77106) (Missing separator in FPM FastCGI errors).
+  - Fixed bug [GH-9981](https://github.com/php/php-src/issues/9981) (FPM does not reset fastcgi.error_header).
+  - Fixed bug [#68591](https://bugs.php.net/68591) (Configuration test does not perform UID lookups).
+  - Fixed memory leak when running FPM config test.
+  - Fixed bug [#67244](https://bugs.php.net/67244) (Wrong owner:group for listening unix socket).
+- **Hash:**
+  - Handle exceptions from __toString in XXH3's initialization (nielsdos)
+- **LDAP:**
+  - Fixed bug [GH-10112](https://github.com/php/php-src/issues/10112) (LDAP\Connection::__construct() refers to ldap_create()).
+- **Opcache:**
+  - Fix inverted bailout value in zend_runtime_jit() (Max Kellermann).
+  - Fix access to uninitialized variable in accel_preload().
+  - Fix zend_jit_find_trace() crashes.
+  - Added missing lock for EXIT_INVALIDATE in zend_jit_trace_exit.
+- **Phar:**
+  - Fix wrong flags check for compression method in phar_object.c (nielsdos)
+- **PHPDBG:**
+  - Fix undefined behaviour in phpdbg_load_module_or_extension().
+  - Fix NULL pointer dereference in phpdbg_create_conditional_breal().
+  - Fix [GH-9710](https://github.com/php/php-src/issues/9710): phpdbg memory leaks by option "-h" (nielsdos)
+  - Fix phpdbg segmentation fault in case of malformed input (nielsdos)
+- **Posix:**
+  - Fix memory leak in posix_ttyname() (girgias)
+- **Random:**
+  - Fixed bug [GH-10247](https://github.com/php/php-src/issues/10247) (Theoretical file descriptor leak for /dev/urandom).
+- **Standard:**
+  - Fix [GH-10187](https://github.com/php/php-src/issues/10187) (Segfault in stripslashes() with arm64).
+  - Fixed bug [GH-10214](https://github.com/php/php-src/issues/10214) (Incomplete validation of object syntax during unserialize()).
+  - Fix substr_replace with slots in repl_ht being UNDEF.
+- **XMLWriter:**
+  - Fix missing check for xmlTextWriterEndElement (nielsdos)
+
+## 8.2.1 – 2023-01-05 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-9905](https://github.com/php/php-src/issues/9905) (constant() behaves inconsistent when class is undefined).
+  - Fixed bug [GH-9918](https://github.com/php/php-src/issues/9918) (License information for xxHash is not included in README.REDIST.BINS file).
+  - Fixed bug [GH-9890](https://github.com/php/php-src/issues/9890) (OpenSSL legacy providers not available on Windows).
+  - Fixed bug [GH-9650](https://github.com/php/php-src/issues/9650) (Can't initialize heap: [0x000001e7]).
+  - Fixed potentially undefined behavior in Windows ftok(3) emulation.
+  - Fixed [GH-9769](https://github.com/php/php-src/issues/9769) (Misleading error message for unpacking of objects).
+- **Apache:**
+  - Fixed bug [GH-9949](https://github.com/php/php-src/issues/9949) (Partial content on incomplete POST request).
+- **FPM:**
+  - Fixed bug [GH-9959](https://github.com/php/php-src/issues/9959) (Solaris port event mechanism is still broken after bug #66694).
+  - Fixed bug [#68207](https://bugs.php.net/68207) (Setting fastcgi.error_header can result in a WARNING).
+  - Fixed bug [#80669](https://bugs.php.net/80669) (FPM numeric user fails to set groups).
+  - Fixed bug [GH-8517](https://github.com/php/php-src/issues/8517) (Random crash of FPM master process in fpm_stdio_child_said).
+- **Imap:**
+  - Fixed bug [GH-10051](https://github.com/php/php-src/issues/10051) (IMAP: there's no way to check if a IMAP\Connection is still open).
+- **MBString:**
+  - Fixed bug [GH-9535](https://github.com/php/php-src/issues/9535) (The behavior of mb_strcut in mbstring has been changed in PHP8.1).
+- **Opcache:**
+  - Fixed bug [GH-9968](https://github.com/php/php-src/issues/9968) (Segmentation Fault during OPCache Preload).
+- **OpenSSL:**
+  - Fixed bug [GH-9997](https://github.com/php/php-src/issues/9997) (OpenSSL engine clean up segfault).
+  - Fixed bug [GH-9064](https://github.com/php/php-src/issues/9064) (PHP fails to build if openssl was built with --no-ec).
+  - Fixed bug [GH-10000](https://github.com/php/php-src/issues/10000) (OpenSSL test failures when OpenSSL compiled with no-dsa).
+- **Pcntl:**
+  - Fixed bug [GH-9298](https://github.com/php/php-src/issues/9298) (Signal handler called after rshutdown leads to crash).
+- **PDO_Firebird:**
+  - Fixed bug [GH-9971](https://github.com/php/php-src/issues/9971) (Incorrect NUMERIC value returned from PDO_Firebird).
+- **PDO/SQLite:**
+  - Fixed bug [#81740](https://bugs.php.net/81740) (PDO::quote() may return unquoted string). (CVE-2022-31631)
+- **Session:**
+  - Fixed [GH-9932](https://github.com/php/php-src/issues/9932) (session name silently fails with . and [).
+- **SPL:**
+  - Fixed [GH-9883](https://github.com/php/php-src/issues/9883) (SplFileObject::__toString() reads next line).
+  - Fixed [GH-10011](https://github.com/php/php-src/issues/10011) (Trampoline autoloader will get reregistered and cannot be unregistered).
+- **SQLite3:**
+  - Fixed bug [#81742](https://bugs.php.net/81742) (open_basedir bypass in SQLite3 by using file URI).
+- **TSRM:**
+  - Fixed Windows shmget() wrt. IPC_PRIVATE.
+
+## 8.2.0 – 2022-12-08
+
+- **CLI:**
+  - Fixed bug [#81496](https://bugs.php.net/81496) (Server logs incorrect request method).
+  - Updated the mime-type table for the builtin-server.
+  - Fixed potential overflow for the builtin server via the PHP_CLI_SERVER_WORKERS environment variable.
+  - Fixed [GH-8575](https://github.com/php/php-src/issues/8575) by changing STDOUT, STDERR and STDIN to not close on resource destruction.
+  - Implement built-in web server responding without body to HEAD request on a static resource.
+  - Implement built-in web server responding with HTTP status 405 to DELETE/PUT/PATCH request on a static resource.
+  - Fixed bug [GH-9709](https://github.com/php/php-src/issues/9709) (Null pointer dereference with -w/-s options).
+- **COM:**
+  - Fixed bug [GH-8750](https://github.com/php/php-src/issues/8750) (Can not create VT_ERROR variant type).
+- **Core:**
+  - Fixed bug [#81380](https://bugs.php.net/81380) (Observer may not be initialized properly).
+  - Fixed bug [GH-7771](https://github.com/php/php-src/issues/7771) (Fix filename/lineno of constant expressions).
+  - Fixed bug [GH-7792](https://github.com/php/php-src/issues/7792) (Improve class type in error messages).
+  - Support huge pages on MacOS.
+  - Fixed bug [GH-8655](https://github.com/php/php-src/issues/8655) (Casting an object to array does not unwrap refcount=1 references).
+  - Fixed bug [GH-8661](https://github.com/php/php-src/issues/8661) (Nullsafe in coalesce triggers undefined variable warning).
+  - Fixed bug [GH-7821](https://github.com/php/php-src/issues/7821) and [GH-8418](https://github.com/php/php-src/issues/8418) (Allow arbitrary const expressions in backed enums).
+  - Fixed bug [GH-8810](https://github.com/php/php-src/issues/8810) (Incorrect lineno in backtrace of multi-line function calls).
+  - Optimised code path for newly created file with the stream plain wrapper.
+  - Uses safe_perealloc instead of perealloc for the ZEND_PTR_STACK_RESIZE_IF_NEEDED to avoid possible overflows.
+  - Reduced the memory footprint of strings returned by var_export(), json_encode(), serialize(), iconv_*(), mb_ereg*(), session_create_id(), http_build_query(), strstr(), Reflection*::__toString().
+  - Fixed bug [GH-8995](https://github.com/php/php-src/issues/8995) (WeakMap object reference offset causing TypeError).
+  - Added error_log_mode ini setting.
+  - Updated request startup messages.
+  - Fixed bug [GH-7900](https://github.com/php/php-src/issues/7900) (Arrow function with never return type compile-time errors).
+  - Fixed incorrect double to long casting in latest clang.
+  - Added support for defining constants in traits.
+  - Stop incorrectly emitting false positive deprecation notice alongside unsupported syntax fatal error for `"{$g{'h'}}"`.
+  - Fix unexpected deprecated dynamic property warning, which occurred when exit() in finally block after an exception was thrown without catching.
+  - Fixed bug [GH-9323](https://github.com/php/php-src/issues/9323) (Crash in ZEND_RETURN/GC/zend_call_function) (Tim Starling)
+  - Fixed bug [GH-9227](https://github.com/php/php-src/issues/9227) (Trailing dots and spaces in filenames are ignored).
+  - Fixed bug [GH-9285](https://github.com/php/php-src/issues/9285) (Traits cannot be used in readonly classes).
+  - Fixed bug [GH-9186](https://github.com/php/php-src/issues/9186) (@strict-properties can be bypassed using unserialization).
+  - Fixed bug [GH-9500](https://github.com/php/php-src/issues/9500) (Using dnf type with parentheses after readonly keyword results in a parse error).
+  - Fixed bug [GH-9516](https://github.com/php/php-src/issues/9516) ((A&B)|D as a param should allow AB or D. Not just A).
+  - Fixed observer class notify with Opcache file_cache_only=1.
+  - Fixes segfault with Fiber on FreeBSD i386 architecture.
+  - Fixed bug [GH-9655](https://github.com/php/php-src/issues/9655) (Pure intersection types cannot be implicitly nullable) (Girgias)
+  - Fixed bug [GH-9589](https://github.com/php/php-src/issues/9589) (dl() segfaults when module is already loaded).
+  - Fixed bug [GH-9752](https://github.com/php/php-src/issues/9752) (Generator crashes when interrupted during argument evaluation with extra named params).
+  - Fixed bug [GH-9801](https://github.com/php/php-src/issues/9801) (Generator crashes when memory limit is exceeded during initialization).
+  - Fixed a bug with preloaded enums possibly segfaulting.
+  - Fixed bug [GH-9823](https://github.com/php/php-src/issues/9823) (Don’t reset func in zend_closure_internal_handler).
+  - Fixed potential NULL pointer dereference Windows shm*() functions.
+  - Fix target validation for internal attributes with constructor property promotion.
+  - Fixed bug [GH-9750](https://github.com/php/php-src/issues/9750) (Generator memory leak when interrupted during argument evaluation.
+  - Move observer_declared_function_notify until after pass_two().
+  - Do not report MINIT stage internal class aliases in extensions.
+- **Curl:**
+  - Added support for CURLOPT_XFERINFOFUNCTION.
+  - Added support for CURLOPT_MAXFILESIZE_LARGE.
+  - Added new constants from cURL 7.62 to 7.80.
+  - New function curl_upkeep().
+- **Date:**
+  - Fixed [GH-8458](https://github.com/php/php-src/issues/8458) (DateInterval::createFromDateString does not throw if non-relative items are present).
+  - Fixed bug [#52015](https://bugs.php.net/52015) (Allow including end date in DatePeriod iterations) (Daniel Egeberg, Derick)
+  - idate() now accepts format specifiers "N" (ISO Day-of-Week) and "o" (ISO Year).
+  - Fixed bug [GH-8730](https://github.com/php/php-src/issues/8730) (DateTime::diff miscalculation is same time zone of different type).
+  - Fixed bug [GH-8964](https://github.com/php/php-src/issues/8964) (DateTime object comparison after applying delta less than 1 second).
+  - Fixed bug [GH-9106](https://github.com/php/php-src/issues/9106) (DateInterval 1.5s added to DateTimeInterface is rounded down since PHP 8.1.0).
+  - Fixed bug [#75035](https://bugs.php.net/75035) (Datetime fails to unserialize "extreme" dates).
+  - Fixed bug [#80483](https://bugs.php.net/80483) (DateTime Object with 5-digit year can't unserialized).
+  - Fixed bug [#81263](https://bugs.php.net/81263) (Wrong result from DateTimeImmutable::diff).
+  - Fixed bug [GH-9431](https://github.com/php/php-src/issues/9431) (DateTime::getLastErrors() not returning false when no errors/warnings).
+  - Fixed bug with parsing large negative numbers with the @ notation.
+- **DBA:**
+  - Fixed LMDB driver hanging when attempting to delete a non-existing key (Girgias)
+  - Fixed LMDB driver memory leak on DB creation failure (Girgias)
+  - Fixed [GH-8856](https://github.com/php/php-src/issues/8856) (dba: lmdb: allow to override the MDB_NOSUBDIR flag).
+- **FFI:**
+  - Fixed bug [GH-9090](https://github.com/php/php-src/issues/9090) (Support assigning function pointers in FFI).
+- **Fileinfo:**
+  - Fixed bug [GH-8805](https://github.com/php/php-src/issues/8805) (finfo returns wrong mime type for woff/woff2 files).
+- **Filter:**
+  - Added FILTER_FLAG_GLOBAL_RANGE to filter Global IPs.
+- **FPM:**
+  - Emit error for invalid port setting.
+  - Added extra check for FPM proc dumpable on SELinux based systems.
+  - Added support for listening queue on macOS.
+  - Changed default for listen.backlog on Linux to -1.
+  - Added listen.setfib pool option to set route FIB on FreeBSD.
+  - Added access.suppress_path pool option to filter access log entries.
+  - Fixed on fpm scoreboard occasional warning on acquisition failure.
+  - Fixed bug [GH-9754](https://github.com/php/php-src/issues/9754) (SaltStack (using Python subprocess) hangs when running php-fpm 8.1.11).
+- **FTP:**
+  - Fix datetime format string to follow POSIX spec in ftp_mdtm().
+- **GD:**
+  - Fixed bug [#81739](https://bugs.php.net/81739): OOB read due to insufficient input validation in imageloadfont(). (CVE-2022-31630)
+- **GMP:**
+  - Fixed bug [GH-9308](https://github.com/php/php-src/issues/9308) (GMP throws the wrong error when a GMP object is passed to gmp_init()).
+- **Hash:**
+  - Fixed bug [#81738](https://bugs.php.net/81738): buffer overflow in hash_update() on long parameter. (CVE-2022-37454)
+- **Intl:**
+  - Update all grandfathered language tags with preferred values
+  - Fixed [GH-7939](https://github.com/php/php-src/issues/7939) (Cannot unserialize IntlTimeZone objects).
+  - Fixed build for ICU 69.x and onwards.
+  - Declared Transliterator::$id as readonly to unlock subclassing it.
+  - Fixed bug [GH-9421](https://github.com/php/php-src/issues/9421) (Incorrect argument number for ValueError in NumberFormatter).
+- **MBString:**
+  - Fixed bug [GH-9248](https://github.com/php/php-src/issues/9248) (Segmentation fault in mb_strimwidth()).
+- **mysqli:**
+  - Fixed bug [GH-9841](https://github.com/php/php-src/issues/9841) (mysqli_query throws warning despite using silenced error mode).
+- **MySQLnd:**
+  - Fixed potential heap corruption due to alignment mismatch.
+- **OCI8:**
+  - Added oci8.prefetch_lob_size directive to tune LOB query performance
+  - Support for building against Oracle Client libraries 10.1 and 10.2 has been dropped. Oracle Client libraries 11.2 or newer are now required.
+- **ODBC:**
+  - Fixed bug [GH-8300](https://github.com/php/php-src/issues/8300) (User input not escaped when building connection string).
+  - Fixed bug [GH-9347](https://github.com/php/php-src/issues/9347) (Current ODBC liveness checks may be inadequate).
+- **Opcache:**
+  - Allocate JIT buffer close to PHP .text segemnt to allow using direct IP-relative calls and jumps.
+  - Added initial support for JIT performance profiling generation for macOs Instrument.
+  - Fixed bug [GH-8030](https://github.com/php/php-src/issues/8030) (Segfault with JIT and large match/switch statements).
+  - Added JIT support improvement for macOs for segments and executable permission bit handling.
+  - Added JIT buffer allocation near the .text section on FreeNSD.
+  - Fixed bug [GH-9371](https://github.com/php/php-src/issues/9371) (Crash with JIT on mac arm64) (jdp1024/David Carlier)
+  - Fixed bug [GH-9259](https://github.com/php/php-src/issues/9259) (opcache.interned_strings_buffer setting integer overflow).
+  - Added indirect call reduction for jit on x86 architectures.
+  - Fixed bug [GH-9164](https://github.com/php/php-src/issues/9164) (Segfault in zend_accel_class_hash_copy).
+  - Fix opcache preload with observers enabled.
+- **OpenSSL:**
+  - Discard poll calls on socket when no timeout/non blocking/MSG_DONTWAIT.
+  - Fixed bug [GH-9310](https://github.com/php/php-src/issues/9310) (SSL local_cert and local_pk do not respect open_basedir).
+  - Implement FR #76935 ("chacha20-poly1305" is an AEAD but does not work like AEAD).
+  - Added openssl_cipher_key_length function.
+  - Fixed bug [GH-9517](https://github.com/php/php-src/issues/9517) (Compilation error openssl extension related to PR [GH-9366](https://github.com/php/php-src/issues/9366)).
+  - Fixed missing clean up of OpenSSL engine list - attempt to fix [GH-8620](https://github.com/php/php-src/issues/8620).
+  - Fixed bug [GH-8430](https://github.com/php/php-src/issues/8430) (OpenSSL compiled with no-md2, no-md4 or no-rmd160 does not build).
+- **PCNTL:**
+  - Fixed pcntl_(get|set)priority error handling for MacOS.
+- **PCRE:**
+  - Implemented FR [#77726](https://bugs.php.net/77726) (Allow null character in regex patterns).
+  - Updated bundled libpcre to 10.40.
+- **PDO:**
+  - Fixed bug [GH-9818](https://github.com/php/php-src/issues/9818) (Initialize run time cache in PDO methods).
+- **PDO_Firebird:**
+  - Fixed bug [GH-8576](https://github.com/php/php-src/issues/8576) (Bad interpretation of length when char is UTF-8).
+- **PDO_ODBC:**
+  - Fixed bug [#80909](https://bugs.php.net/80909) (crash with persistent connections in PDO_ODBC).
+  - Fixed bug [GH-8300](https://github.com/php/php-src/issues/8300) (User input not escaped when building connection string).
+  - Fixed bug [GH-9347](https://github.com/php/php-src/issues/9347) (Current ODBC liveness checks may be inadequate).
+  - Fixed bug [GH-9372](https://github.com/php/php-src/issues/9372) (HY010 when binding overlong parameter).
+- **PDO_PGSQL:**
+  - Fixed bug [GH-9411](https://github.com/php/php-src/issues/9411) (PgSQL large object resource is incorrectly closed).
+- **Random:**
+  - Added new random extension.
+  - Fixed bug [GH-9067](https://github.com/php/php-src/issues/9067) (random extension is not thread safe).
+  - Fixed bug [GH-9055](https://github.com/php/php-src/issues/9055) (segmentation fault if user engine throws).
+  - Fixed bug [GH-9066](https://github.com/php/php-src/issues/9066) (signed integer overflow).
+  - Fixed bug [GH-9083](https://github.com/php/php-src/issues/9083) (undefined behavior during shifting).
+  - Fixed bug [GH-9088](https://github.com/php/php-src/issues/9088), [GH-9056](https://github.com/php/php-src/issues/9056) (incorrect expansion of bytes when generating uniform integers within a given range).
+  - Fixed bug [GH-9089](https://github.com/php/php-src/issues/9089) (Fix memory leak on Randomizer::__construct() call twice).
+  - Fixed bug [GH-9212](https://github.com/php/php-src/issues/9212) (PcgOneseq128XslRr64::jump() should not allow negative $advance).
+  - Changed Mt19937 to throw a ValueError instead of InvalidArgumentException for invalid $mode.
+  - Splitted Random\Randomizer::getInt() (without arguments) to Random\Randomizer::nextInt().
+  - Fixed bug [GH-9235](https://github.com/php/php-src/issues/9235) (non-existant $sequence parameter in stub for PcgOneseq128XslRr64::__construct()).
+  - Fixed bug [GH-9190](https://github.com/php/php-src/issues/9190), [GH-9191](https://github.com/php/php-src/issues/9191) (undefined behavior for MT_RAND_PHP when handling large ranges).
+  - Fixed bug [GH-9249](https://github.com/php/php-src/issues/9249) (Xoshiro256StarStar does not reject the invalid all-zero state).
+  - Removed redundant RuntimeExceptions from Randomizer methods. The exceptions thrown by the engines will be exposed directly.
+  - Added extension specific Exceptions/Errors (RandomException, RandomError, BrokenRandomEngineError).
+  - Fixed bug [GH-9415](https://github.com/php/php-src/issues/9415) (Randomizer::getInt(0, 2**32 - 1) with Mt19937 always returns 1).
+  - Fixed Randomizer::getInt() consistency for 32-bit engines.
+  - Fixed bug [GH-9464](https://github.com/php/php-src/issues/9464) (build on older macOs releases).
+  - Fixed bug [GH-9839](https://github.com/php/php-src/issues/9839) (Pre-PHP 8.2 output compatibility for non-mt_rand() functions for MT_RAND_PHP).
+- **Reflection:**
+  - Added ReflectionFunction::isAnonymous().
+  - Added ReflectionMethod::hasPrototype().
+  - Narrow ReflectionEnum::getBackingType() return type to ReflectionNamedType.
+  - Fixed bug [GH-8932](https://github.com/php/php-src/issues/8932) (ReflectionFunction provides no way to get the called class of a Closure).
+- **Session:**
+  - Fixed bug [GH-7787](https://github.com/php/php-src/issues/7787) (Improve session write failure message for user error handlers).
+  - Fixed [GH-9200](https://github.com/php/php-src/issues/9200) (setcookie has an obsolete expires date format).
+  - Fixed [GH-9584](https://github.com/php/php-src/issues/9584) (Avoid memory corruption when not unregistering custom session handler).
+  - Fixed bug [GH-9583](https://github.com/php/php-src/issues/9583) (session_create_id() fails with user defined save handler that doesn't have a validateId() method).
+- **SOAP:**
+  - Fixed bug [GH-9720](https://github.com/php/php-src/issues/9720) (Null pointer dereference while serializing the response).
+- **Sockets:**
+  - Added TCP_NOTSENT_LOWAT socket option.
+  - Added SO_MEMINFO socket option.
+  - Added SO_RTABLE socket option (OpenBSD), equivalent of SO_MARK (Linux).
+  - Added TCP_KEEPALIVE, TCP_KEEPIDLE, TCP_KEEPINTVL, TCP_KEEPCNT socket options.
+  - Added ancillary data support for FreeBSD.
+  - Added ancillary data support for NetBSD.
+  - Added SO_BPF_EXTENSIONS socket option.
+  - Added SO_SETFIB socket option.
+  - Added TCP_CONGESTION socket option.
+  - Added SO_ZEROCOPY/MSG_ZEROCOPY options.
+  - Added SOL_FILTER socket option for Solaris.
+  - Fixed socket constants regression as of PHP 8.2.0beta3.
+- **Sodium:**
+  - Added sodium_crypto_stream_xchacha20_xor_ic().
+- **SPL:**
+  - Uses safe_erealloc instead of erealloc to handle heap growth for the SplHeap::insert method to avoid possible overflows.
+  - Widen iterator_to_array() and iterator_count()'s $iterator parameter to iterable.
+  - Fixed bug [#69181](https://bugs.php.net/69181) (READ_CSV|DROP_NEW_LINE drops newlines within fields).
+  - Fixed bug [#65069](https://bugs.php.net/65069) (GlobIterator incorrect handling of open_basedir check).
+- **SQLite3:**
+  - Changed sqlite3.defensive from PHP_INI_SYSTEM to PHP_INI_USER.
+- **Standard:**
+  - net_get_interfaces() also reports wireless network interfaces on Windows.
+  - Finished AVIF support in getimagesize().
+  - Fixed bug [GH-7847](https://github.com/php/php-src/issues/7847) (stripos with large haystack has bad performance).
+  - New function memory_reset_peak_usage().
+  - Fixed parse_url(): can not recognize port without scheme.
+  - Deprecated utf8_encode() and utf8_decode().
+  - Fixed the crypt_sha256/512 api build with clang > 12.
+  - Uses safe_erealloc instead of erealloc to handle options in getopt to avoid possible overflows.
+  - Implemented FR [GH-8924](https://github.com/php/php-src/issues/8924) (str_split should return empty array for empty string).
+  - Added ini_parse_quantity function to convert ini quantities shorthand notation to int.
+  - Enable arc4random_buf for Linux glibc 2.36 and onwards for the random_bytes.
+  - Uses CCRandomGenerateBytes instead of arc4random_buf on macOs. (David Carlier).
+  - Fixed bug [#65489](https://bugs.php.net/65489) (glob() basedir check is inconsistent).
+  - Fixed [GH-9200](https://github.com/php/php-src/issues/9200) (setcookie has an obsolete expires date format).
+  - Fixed [GH-9244](https://github.com/php/php-src/issues/9244) (Segfault with array_multisort + array_shift).
+  - Fixed bug [GH-9296](https://github.com/php/php-src/issues/9296) (`ksort` behaves incorrectly on arrays with mixed keys).
+  - Marked crypt()'s $string parameter as #[\SensitiveParameter].
+  - Fixed bug [GH-9464](https://github.com/php/php-src/issues/9464) (build on older macOs releases).
+  - Fixed bug [GH-9518](https://github.com/php/php-src/issues/9518) (Disabling IPv6 support disables unrelated constants).
+  - Revert "Fixed parse_url(): can not recognize port without scheme." (andypost)
+  - Fix crash reading module_entry after DL_UNLOAD() when module already loaded.
+- **Streams:**
+  - Set IP_BIND_ADDRESS_NO_PORT if available when connecting to remote host.
+  - Fixed bug [GH-8548](https://github.com/php/php-src/issues/8548) (stream_wrapper_unregister() leaks memory).
+  - Discard poll calls on socket when no timeout/non blocking/MSG_DONTWAIT.
+  - Fixed bug [GH-9316](https://github.com/php/php-src/issues/9316) ($http_response_header is wrong for long status line).
+  - Fixed bug [GH-9590](https://github.com/php/php-src/issues/9590) (stream_select does not abort upon exception or empty valid fd set).
+  - Fixed bug [GH-9653](https://github.com/php/php-src/issues/9653) (file copy between different filesystems).
+  - Fixed bug [GH-9779](https://github.com/php/php-src/issues/9779) (stream_copy_to_stream fails if dest in append mode).
+- **Windows:**
+  - Added preliminary support for (cross-)building for ARM64.
+- **XML:**
+  - Added libxml_get_external_entity_loader() function.
+- **Zip:**
+  - add ZipArchive::clearError() method
+  - add ZipArchive::getStreamName() method
+  - add ZipArchive::getStreamIndex() method
+  - On Windows, the Zip extension is now built as shared library (DLL) by default.
+  - Implement fseek for zip stream when possible with libzip 1.9.1.
