@@ -6,7 +6,7 @@ NewsBot überwacht konfigurierbare Webseiten auf neue Versionen bzw.
 Änderungen und benachrichtigt per E-Mail. Reine Python-Standardbibliothek,
 plattformübergreifend (Windows/Linux/macOS), keine externen Abhängigkeiten.
 
-**Aktuelle Version: 1.23.0** (siehe `__version__` in `newsbot.py`)
+**Aktuelle Version: 1.24.0** (siehe `__version__` in `newsbot.py`)
 
 ## Projektstruktur
 
@@ -94,6 +94,35 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 ```
 
 ## Changelog
+
+### 1.24.0 – 2026-11-05
+
+**Feature: MeshCore-Modul (Firmware-Releases + Blog).**
+
+- `sites/meshcore.py` (neu): überwacht neue MeshCore-Firmware
+  über zwei Quellen:
+  - GitHub-Releases-API `ripplebiz/MeshCore`: drei Tag-Familien
+    `companion-vX.Y.Z` / `repeater-vX.Y.Z` / `room-server-vX.Y.Z`.
+    `extract()` kombiniert die jeweils neueste Version je Familie
+    (`companion=1.18.0;repeater=1.18.0;room-server=1.18.0`) - ein
+    neues Release in einer Variante löst eine Mail aus.
+  - `blog.meshcore.io/feed.xml` (Jekyll-Atom): Release-Posts
+    (Slug `release-X-Y-Z`) werden dem Versionsabschnitt
+    zugeordnet; sonstige Posts landen als `## Blog: <titel>`-
+    Abschnitt im Archiv.
+- `extract_history()`: alle stabilen Releases mit echtem
+  `published_at`-Datum (neueste zuerst).
+- `update_changelog()`: Abschnitte `## <familie>-v<ver> – <datum>`
+  mit GitHub-Release-Body + verlinktem Blog-Post; inkrementell,
+  neue Abschnitte oben nach `archive/meshcore_changelog.md`.
+- Keine Downloads: jedes Release bringt ~150-340 gerätespezifische
+  Binaries mit; NOTES verweist auf https://flasher.meshcore.dev/.
+- `tests/test_sites.py`: `TestMeshCore` - kombiniertes extract(),
+  Familien-Updates, History-Daten, Changelog-Erstlauf/Inkrement,
+  Blog-Abschnitte. `patch` importiert.
+- Betroffene Dateien: `sites/meshcore.py` (neu), `newsbot.py`
+  (Version), `tests/test_sites.py`, `README.md`, `AGENTS.md`.
+- `__version__` auf 1.24.0.
 
 ### 1.23.0 – 2026-10-26
 

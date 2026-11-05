@@ -123,6 +123,7 @@ geloggt und übersprungen, ohne den Lauf abzubrechen.
 | `twitch_drops.py` | Drops-Kampagnen (konfigurierbare Links) | Kampagnen-Start | Zeitraum + Status | – |
 | `veracrypt.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-Installer + sha256 |
 | `anytone_d890uv.py` | neueste FW-Version (2 Quellen) | Versionen | Seiten-Snapshots | alle Dateien |
+| `meshcore.py` | companion/repeater/room-server kombiniert | Releases (Datum) | Release-Notes + Blog-Posts | – (Flasher-Link) |
 
 ## Überwachungsmethoden
 

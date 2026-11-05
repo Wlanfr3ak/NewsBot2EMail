@@ -13,6 +13,7 @@ import unittest
 import urllib.error
 from pathlib import Path
 from unittest import mock
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -1036,6 +1037,82 @@ class TestAnytoneD890UV(unittest.TestCase):
                 self.mod, SOURCES={"https://a/": "q"},
                 _fetch=mock.Mock(return_value=self.FIXTURE)):
             self.assertIsNone(self.mod.update_changelog(out))
+
+
+class TestMeshCore(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("meshcore")
+
+    RELS = [  # (familie, version, datum, body, url)
+        ("room-server", "1.18.0", "2026-10-15", "Notes RS", "https://gh/rs"),
+        ("repeater", "1.18.0", "2026-10-15", "Notes RP", "https://gh/rp"),
+        ("companion", "1.18.0", "2026-10-15", "Notes C", "https://gh/c"),
+        ("room-server", "1.17.1", "2026-08-14", "", "https://gh/rs2"),
+        ("repeater", "1.17.1", "2026-08-14", "", "https://gh/rp2"),
+        ("companion", "1.17.1", "2026-08-14", "", "https://gh/c2"),
+    ]
+    BLOG = [
+        {"title": "Release v1.18.0",
+         "link": "https://blog.meshcore.io/2026/10/15/release-1-18-0",
+         "date": "2026-10-15", "ver": "1.18.0"},
+        {"title": "Neues Feature",
+         "link": "https://blog.meshcore.io/2026/11/01/feature",
+         "date": "2026-11-01", "ver": ""},
+    ]
+
+    def setUp(self):
+        self._rels = patch.object(self.mod, "_releases",
+                                  return_value=list(self.RELS))
+        self._blog = patch.object(self.mod, "_blog_entries",
+                                  return_value=list(self.BLOG))
+        self._rels.start(); self._blog.start()
+        self.addCleanup(self._rels.stop)
+        self.addCleanup(self._blog.stop)
+
+    def test_extract_kombiniert(self):
+        self.assertEqual(
+            self.mod.extract(""),
+            "companion=1.18.0;repeater=1.18.0;room-server=1.18.0")
+
+    def test_extract_neue_version_einer_familie(self):
+        rels = self.RELS + [("repeater", "1.19.0", "2026-11-10",
+                             "", "https://gh/rp3")]
+        with patch.object(self.mod, "_releases",
+                          return_value=rels):
+            self.assertIn("repeater=1.19.0", self.mod.extract(""))
+            self.assertIn("companion=1.18.0", self.mod.extract(""))
+
+    def test_extract_fehler_ohne_releases(self):
+        with patch.object(self.mod, "_releases", return_value=[]):
+            with self.assertRaises(RuntimeError):
+                self.mod.extract("")
+
+    def test_history_mit_datum(self):
+        h = self.mod.extract_history("")
+        self.assertEqual(len(h), 6)
+        self.assertEqual(h[0], {"version": "room-server-v1.18.0",
+                                "date": "2026-10-15"})
+
+    def test_changelog_erstlauf(self):
+        out = self.mod.update_changelog(None)
+        self.assertIn("## companion-v1.18.0 – 2026-10-15", out)
+        self.assertIn("Blog: [Release v1.18.0]", out)
+        self.assertIn("## Blog: Neues Feature", out)
+        # unveraendert -> None
+        self.assertIsNone(self.mod.update_changelog(out))
+
+    def test_changelog_inkrementell(self):
+        out = self.mod.update_changelog(None)
+        self._rels.stop()
+        rels = self.RELS + [("companion", "1.19.0", "2026-11-10",
+                             "Neu", "https://gh/c3")]
+        with patch.object(self.mod, "_releases", return_value=rels):
+            out2 = self.mod.update_changelog(out)
+        self._rels.start()
+        self.assertIn("## companion-v1.19.0 – 2026-11-10", out2)
+        self.assertLess(out2.index("companion-v1.19.0"),
+                        out2.index("companion-v1.18.0"))
 
 
 if __name__ == "__main__":
