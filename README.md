@@ -118,7 +118,7 @@ geloggt und übersprungen, ohne den Lauf abzubrechen.
 | `jellyfin_server.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-x64-Installer |
 | `jellyfin_desktop.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-x64-.exe |
 | `php.py` | 4 Zweige kombiniert (8.5/8.4/8.3/8.2) | echte Daten | ChangeLog-8.php | – |
-| `gitlab.py` | 3 Zweige kombiniert (Top-3 Minors) | Tag-Daten | Release-Notes-Feed | – |
+| `gitlab.py` | 3 Zweige kombiniert (Top-3 Minors, optional nur CVE) | Tag-Daten | Release-Notes-Feed + Patch-Posts | – |
 | `hp_docks.py` | 2 Docks kombiniert (G5 + G6) | echte Daten | Treiberseiten-API | Firmware-.exe |
 | `twitch_drops.py` | Drops-Kampagnen (konfigurierbare Links) | Kampagnen-Start | Zeitraum + Status | – |
 | `veracrypt.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-Installer + sha256 |
@@ -213,6 +213,34 @@ Zwei Module:
 
   Wer nur im Modul arbeiten will: `CHANNELS`/`ARCHIVE_CHANNELS` oben in
   `sites/mikrotik_routeros.py` sind die Defaults, `site_options` hat Vorrang.
+
+## GitLab
+
+Drei Minor-Zweige kombiniert (`BRANCHES` per `site_options` änderbar).
+Zusätzlich gibt es einen CVE-Filter:
+
+```json
+"site_options": {
+  "gitlab": {
+    "branches": 3,
+    "cve_only": true
+  }
+}
+```
+
+- `cve_only` (Default `false`): es wird nur gemeldet, wenn ein neues
+  Release nachweislich Security-Fixes enthält. Erkennung über den
+  Patch-Release-Post der jeweiligen Welle unter
+  `docs.gitlab.com/releases/patches/` – enthält er CVE-Einträge, zählt
+  die Welle. Reine Bugfix-Releases bleiben still; der Wert zeigt je
+  Zweig die neueste CVE-bestätigte Version. Minor-Releases (X.Y.0)
+  zählen immer (sie enthalten alle akkumulierten Fixes).
+- Da die Posts oft erst Stunden nach den Tags online gehen, wird ein
+  noch fehlender Post später erneut geprüft – die Mail kommt dann
+  ggf. etwas später, dafür sauber bestätigt.
+- Das Changelog-Archiv verlinkt bei Patch-Releases den Wellen-Post und
+  listet dessen Security-Fixes (CVE + Severity + Titel) – unabhängig
+  davon, ob `cve_only` aktiv ist.
 
 ## Web-Dashboard
 

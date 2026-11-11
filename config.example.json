@@ -23,6 +23,10 @@
     }
   ],
   "site_options": {
+    "gitlab": {
+      "branches": 3,
+      "cve_only": false
+    },
     "mikrotik_routeros": {
       "channels": [
         "stable"

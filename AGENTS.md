@@ -95,6 +95,73 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 
 ## Changelog
 
+### 1.25.0 – 2026-11-11
+
+**Feature: GitLab-Modul mit optionalem CVE-Filter (`cve_only`);
+Patch-Sektionen im Archiv listen jetzt Security-Fixes.**
+
+- Recherche-Befund zu GitLab-Releases: seit April 2024 sind Patch-
+  und Security-Releases kombiniert (zwei geplante Wellen pro Monat).
+  Jede Welle bekommt genau einen Post unter
+  `docs.gitlab.com/releases/patches/patch-release-gitlab-<hoechste
+  Version der Welle>-released/`. Von 109 untersuchten Posts hatten 26
+  kein CVE (reine Bugfix-Wellen). Zuverlaessiger Marker ist das
+  CVE-Muster `CVE-\d{4}-\d+` im Post - Sektionsnamen variieren
+  ('Security fixes', 'Security update') und Titel ebenso ('Patch
+  Release', 'Critical Patch Release', 'Patch Release and Security
+  Update'). Der Post-Titel listet alle Versionen der Welle.
+- `sites/gitlab.py`:
+  - Neue Option `site_options.gitlab.cve_only` (Default false):
+    `extract()` meldet je Zweig die NEUESTE Version, deren
+    Wellen-Post CVEs enthaelt (`_release_security()`). Reine
+    Bugfix-Releases veraendern den Vergleichswert damit nicht und
+    bleiben still; findet sich im Rueckwaerts-Fenster (`_CVE_SCAN`
+    = 8 Versionen) kein CVE-Release, wird '?' gemeldet.
+    Minor-Releases (X.Y.0) zaehlen immer - sie enthalten alle
+    akkumulierten Fixes des Zweigs.
+  - Wellen-Aufloesung `_post_for()`: Kandidat 1 ist die hoechste am
+    selben Tag getaggte Version (Wellen werden gemeinsam getaggt,
+    Slug = Wellen-Hauptversion), Kandidat 2 die Version selbst;
+    danach Fallback ueber die juengsten Patch-Slugs des Sitemaps
+    (`_sitemap_slugs()`, `_SITEMAP_SCAN` = 8) - noetig, wenn eine
+    Version verspaetet in einer fremden Welle landete (realer Fall:
+    19.3.5 im 19.4.2-Post). Abdeckung wird anhand der Versionsliste
+    im Post-Titel verifiziert.
+  - `_parse_post()` liest Titel, Versionsliste, alle CVE-IDs sowie
+    die Security-Tabelle (CVE aus dem href-Anker, Severity, Titel).
+    Fehlende Posts (404) gelten als 'unbekannt' und werden spaeter
+    erneut geprueft statt als 'kein CVE' durchzugehen; Netzfehler
+    lassen den Check fehlschlagen (Retry naechster Lauf).
+  - Im CVE-Modus traegt die Tags-URL einen Zeitparameter
+    (`&_cve=<unix>`): die Tags-API sendet ETags, und ohne Buster
+    wuerde der 304-Fastpath `extract()` ueberspringen - ein noch
+    fehlender Post koennte sonst bis zum naechsten Tag nicht
+    nachbewertet werden (Module werden pro Zyklus neu geladen).
+    `NOTES` bekommt den Zusatz '(nur CVE-Releases)'.
+  - `update_changelog()` reichert Patch-Sektionen an (gilt fuer
+    beide Modi): Verweis auf den konkreten Wellen-Post statt nur der
+    Uebersicht, bei CVE-Wellen zusaetzlich die Security-Liste
+    '- CVE-… (Severity): Titel'; reine Bugfix-Releases werden als
+    '(nur Bugfixes)' markiert. Post unauffindbar -> bisherige
+    generische Zeile.
+  - `_UA` auf NewsBot/1.25.
+- `tests/test_sites.py`: `TestGitLab` - cve_only: Bugfix-Welle wird
+  uebersprungen (Wert bleibt auf letzter CVE-Version), fehlender Post
+  (404) haelt den Stand, alle-CVE wie Normalmodus, nur-Bugfixes ->
+  '?', Minor .0 zaehlt, Sitemap-Fallback ueber Titel-Versionsliste,
+  `_parse_post()`, Changelog mit Post-Link + Security-Fixes +
+  'nur Bugfixes'. Fixtures: Tags-JSON mit Wellen-Daten + zwei
+  Post-HTMLs (mit/ohne Security-Tabelle); `_fetch` per URL-Router
+  gemockt.
+- `config.example.json`: `site_options.gitlab` mit `branches` +
+  `cve_only` dokumentiert.
+- `README.md`: Modultabelle + neuer Abschnitt 'GitLab' mit
+  `cve_only`-Doku (inkl. Post-Verzoegerungshinweis).
+- Betroffene Dateien: `sites/gitlab.py`, `newsbot.py` (Version),
+  `tests/test_sites.py`, `config.example.json`, `README.md`,
+  `AGENTS.md`.
+- `__version__` auf 1.25.0.
+
 ### 1.24.0 – 2026-11-05
 
 **Feature: MeshCore-Modul (Firmware-Releases + Blog).**

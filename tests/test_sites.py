@@ -635,6 +635,154 @@ class TestGitLab(unittest.TestCase):
         with mock.patch.object(self.mod, "_fetch", side_effect=fake_fetch):
             self.assertIsNone(self.mod.update_changelog(existing))
 
+    # -- cve_only -----------------------------------------------------------
+
+    TAGS_CVE_FIXTURE = json.dumps([
+        {"name": "v19.5.2-ee",
+         "commit": {"committed_date": "2026-10-25T10:00:00.000+00:00"}},
+        {"name": "v19.5.1-ee",
+         "commit": {"committed_date": "2026-10-20T23:00:49.000+00:00"}},
+        {"name": "v19.4.3-ee",
+         "commit": {"committed_date": "2026-10-20T23:07:57.000+00:00"}},
+        {"name": "v19.3.6-ee",
+         "commit": {"committed_date": "2026-10-20T23:15:49.000+00:00"}},
+    ])
+
+    TAGS_MINOR_FIXTURE = json.dumps([
+        {"name": "v19.6.0-ee",
+         "commit": {"committed_date": "2026-11-20T10:00:00.000+00:00"}},
+        {"name": "v19.5.2-ee",
+         "commit": {"committed_date": "2026-10-25T10:00:00.000+00:00"}},
+        {"name": "v19.4.3-ee",
+         "commit": {"committed_date": "2026-10-20T23:07:57.000+00:00"}},
+    ])
+
+    POST_CVE = """<html><body>
+<h1>GitLab Critical Patch Release: 19.5.1, 19.4.3, 19.3.6</h1>
+<h2 id=security-fixes>Security fixes</h2>
+<h3 id=table-of-security-fixes>Table of security fixes</h3>
+<div class=table-container><table class=docs-table>
+<thead><tr><th>Title</th><th>Severity</th></tr></thead>
+<tbody>
+<tr><td><a href=/x/#cve-2026-110264---integer-overflow>Integer Overflow im Regex-Compiler</a></td><td>Critical</td></tr>
+<tr><td><a href=/x/#cache-poisoning>Cache Poisoning</a></td>
+<td>High</td></tr>
+</tbody></table></div>
+<p>It is now mitigated and is assigned CVE-2026-110264.</p>
+<p>is assigned CVE-2026-112212.</p>
+</body></html>"""
+
+    POST_NOCVE = """<html><body>
+<h1>GitLab Patch Release: 19.5.2</h1>
+<h2>GitLab Community Edition and Enterprise Edition</h2>
+<p>Nur Bugfixes.</p>
+</body></html>"""
+
+    def _cve_fetch(self, posts: dict, tags: str | None = None):
+        """fake_fetch: Tags-JSON + Patch-Posts {slug: html|404}."""
+        def fake(url):
+            if "releases.xml" in url:
+                return self.FEED_FIXTURE
+            if "sitemap" in url:
+                return "<x/>"     # kein Fallback-Treffer in Tests
+            if "repository/tags" in url:
+                return tags or self.TAGS_CVE_FIXTURE
+            m = re.search(r"patch-release-gitlab-([\d-]+)-released", url)
+            slug = m.group(1) if m else ""
+            if slug in posts and posts[slug] is not None:
+                return posts[slug]
+            raise urllib.error.HTTPError(url, 404, "nf", {}, None)
+        return fake
+
+    def _extract_cve(self, posts: dict, tags: str | None = None) -> str:
+        with mock.patch.object(self.mod, "CVE_ONLY", True), \
+             mock.patch.object(self.mod, "_fetch",
+                               side_effect=self._cve_fetch(posts, tags)):
+            return self.mod.extract(tags or self.TAGS_CVE_FIXTURE)
+
+    def test_cve_only_nocve_wird_uebersprungen(self):
+        """19.5.2 ist reiner Bugfix -> 19.5 bleibt auf 19.5.1."""
+        out = self._extract_cve({"19-5-2": self.POST_NOCVE,
+                                 "19-5-1": self.POST_CVE})
+        self.assertEqual(out, "19.5=19.5.1;19.4=19.4.3;19.3=19.3.6")
+
+    def test_cve_only_post_fehlt_noch(self):
+        """Post zur 19.5.2-Welle 404 -> aelteste CVE-Version bleibt."""
+        out = self._extract_cve({"19-5-2": None,
+                                 "19-5-1": self.POST_CVE})
+        self.assertEqual(out, "19.5=19.5.1;19.4=19.4.3;19.3=19.3.6")
+
+    def test_cve_only_alles_cve(self):
+        """Neueste Version hat CVEs -> wie Normalmodus."""
+        out = self._extract_cve({"19-5-2": self.POST_CVE,
+                                 "19-5-1": self.POST_CVE})
+        self.assertEqual(out, "19.5=19.5.2;19.4=19.4.3;19.3=19.3.6")
+
+    def test_cve_only_kein_cve_gefunden(self):
+        """Nur Bugfix-Versionen im Fenster -> Platzhalter '?'."""
+        out = self._extract_cve(
+            {"19-5-2": self.POST_NOCVE, "19-5-1": self.POST_NOCVE,
+             "19-4-3": self.POST_NOCVE, "19-3-6": self.POST_NOCVE})
+        self.assertEqual(out, "19.5=?;19.4=?;19.3=?")
+
+    def test_cve_only_minor_zaehlt(self):
+        """X.Y.0 gilt als CVE-Release (enthaelt akkumulierte Fixes)."""
+        out = self._extract_cve({"19-5-2": self.POST_NOCVE,
+                                 "19-5-1": self.POST_CVE},
+                                tags=self.TAGS_MINOR_FIXTURE)
+        self.assertEqual(out.split(";")[0], "19.6=19.6.0")
+
+    def test_cve_only_sitemap_fallback(self):
+        """Version ohne eigenen Slug: Post einer anderen Welle deckt
+        sie ab (Titel-Versionsliste), gefunden ueber das Sitemap."""
+        post = self.POST_CVE.replace(
+            "19.5.1, 19.4.3, 19.3.6", "19.4.2, 19.3.5, 19.2.8")
+        tags = json.dumps([
+            {"name": "v19.3.5-ee",
+             "commit": {"committed_date": "2026-10-12T10:00:00Z"}},
+            {"name": "v19.4.2-ee",
+             "commit": {"committed_date": "2026-10-07T10:00:00Z"}},
+            {"name": "v19.5.1-ee",
+             "commit": {"committed_date": "2026-10-20T10:00:00Z"}},
+        ])
+        posts = {"19-4-2": post, "19-5-1": self.POST_CVE}
+        sitemap = ("<u><loc>/patch-release-gitlab-19-4-2-released/"
+                   "</loc></u>")
+        def fake(url):
+            if "sitemap" in url:
+                return sitemap
+            return self._cve_fetch(posts, tags)(url)
+        with mock.patch.object(self.mod, "CVE_ONLY", True), \
+             mock.patch.object(self.mod, "_fetch", side_effect=fake):
+            out = self.mod.extract(tags)
+        # 19.3.5 wird vom 19-4-2-Post abgedeckt (CVE) -> gemeldet
+        self.assertEqual(out.split(";")[-1], "19.3=19.3.5")
+
+    def test_parse_post(self):
+        post = self.mod._parse_post(self.POST_CVE)
+        self.assertEqual(post["versions"],
+                         ["19.5.1", "19.4.3", "19.3.6"])
+        self.assertIn("CVE-2026-110264", post["cves"])
+        self.assertIn("CVE-2026-112212", post["cves"])
+        self.assertEqual(post["fixes"][0],
+                         {"cve": "CVE-2026-110264", "severity": "Critical",
+                          "title": "Integer Overflow im Regex-Compiler"})
+
+    def test_update_changelog_mit_cve(self):
+        posts = {"19-5-2": self.POST_NOCVE, "19-5-1": self.POST_CVE}
+        with mock.patch.object(
+                self.mod, "_fetch",
+                side_effect=self._cve_fetch(posts)):
+            out = self.mod.update_changelog(None)
+        self.assertIn(
+            "Patch-Release: https://docs.gitlab.com/releases/patches/"
+            "patch-release-gitlab-19-5-1-released/ (Tag v19.5.1-ee)",
+            out)
+        self.assertIn("Security-Fixes:", out)
+        self.assertIn("CVE-2026-110264 (Critical)", out)
+        self.assertIn("Cache Poisoning", out)
+        self.assertIn("Patch-Release (nur Bugfixes)", out)
+
 
 class TestHPDocks(unittest.TestCase):
     @classmethod
