@@ -82,6 +82,11 @@ möglich (für einfache regex/hash/etag-Fälle ohne Modul).
 5. **Kommentare und Nutzertexte auf Deutsch** (persönliches Projekt des Users).
 6. Nach Codeänderungen `python -m py_compile newsbot.py` und idealerweise
    `python newsbot.py --dry-run` ausführen.
+7. **Release erstellen:** Zu jeder neuen `__version__` gehört ein Git-Tag
+   `vX.Y.Z` plus GitHub-Release `NewsBot X.Y.Z` auf
+   github.com/Wlanfr3ak/NewsBot2EMail. Release-Text in der bisherigen Form
+   (`## Aenderungen gegenueber <vorherige>`, ASCII ohne Umlaute, Verweis auf
+   den AGENTS.md-Changelog); der Tag zeigt auf den Versions-Commit.
 
 ## Testen / Verifizieren
 
@@ -157,6 +162,9 @@ Patch-Sektionen im Archiv listen jetzt Security-Fixes.**
   `cve_only` dokumentiert.
 - `README.md`: Modultabelle + neuer Abschnitt 'GitLab' mit
   `cve_only`-Doku (inkl. Post-Verzoegerungshinweis).
+- AGENTS.md-Regeln: Regel 7 neu - die bisher ungeschriebene Konvention
+  'Git-Tag vX.Y.Z + GitHub-Release pro Version' ist jetzt verbindlich
+  festgehalten; Release v1.25.0 nachgezogen.
 - Betroffene Dateien: `sites/gitlab.py`, `newsbot.py` (Version),
   `tests/test_sites.py`, `config.example.json`, `README.md`,
   `AGENTS.md`.
