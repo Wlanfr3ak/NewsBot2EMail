@@ -1,9 +1,316 @@
 # Changelog: Kali Linux
 
 Quelle: https://www.kali.org/blog/
-Stand: 21.09.2026 09:35
+Stand: 26.10.2026 10:42
 
 ---
+
+## 2026.3 – 2026-10-26
+
+**Kali Linux 2026.3 Release (Build-Scripts Refresh)**
+
+Table of Contents
+- [Build-Scripts Refresh](#build-scripts-refresh)[Quick Example: kali-installer](#quick-example-kali-installer)
+- [What’s Next?](#whats-next)
+
+- [Desktop Updates](#desktop-updates)[KDE Plasma 6.7](#kde-plasma-67)
+- [New Icons](#new-icons)
+
+- [New Tools in Kali](#new-tools-in-kali)
+- [Kali NetHunter Updates](#kali-nethunter-updates)[Wardriving On Your Wrist](#wardriving-on-your-wrist)
+- [WearHunter](#wearhunter)
+- [NFC Arsenal](#nfc-arsenal)
+- [KernelSU](#kernelsu)
+- [When Hacking Meets Tuners](#when-hacking-meets-tuners)
+- [Misc](#misc)
+- [New Kernels](#new-kernels)
+
+- [Kali Website Updates](#kali-website-updates)[Kali Documentation](#kali-documentation)
+
+- [Community Shout-Outs](#community-shout-outs)[New Kali Mirrors](#new-kali-mirrors)
+
+- [Get Kali Linux 2026.3](#get-kali-linux-20263)
+
+We are back with Kali Linux 2026.3, the third [release](https://www.kali.org/releases/) of the year! We have been busy making it easier to build Kali, updating the desktop experience, and bringing in more tools for you.
+Ready to get your hands on it? Head over to the [download page](https://www.kali.org/get-kali/), or [upgrade your existing installation](https://www.kali.org/docs/general-use/updating-kali/) to get started.
+
+Here is what has changed since the [2026.2 release from June](https://www.kali.org/blog/kali-linux-2026-2-release/):
+
+- [Build-Scripts Refresh](#build-scripts-refresh) - Building Kali has never been so easy
+- [Desktop Updates](#desktop-updates) - KDE Plasma & New Icons
+- [New Tools](#new-tools-in-kali) - As always, we have added various new tools
+
+### Build-Scripts RefreshBack in [Kali 2026.2](https://www.kali.org/blog/kali-linux-2026-2-release/), we gave a sneak peek that we were working on our build-scripts. Well, here it is!
+
+We have always made our [build-scripts public](https://gitlab.com/kalilinux/build-scripts).
+These are the same scripts we use to generate every official Kali image available from [kali.org/get-kali](https://www.kali.org/get-kali/).
+Building your own Kali image may sound scary, but it is not as hard as it looks (see the [quick example](#quick-example-kali-installer) below).
+
+We’ve brought consistency to our build-scripts across platforms.
+Each one now has the same features, command-line arguments, structure and layout (where possible), and the same look and feel.
+
+Would you rather build inside a container? That is now supported, with both Docker and Podman!
+Each refreshed build-script comes with build-in-container.sh, which detects which container engine you have, creates the build container, and then runs the build from within it. Previously, we had recommended building Kali on Kali, which caused a bit of a chicken-and-egg problem.
+We have also improved the documentation for building Kali on Debian-based systems.
+
+These changes are still underway.
+We are sorry for any CI pipelines or workflows we have broken along the way.
+Hopefully, the breakage is now behind us.
+
+#### Quick Example: kali-installerLet’s build our own [Kali installer image](https://www.kali.org/docs/installation/), the same one you would download from us.
+
+First, install git and clone the repository:
+
+$ sudo apt install git ca-certificates
+$ git clone https://gitlab.com/kalilinux/build-scripts/kali-installer.git
+$ cd ./kali-installer/
+
+To build straight from your machine, install the build dependencies, then run build.sh.
+The default options will build a [Kali rolling](https://www.kali.org/docs/general-use/kali-branches/) image for the AMD64 architecture:
+
+$ sudo apt install simple-cdd debian-cd cpio mtools dosfstools xorriso
+$ sudo ./build.sh
+┏━━(Kali Installer image)
+┃  * Building a Kali Linux Installer image for amd64 architecture
+┃ # System:
+┃  * Build environment is host (bare metal)
+┃  * Host architecture is amd64
+┃ # Build:
+┃  * Branch              : kali-rolling
+┃  * Build mirror        : http://http.kali.org/kali/
+┃  * Keep temporary files: false
+┃  * Output              : /home/kali/kali-installer/output/kali-linux-rolling-installer-amd64.iso
+┃  * Variant             : default
+┃  * Version             : rolling
+┃ # Installer:
+┃  * Additional packages :
+┃  * Hostname            : kali
+┃ # Proxy configuration:
+┃  * No apt caching proxy detected
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[...]
+
+Rather not install the dependencies on your machine? Build from within a container instead:
+
+$ sudo apt install podman
+$ sudo ./build-in-container.sh
+
+Want something other than the default? Change the hostname, add extra packages, or pick a different variant, [branch](https://www.kali.org/docs/general-use/kali-branches/) or architecture:
+
+$ sudo ./build.sh --hostname haxbox --packages rustscan
+$ sudo ./build.sh --branch kali-dev --variant netinst --arch arm64
+
+To see every option, use ./build.sh --help, or check out the [README](https://gitlab.com/kalilinux/build-scripts/kali-installer/-/blob/main/README.md).
+Want to customize the installer even further? Have a look at [preseeding](https://www.kali.org/docs/general-use/kali-preseeding/) (we will get to this later!).
+
+#### What’s Next?We had hoped to refresh every build-script in time for this release, but we didn’t quite make it.
+We are aiming to have them ready for Kali 2026.4.
+
+This marks the first milestone of refreshing the build-scripts. Next, we will look at automating builds and workflows. Finally, we will demonstrate different setups and customization options. Crawl, walk, run.
+
+### Desktop Updates#### KDE Plasma 6.7KDE Plasma has been updated to 6.7, bringing a variety of workflow and performance improvements to the Kali desktop.
+One of the most interesting additions is per-screen virtual desktops, particularly handy for multi-monitor setups where you may want to keep terminals, browsers, [Burp](https://www.kali.org/tools/burpsuite/), or documentation separated without changing the workspace on every display.
+Moving around those desktops is also quicker from the Overview, while support for additional Wayland protocols and portals continues to improve the experience on modern Linux setups.
+
+https://www.kali.org/blog/kali-linux-2026-3-release/images/kali-kde-plasma-6.7.png
+
+Plasma 6.7 includes performance and power-usage optimizations, especially for integrated Intel GPUs and workloads involving multiple full-screen windows.
+Network connections can now be duplicated, which can save some time when working with several similar network configurations, and System Monitor has received further refinements.
+
+For the full list of changes, make sure to check out the [official KDE Plasma 6.7 announcement](https://kde.org/announcements/plasma/6/6.7.0/).
+
+#### New IconsUpdating icons is an ongoing process, but we took some time to review our progress, and we are happy with the results.
+We have added icons to tools that previously had none and updated existing icons to make them easier to recognize in the applications menu and on [kali.org/tools](https://www.kali.org/tools/).
+Here is a preview of some of them:
+
+https://www.kali.org/blog/kali-linux-2026-3-release/images/new-kali-tool-icons.png
+
+### New Tools in KaliWhat would a Kali release be without new tools? Here is a quick rundown of the new tools available in the network repositories:
+
+- [dalfox](https://www.kali.org/tools/dalfox/) - Powerful open-source XSS scanner and utility focused on automation
+- [katana](https://www.kali.org/tools/katana/) - Next-generation crawling and spidering framework
+- [qsreplace](https://www.kali.org/tools/qsreplace/) - Accept URLs on stdin, replace all query string values with a user-supplied value
+- [rustscan](https://www.kali.org/tools/rustscan/) - Modern port scanner
+- [sdrangel](https://www.kali.org/tools/sdrangel/) - Qt-based SDR front-end for various devices
+- [snaffler-ng](https://www.kali.org/tools/snaffler-ng/) - SMB share credential and sensitive data scanner
+
+The 2026.3 release includes 126 package updates, including an update to the [Kali kernel from 6.19 to 7.1.5](https://pkg.kali.org/pkg/linux)!
+
+### Kali NetHunter UpdatesThis release addresses compatibility issues between modern systemd/udev and older kernels without requiring extensive patches.
+It also brings new features to the [Kali NetHunter app](https://store.nethunter.com/packages/com.offsec.nethunter/) and adds several [kernels](https://nethunter.kali.org/kernels.html).
+
+#### Wardriving On Your Wristhttps://www.kali.org/blog/kali-linux-2026-3-release/images/nethunter-ticwatch.jpg
+
+Go to absolute stealth mode with the Wardriving that’s now supported by the [TicWatch Pro 3 series](https://www.kali.org/docs/nethunter/installing-nethunter-on-the-ticwatch-pro-3/).
+It wouldn’t be possible without the awesome collaboration with [Qazy Anwar](https://github.com/pr0misc) who updated the libnexmonkali library so now you can use internal monitor mode on watch with tools in Kali chroot such as [aircrack-ng](https://www.kali.org/tools/aircrack-ng/) suite, [kismet](https://www.kali.org/tools/kismet/), and more!
+
+#### WearHunterThanks to the idea and hard work of [@V0lk3n](https://gitlab.com/V0lk3n), you can now control your Kali NetHunter watch from your phone using ADB over Wi-Fi or Bluetooth.
+You can run commands and install apps, with more features planned. WearHunter is currently experimental.
+
+#### NFC ArsenalNFC access to the Kali chroot is now possible thanks to [@IamCOD3X](https://gitlab.com/IamCOD3X).
+You can now read, clone, and edit Mifare classic cards without an external adapter!
+
+#### KernelSUKernelSU is now supported thanks to the work of [@Loukious](https://gitlab.com/Loukious).
+You can install the generated installer zip in KernelSU app with patched kernel.
+
+#### When Hacking Meets TunersCheck out this incredible blend of car tuner and hacking culture.
+[Christopher Wilson entered the Wardriver Project](https://www.linkedin.com/posts/kristopher-wilson-208b59123_ai-cybersecurity-artificialintelligence-ugcPost-7510122700128808960-76oL), his 2021 Honda Civic Type R, in the Cars and Cops car show in Altus, Oklahoma.
+Alongside showing the car, he showcased how technology, cybersecurity, and vehicles are coming together.
+
+https://www.kali.org/blog/kali-linux-2026-3-release/images/nethunter_honda.png
+
+#### Misc
+- [TicWatch Pro 3](https://www.kali.org/docs/nethunter/installing-nethunter-on-the-ticwatch-pro-3/) reboot is patched by [@yesimxev](https://gitlab.com/yesimxev)
+- Initial support for devices with no ramdisk
+- The [Bluetooth Arsenal](https://www.kali.org/docs/nethunter/nethunter-btarsenal/) airplane mode is now back! [@MrR0b0X](https://gitlab.com/MrR0b0X) has also improved [EvilTwin](https://www.kali.org/docs/nethunter/nethunter-eviltwin/) and [Wardriving](https://www.kali.org/docs/nethunter/nethunter-wardriving/) to make them easier to launch
+- Custom commands now support Nexmon monitor mode, as well as [wifite](https://www.kali.org/tools/wifite/)
+- The crash triggered by the Kali NetHunter app’s storage request has been fixed, along with other bug fixes and performance improvements
+
+#### New Kernels
+- Google Pixel on LineageOS 22.2 / Android 15 ([@willuhm-js](https://gitlab.com/willuhm-js))
+- Huawei P9 on EMUI8/LineageOS 16.0 ([@apk0mix5900](https://github.com/apk0mix5900))
+- LG K20 Plus for Lineage OS 14.1 ([@robnew1](https://gitlab.com/robnew1))
+- Moto G Stylus 5G 2022 on LineageOS 23.2 ([@TigerClips1](https://gitlab.com/TigerClips1))
+- Nubia Z17 on LineageOS 22.2 ([@luckyyyyyy](https://gitlab.com/luckyyyyyy))
+- POCO X5 5G / Redmi Note 12 5G on crDroid 12 ([@harifhaqim](https://github.com/harifhaqim))
+- Redmi Note 5 Pro on LineageOS 18.1 ([@notatallnic189](https://github.com/notatallnic189))
+- Sony Xperia 10 V on LineageOS 23.2 ([@Tom60chat](https://gitlab.com/Tom60chat))
+- Ulefone Armor 34+ on Android 16 ([@art0181](https://gitlab.com/art0181))
+
+### Kali Website UpdatesFollowing the menu changes in [Kali 2025.2](https://www.kali.org/blog/kali-linux-2025-2-release/), we have applied the same category structure and icons to [kali.org/tools](https://www.kali.org/tools/).
+You can still switch to the Top 100 tools page if you prefer.
+
+https://www.kali.org/blog/kali-linux-2026-3-release/images/kali-tools-categories.png
+
+#### Kali DocumentationOur [Kali documentation](https://www.kali.org/docs/) has 3 new pages, and 9 existing ones have been updated:
+
+- [Adding Persistence to a Kali Linux Live USB Drive](https://www.kali.org/docs/usb/usb-persistence/) (updated)
+- [Extracting and Squashing Vendor Firmwares for Mainline Linux](https://www.kali.org/docs/nethunter-pro/extract-firmwares/) (new)
+- [Graphics issues on bare-metal installation](https://www.kali.org/docs/troubleshooting/Graphics-issues-on-bare-metal-installation/) (updated)
+- [Import Pre-Made Kali QEMU VM](https://www.kali.org/docs/virtualization/import-premade-qemu/) (new)
+- [Installing NetHunter on the TicWatch Pro 3](https://www.kali.org/docs/nethunter/installing-nethunter-on-the-ticwatch-pro-3/) (updated)
+- [Kali inside UTM (Guest VM)](https://www.kali.org/docs/virtualization/install-utm-guest-vm/) (updated)
+- [Kali Linux Xfce FAQ](https://www.kali.org/docs/general-use/xfce-faq/) (updated)
+- [Kali NetHunter](https://www.kali.org/docs/nethunter/_) (updated)
+- [NetHunter EvilTwin](https://www.kali.org/docs/nethunter/nethunter-eviltwin/) (new)
+- [Raspberry Pi - Full Disk Encryption](https://www.kali.org/docs/arm/raspberry-pi-with-luks-full-disk-encryption-2/) (updated)
+- [Setting Up a Kali Linux Mirror](https://www.kali.org/docs/community/setting-up-a-kali-linux-mirror/) (updated)
+- [SSH Configuration](https://www.kali.org/docs/general-use/ssh-configuration/) (updated)
+
+### Community Shout-OutsThese community members helped Kali and the team during this release cycle, and we’d like to recognize their contributions.
+We believe in giving credit where it is due!
+
+Kali Documentation:
+
+- [C](https://gitlab.com/chipth)
+- [Deztryoz](https://gitlab.com/Deztryoz)
+- [dr1408](https://gitlab.com/dr1408)
+- [en](https://gitlab.com/2hexed)
+- [Soroush Nekoozadeh](https://gitlab.com/Soroushnk80)
+
+Tool Documentation:
+
+- [Marc](https://gitlab.com/xerokill)
+
+Kali NetHunter:
+
+- [AKSHAT Singh](https://gitlab.com/ShorterKing)
+- [apk0mix5900](https://gitlab.com/apk0mix59001)
+- [CHENGAN LU](https://gitlab.com/luckyyyyyy)
+- [Elouzi](https://gitlab.com/s.elouzi0010)
+- [Hectorete](https://gitlab.com/rompelhd)
+- [Joseph](https://gitlab.com/seppzer0)
+- [Loukious](https://gitlab.com/Loukious)
+- [Luka Gejak](https://gitlab.com/MocLG)
+- [micki](https://gitlab.com/nicola.trinca189)
+- [Mike](https://gitlab.com/sassom2112)
+- [Muhammad Harif Haqim bin Zainal](https://gitlab.com/harifhaqim)
+- [Rob Newberry](https://gitlab.com/robnew1)
+- [Robin](https://gitlab.com/MrR0b0X)
+- [Sourabh Panchal](https://gitlab.com/IamCOD3X)
+- [TigerClips1](https://gitlab.com/TigerClips1)
+- [Tom](https://gitlab.com/Tom60chat)
+- [V0lk3n](https://gitlab.com/V0lk3n)
+- [William Faircloth](https://gitlab.com/willuhm-js)
+- [Артём peace Marcus](https://gitlab.com/art0181)
+
+Packaging:
+
+- [nekoside](https://gitlab.com/nekoside)
+- [v1s1t0r1sh3r3](https://gitlab.com/v1s1t0r1sh3r3)
+
+Anyone can lend a hand and get [involved](https://www.kali.org/docs/community/contribute/)!
+
+#### New Kali MirrorsDuring this cycle, we welcomed 4 new mirrors, all in Europe!
+
+- Netherlands: [mirror.hacker.nl](http://mirror.hacker.nl/kali/), sponsored by [Hacker B.V.](https://www.hacker.nl), with thanks to Sergen Koç
+- Netherlands: [mirror.netone.nl](http://mirror.netone.nl/kali-images/), sponsored by [NetOne NL](https://noc.netone.nl/), with thanks to Peter-Paul Kurstjens
+- Portugal: [mirror.randhost.com](http://mirror.randhost.com/kali/), sponsored by [RANDHOST](https://randhost.com/)
+- Switzerland: [kalimirror.velden.media](http://kalimirror.velden.media/kali/), sponsored by [VELDEN Media Service](https://www.velden.media/), with thanks to René Velden
+
+If you have the disk space and bandwidth, [we always welcome new mirrors](https://www.kali.org/docs/community/setting-up-a-kali-linux-mirror/).
+
+### Get Kali Linux 2026.3Fresh Images:
+Ready to get started? [Get Kali](https://www.kali.org/get-kali/) today!
+
+We also provide [weekly builds](https://cdimage.kali.org/kali-images/kali-weekly/) for those who don’t want to wait for the next point release.
+These images give you a more recent snapshot of Kali, so you may have fewer updates to install after setting up your system.
+Keep in mind that weekly builds are automated and do not go through the same QA process as our standard [release images](https://www.kali.org/releases/).
+We still welcome [bug reports](https://bugs.kali.org/) to help us identify and fix issues before the next release.
+
+Existing Installs:
+Already running Kali Linux? Make sure your system is up to date with a quick [update](https://www.kali.org/docs/general-use/updating-kali/):
+
+┌──(kali㉿kali)-[~]
+└─$ sudo tee /etc/apt/sources.list.d/kali.sources << 'EOF'
+Types: deb
+URIs: http://http.kali.org/kali/
+Suites: kali-rolling
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/kali-archive-keyring.gpg
+EOF
+[...]
+
+┌──(kali㉿kali)-[~]
+└─$ sudo apt update && sudo apt -y full-upgrade
+[...]
+
+┌──(kali㉿kali)-[~]
+└─$ cp -vrbi /etc/skel/. ~/
+[...]
+
+┌──(kali㉿kali)-[~]
+└─$ [ -f /var/run/reboot-required ] && sudo reboot -f
+
+You should now be on Kali Linux 2026.3.
+To check your installed version, run:
+
+┌──(kali㉿kali)-[~]
+└─$ grep VERSION /etc/os-release
+VERSION_ID="2026.3"
+VERSION="2026.3"
+VERSION_CODENAME=kali-rolling
+
+┌──(kali㉿kali)-[~]
+└─$ uname -v
+#1 SMP PREEMPT_DYNAMIC Kali 7.1.5-1kali1 (2026-07-29)
+
+┌──(kali㉿kali)-[~]
+└─$ uname -r
+7.1.5+kali-amd64
+
+NOTE: The output of uname -r may be different depending on the system [architecture](https://pkg.kali.org/pkg/linux).
+
+If you find any bugs in Kali, please report them on our [bug tracker](https://bugs.kali.org/).
+We can’t fix what we don’t know is broken!
+And remember, social networks are not bug trackers!
+
+Want an easier way to keep up to date?
+Here is how to follow the latest Kali news and releases.
+
+- [Blog](https://www.kali.org/blog/)? Use our [RSS feed](https://www.kali.org/rss.xml) and [newsletter](https://www.kali.org/newsletter/)
+- [Download](https://www.kali.org/get-kali/)? We have a [Torrent RSS feed](https://www.kali.org/torrents.xml)
+- [Socials](https://www.kali.org/docs/community/list-of-official-kali-sites/#social-media-networks)? [Bluesky](https://bsky.app/profile/kalilinux.bsky.social), [Facebook](https://www.facebook.com/KaliLinux/), [Instagram](https://www.instagram.com/kalilinux/), [Mastodon](https://infosec.exchange/@kalilinux) & [X](https://x.com/kalilinux)
 
 ## 2026.2 – 2026-06-29
 

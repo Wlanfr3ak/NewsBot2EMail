@@ -1,9 +1,77 @@
 # Changelog: GitLab
 
 Quelle: https://docs.gitlab.com/releases/
-Stand: 26.10.2026 06:52
+Stand: 17.11.2026 02:38
 
 ---
+
+## 19.5.6 – 2026-11-16
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.5.6-ee)
+
+## 19.4.8 – 2026-11-16
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.4.8-ee)
+
+## 19.3.9 – 2026-11-16
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.3.9-ee)
+
+## 19.5.5 – 2026-11-11
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.5.5-ee)
+
+## 19.4.7 – 2026-11-11
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.4.7-ee)
+
+## 19.5.4 – 2026-11-06
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.5.4-ee)
+
+## 19.4.6 – 2026-11-06
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.4.6-ee)
+
+## 19.3.8 – 2026-11-06
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.3.8-ee)
+
+## 19.2.10 – 2026-10-28
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.2.10-ee)
+
+## 19.1.10 – 2026-10-28
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.1.10-ee)
+
+## 19.0.11 – 2026-10-28
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.0.11-ee)
+
+## 19.5.3 – 2026-10-28
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.5.3-ee)
+
+## 19.4.5 – 2026-10-28
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.4.5-ee)
+
+## 19.5.2 – 2026-10-27
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.5.2-ee)
+
+## 19.4.4 – 2026-10-27
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.4.4-ee)
+
+## 19.3.7 – 2026-10-27
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.3.7-ee)
+
+## 18.11.14 – 2026-10-27
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v18.11.14-ee)
 
 ## 19.5.1 – 2026-10-20
 

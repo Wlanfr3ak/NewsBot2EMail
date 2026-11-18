@@ -1,9 +1,155 @@
 # Changelog: MikroTik RouterOS
 
 Quelle: https://mikrotik.com/download/changelogs
-Stand: 23.10.2026 13:21
+Stand: 03.11.2026 12:40
 
 ---
+
+## stable – 7.25.1 – 2026-11-02
+
+:
+
+*) bridge - fix BPDUs leaking to the wrong dual-connected bond in MLAG (introduced in v7.24);
+*) bridge - improve FDB synchronization between MLAG peers when VLANs are added;
+*) console - fix custom SSH client login parameters being ignored (introduced in v7.25);
+*) dhcpv4-client - fix packet length calculation (introduced in v7.25);
+*) dude - fix missing outage times and graph background scaling (introduced in v7.25);
+*) fetch - fix HTTP fetch getting stuck in a "bad HTTP response" state;
+*) ipsec - fix XFRM interfaces staying down until a reboot;
+*) ipv6 - fix from-pool address lifetimes not updating after a prefix renewal (introduced in v7.25);
+*) pim - fix IGMP/MLD querier being disabled after upgrade (introduced in v7.25);
+*) ptp - fix PTP support on CRS804-4DDQ;
+*) routing-filter - fix host matching in address lists with more than 64 ranges;
+*) sfp - fix DAC EEPROM corruption when disabling 400G ports on CRS804 and CRS812 switches;
+*) ssh - fix packet alignment when SHA-1 is used (introduced in v7.25);
+*) system - improve stability (includes CVE-2026-98432);
+*) webfig - fix multi-value fields being displayed as empty (introduced in v7.25);
+*) wifi - fix virtual interface restart loop when reselect-interval and reselect-time are configured (introduced in v7.25);
+
+## development – 7.26beta5 – 2026-10-30
+
+:
+
+*) bridge - fix BPDUs leaking to the wrong dual-connected bond in MLAG (introduced in v7.24);
+*) bridge - fix incorrect root-path-cost calculation in MLAG when the root bridge is on a single-connected port (additional fixes);
+*) bridge - fix MLAG restarting when hardware offloading is re-enabled;
+*) certificate - allow to import certificate with iPAddress name constraints;
+*) cmr - fix MLD stations not shown in Clients table;
+*) cmr - fix WiFi client tx/rx rates showing 0 in Clients table;
+*) console - allow reading bar, meter and progress values through the REST API;
+*) console - fix G and M size suffixes being converted incorrectly;
+*) console - free-memory reported in B by system resource monitor;
+*) defconf - fix missing mld-datapath in CAP default configuration;
+*) disk - reject duplicate NVMe-TCP server NQN values;
+*) fetch - fix HTTP fetch getting stuck in a "bad HTTP response" state;
+*) iot - improve Bluetooth stability on KNOT Gateway devices;
+*) ntp - increase maximum peer count to 100;
+*) ptp - fix PTP support on CRS804-4DDQ;
+*) qos-hw - add multicast-packet-drop counter and reset-counters command;
+*) route - add RPKI ASPA validation support (additional fixes);
+*) routing-filter - fix host matching in address lists with more than 64 ranges;
+*) sfp - fix DAC EEPROM corruption when disabling 400G ports on CRS804 and CRS812 switches (additional fixes);
+*) sfp - improve SFP/QSFP auto-negotiation on CRS8xx series switches (additional fixes);
+*) ssh - fix packet alignment when SHA-1 is used (introduced in v7.25);
+*) switch - fix broadcast traffic still reaching the CPU when port isolation is used on Atheros and MediaTek switches (additional fixes);
+*) system - improve stability (includes CVE-2026-98432);
+*) tls - fix SSTP client failing to connect when no TLS 1.3 cipher is available;
+*) tls - fix SSTP server rejecting TLS 1.3 clients that prefer AES-128;
+*) tls - improve memory allocation/release process;
+*) webfig - fix device mode values not being fully displayed;
+*) webfig - fix multi-value fields being displayed as empty (introduced in v7.25);
+*) webfig - replace dashboard value bars with grouped bar graphs (additional fixes);
+*) wifi - initial 802.11s meshpoint interface mode implementation (CLI only);
+*) wifi-mediatek - fix client tx rate staying at minimum after roaming;
+*) wifi-mediatek - fix low throughput for TWT stations (introduced in v7.26beta1);
+*) wifi-mediatek - fix station connect failures after an AP band switch (introduced in v7.26beta1);
+*) winbox - add rpki-aspa status to route details;
+*) winbox - allow removing auto-generated app certificates;
+*) winbox - allow setting vrf for WireGuard interfaces;
+*) wireguard - ignore leading and trailing whitespace in peer public keys;
+
+## long-term – 7.24.6 – 2026-10-30
+
+:
+
+*) bridge - fix BPDUs leaking to the wrong dual-connected bond in MLAG (introduced in v7.24);
+*) bridge - fix VLAN-tagged traffic being looped back in MLAG setups on CRS8xx series switches;
+*) dude - fix the server not starting at boot when data-directory is on a USB disk;
+*) ethernet - fix occasional packet loss on hAP be3 Media;
+*) fetch - fix HTTP fetch getting stuck in a "bad HTTP response" state;
+*) ipsec - fix IKEv2 EAP-TTLS client failing with invalid trust store (introduced in v7.21);
+*) ipsec - fix IPsec tunnels failing after migration from the old QKD settings;
+*) ipsec - fix IPsec tunnels not establishing when an address my-id is configured on the responder;
+*) ptp - fix PTP support on CRS804-4DDQ;
+*) quickset - fix the WAN interface being selected incorrectly;
+*) route - improve static route handling performance;
+*) routing-filter - fix any-regexp community matcher matching an empty community attribute;
+*) routing-filter - fix community delete, filter and modify with regexp-only community lists;
+*) routing-filter - fix host matching in address lists with more than 64 ranges;
+*) sfp - fix DAC EEPROM corruption when disabling 400G ports on CRS804 and CRS812 switches;
+*) system - improve stability (includes CVE-2026-98432);
+*) system - stop the flash configuration store from growing on dynamic configuration changes;
+*) wifi - reuse freed station association IDs;
+*) wifi-mediatek - fix roaming between APs belonging to the same MLO group;
+*) winbox - fix bridge filter window disabling valid fields for IPv6 rules;
+
+## development – 7.26beta4 – 2026-10-27
+
+:
+
+*) app - add remove-certificate command for certificates not used by any app;
+*) bgp - improve update processing performance when multiple peers are used;
+*) bonding - add lacp-strict setting for 802.3ad bonds;
+*) bridge - fix incorrect root-path-cost calculation in MLAG when the root bridge is on a single-connected port;
+*) bridge - fix loop-protect not working when a VLAN interface is added to the bridge (additional fixes);
+*) certificate - add option for pasting certificate in PEM format in add and import commands;
+*) certificate - fix CRL download failing when the server responds with an HTTP 3xx code;
+*) certificate - fix empty error message when ACME DNS validation times out;
+*) certificate - fix services continuing to use the previous certificate after ACME renewal;
+*) cmr - fix configuration display not showing effective values for unset fields;
+*) cmr - fix VLAN rules being applied to all ports when port-labels is not set;
+*) cmr - improve stability;
+*) cmr - replace dashboard value bars with grouped bar graphs;
+*) cmr - require write policy to run the alert test command;
+*) console - fix custom SSH client login parameters being ignored (introduced in v7.26beta1);
+*) console - fix deprecated argument names not being readable with get and proplist;
+*) console - improve stability;
+*) disk - fix NFS clients being served the wrong export after a reboot;
+*) ethernet - disable EEE on RB4011, RB1100AHx4, L009, L11, L23 devices;
+*) ethernet - do not allow adding duplicate RPS interface entries;
+*) ethernet - fix broadcast traffic still reaching the CPU when port isolation is used on Atheros and MediaTek switches (additional fixes);
+*) iot - fix LoRa channel configuration changes failing with a validation error;
+*) ipsec - fix XFRM interfaces staying down until a reboot;
+*) ipv6 - fix from-pool address lifetimes not updating after a prefix renewal (introduced in v7.25);
+*) l3hw - improve stability on CRS8xx series switches;
+*) log - fix logging actions with target=script not running the script after a reboot;
+*) lte - fix eSIM provisioning from the mobile app (introduced in v7.26beta1);
+*) lte - fix Telit LE910C4-WWX modem serial driver not binding at cold boot;
+*) lte - fix traffic not passing with multiple locally terminated APNs for R11e-4G modem;
+*) lte - reduce eSIM pending notification send retry count to 2;
+*) netwatch - fix check-certificate not working for HTTPS-GET probes;
+*) netwatch - fix wrong checksum in the first ICMP echo of a test on TILE devices;
+*) poe-out - fix missing status column in print output;
+*) ppp - fix BG770A modem not initializing after a firmware upgrade until a reboot;
+*) route - add RPKI ASPA validation support;
+*) route - fix routing memory statistics missing some memory pools;
+*) sfp - fix DAC EEPROM corruption when disabling 400G ports on CRS804 and CRS812 switches;
+*) socks - fix comments not being saved;
+*) ssh - refactor SSH internal processes;
+*) switch - add a high-priority CPU queue for control traffic on Marvell Prestera switches;
+*) switch - fix CPU-sent VLAN-tagged packets with the DEI bit being dropped on Marvell Prestera switches;
+*) system - improve stability;
+*) tr069 - add nodes for GPS information;
+*) usb - add overcurrent monitoring and per-port power cycle for hAP be3 Media;
+*) user-manager - fix database not opening after reboot when db-path is several directories below the mount point;
+*) webfig - fix missing default values for CMR label fields;
+*) webfig - fix the Power Cycle action not working;
+*) wifi - fix virtual interface restart loop when reselect-interval and reselect-time are configured (introduced in v7.25);
+*) wifi - initial easymesh controller and agent implementation (CLI only);
+*) wifi-qcom-be - fix station mode not connecting when limited to an older standard than the AP;
+*) wifi-qcom-be - fix station not connecting when limited to narrower channel than AP;
+*) winbox - allow adding LTE interfaces with a master interface and APN profile (additional fixes);
+*) winbox - make RPS menu configurable;
 
 ## stable – 7.25 – 2026-10-22
 

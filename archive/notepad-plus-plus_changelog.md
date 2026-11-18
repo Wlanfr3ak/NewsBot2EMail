@@ -1,9 +1,61 @@
 # Changelog: Notepad++
 
 Quelle: https://notepad-plus-plus.org/downloads/
-Stand: 24.09.2026 19:49
+Stand: 12.11.2026 08:08
 
 ---
+
+## 8.9.9.1 – 2026-11-11
+
+**Notepad++ v8.9.9.1 regression fixes & new feature**
+
+- Fix regression in pasting into virtual space in multi paste mode. (Fix [#18606](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18606))
+- Fix regression where Folder as Workspace not load entirely if a symlink in the folder. (Fix [#18621](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18621))
+- Fix regression where save fails under UAC in Administrator Protection mode. (Fix [#18604](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18604))
+- Add highlight all matches for Find dialog. (Fix [#18491](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18491))
+
+## 8.9.9 – 2026-11-06
+
+**Notepad++ v8.9.9 vulnerability fixes, new features & bug-fixes**
+
+- Vulnerability: Fix WM_COPYDATA sender authentication bypass. [CVE ID not assigned yet](https://github.com/notepad-plus-plus/notepad-plus-plus/security/advisories/GHSA-pg39-63h5-cx35)
+- Vulnerability: Fix WM_COPYDATA privilege escalation allowing launch plugin commands execution. [CVE ID not assigned yet](https://github.com/notepad-plus-plus/notepad-plus-plus/security/advisories/GHSA-5jjv-2h6g-63p5)
+- Vulnerability: Fix heap disclosure. [CVE ID not assigned yet](https://github.com/notepad-plus-plus/notepad-plus-plus/security/advisories/GHSA-h5cv-65m7-x97v)
+- Vulnerability: Fix TOCTOU risk when saving temp file under UAC. [CVE ID not assigned yet](https://github.com/notepad-plus-plus/notepad-plus-plus/security/advisories/GHSA-w7wv-vg94-7pvp)
+- Vulnerability: Fix out-of-bounds array access via NPPM_MENUCOMMAND. [CVE ID not assigned yet](https://github.com/notepad-plus-plus/notepad-plus-plus/security/advisories/GHSA-j327-595g-jg4c)
+- Vulnerability: Fix heap buffer overflow in SAML decode of MIME Tools plugin. [CVE ID not assigned yet](https://github.com/npp-plugins/mimetools/security/advisories/GHSA-554x-h7h6-gqfm)
+- Update to Scintilla 5.6.9 & Lexilla 5.5.5. (Implement [#18595](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18595))
+- Update to boost 1.92.0. (Implement [#18536](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18536))
+- Improve Find in Files performance. (Fix [#15248](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/15248), [#13730](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/13730))
+- Add an option to change dialog font & font size. (Fix [#5648](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/5648), [#9914](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/9914), [#10745](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/10745), [#17183](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/17183))
+- Add an option to display the Incremental Search bar at the top. (Fix [#18486](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18486))
+- Remember incremental Search options across sessions. (Fix [#18484](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18484))
+- Enhance the Cliboard history panel UI. (Implement [#18531](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18531), [#18559](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18559))
+- Fix files not opening via “Edit with Notepad++” when app path use 8.3 path format. (Fix [#18530](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18530), [report](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18314#issuecomment-5758572936))
+- Fix space dots ignore display scaling. (Fix [#18589](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18589))
+- Fix Document Switcher persistence issues. (Fix [#10574](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/10574), [#10950](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/10950))
+- Fix loss of editor focus when dismissing the Document Switcher with Ctrl+Esc. ([report](https://github.com/notepad-plus-plus/notepad-plus-plus/commit/f68849b21529bfe8acbccf0255c4cc421402d6bc#commitcomment-204970096))
+- Fix Clipboard History buffer over-read & truncation of UTF-16 surrogate pairs. (Fix [#18519](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18519), [#report](https://github.com/notepad-plus-plus/notepad-plus-plus/commit/816c16df89b7277e368e4cd0d012161fa876a962#commitcomment-206993140))
+- Fix auto-completion & call tip persist issue when moving/resizing window. (Fix [#18581](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18581))
+- Fix the current doc hidden due to missing auto-scroll in Windows dialog listview. (Fix [report](https://community.notepad-plus-plus.org/topic/27687/windows-list-entry-for-the-current-tab-not-visible-initially))
+- Fix incomplete repainting of Windows dialog list after resizing then sorting. (Fix [#16267](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/16267))
+- Fix the ESC key not closing Windows dialog after a document is closed. (Fix [#18554](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18554))
+- Add UDL as a selectable default language for new documents. (Fix [#979](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/979), [#11097](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/11097), [#18325](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18325))
+- Fix UDL dialog edits scrolling the wrapped document down. (Fix [#18105](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18105))
+- Detect external file modifications in both views instead of only the active view. (Fix [#7581](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/7581))
+- Add Structured Text language support. (Fix [#18365](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18365))
+- Fix several memory leaks. (Fixed by [#18466](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18466), [#18467](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18467), [#18465](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18465), [#18473](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18473), [#18482](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18482), [#18512](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18512), [#18535](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18535))
+- Fix Markdown UDL link highlighting being broken by ‘@’ in the URL. (Fix [#18009](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18009))
+- Fix Find-in-Files macro playback ignoring empty filters. (Fix [#8170](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/8170))
+- Fix Count and Mark All ignoring zero-length regex matches. (Fix [#7896](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/7896))
+- Fix bugs in Function List for C, TypeScript, INI, PowerShell & Bash. (Fix [#10162](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/10162), [#18358](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18358), [#18574](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18574), [#18174](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18174))
+- Fix the “inherit” flag for FG/BG not being cleared in Style Configurator. (Fix [#14197](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/14197))
+- Set new UDL to use theme FG, transparent BG, no bold/italic/underline by default. (Fix [#18387](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18387), [#5622](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/5622), [#17054](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/17054))
+- Fix spurious NPPN_READONLYCHANGED notification when files are deleted. (Fix [#16289](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/16289))
+- Fix call-tip parameter highlighting being confused by commas in string literals. (Fix [#8650](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/8650))
+- Fix missing warning display when deleting files from Notepad++ on Windows 7. (Fix [report](https://community.notepad-plus-plus.org/topic/27668/notepad-release-8.9.8.1/4?_=1790424988793))
+- Unify internal list views highlight style. (Fix [#18563](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18563))
+- Update Python & R keyword lists. (Fix [#18464](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18464), [#18445](https://github.com/notepad-plus-plus/notepad-plus-plus/issues/18445))
 
 ## 8.9.8.1 – 2026-09-24
 
