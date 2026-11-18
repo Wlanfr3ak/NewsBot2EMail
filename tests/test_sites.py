@@ -1263,5 +1263,75 @@ class TestMeshCore(unittest.TestCase):
                         out2.index("companion-v1.18.0"))
 
 
+class TestTails(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = load_module("tails")
+
+    LATEST = json.dumps({
+        "installations": [{
+            "version": "7.17.1",
+            "installation-paths": [
+                {"type": "img", "target-files": [{
+                    "url": "https://d/tails-amd64-7.17.1.img",
+                    "sha256": "a" * 64, "size": 1}]},
+                {"type": "iso", "target-files": [{
+                    "url": "https://d/tails-amd64-7.17.1.iso",
+                    "sha256": "b" * 64, "size": 1}]}]}]})
+
+    NEWS = [
+        {"version": "7.17.1", "date": "2026-11-17",
+         "link": "https://tails.net/news/version_7.17.1/",
+         "title": "Tails 7.17.1"},
+        {"version": "7.17", "date": "2026-11-11",
+         "link": "https://tails.net/news/version_7.17/",
+         "title": "Tails 7.17"},
+    ]
+
+    def test_extract(self):
+        self.assertEqual(self.mod.extract(self.LATEST), "7.17.1")
+
+    def test_extract_fehler(self):
+        with self.assertRaises(ValueError):
+            self.mod.extract('{"installations": []}')
+
+    def test_history(self):
+        with patch.object(self.mod, "_news_entries",
+                          return_value=list(self.NEWS)):
+            h = self.mod.extract_history("")
+        self.assertEqual(h[0], {"version": "7.17.1",
+                                "date": "2026-11-17"})
+        self.assertEqual(len(h), 2)
+
+    def test_list_downloads(self):
+        items = self.mod.list_downloads(self.LATEST, set(), None)
+        names = [i["filename"] for i in items]
+        self.assertEqual(names[0], "tails-amd64-7.17.1.latest.json")
+        self.assertIn("tails-amd64-7.17.1.iso", names)
+        self.assertIn("tails-amd64-7.17.1.iso.sig", names)
+        self.assertIn("tails-amd64-7.17.1.img", names)
+        self.assertIn("tails-amd64-7.17.1.img.sig", names)
+
+    def test_list_downloads_have(self):
+        have = {"tails-amd64-7.17.1.iso", "tails-amd64-7.17.1.img",
+                "tails-amd64-7.17.1.latest.json"}
+        items = self.mod.list_downloads(self.LATEST, have, None)
+        names = [i["filename"] for i in items]
+        # beleg kommt immer (wird refresht), Nutzdaten nicht
+        self.assertIn("tails-amd64-7.17.1.latest.json", names)
+        self.assertNotIn("tails-amd64-7.17.1.iso", names)
+        self.assertNotIn("tails-amd64-7.17.1.img", names)
+
+    def test_changelog(self):
+        with patch.object(self.mod, "_news_entries",
+                          return_value=list(self.NEWS)):
+            out = self.mod.update_changelog(None)
+        self.assertIn("## Tails 7.17.1 – 2026-11-17", out)
+        self.assertIn("version_7.17.1", out)
+        with patch.object(self.mod, "_news_entries",
+                          return_value=list(self.NEWS)):
+            self.assertIsNone(self.mod.update_changelog(out))
+
+
 if __name__ == "__main__":
     unittest.main()

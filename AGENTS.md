@@ -100,6 +100,29 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 
 ## Changelog
 
+### 1.27.0 – 2026-11-18
+
+**Feature: Tails-Modul.**
+
+- `sites/tails.py` (neu): überwacht Tails über die kanonische
+  Versionsquelle `tails.net/install/v2/Tails/amd64/stable/
+  latest.json` (verlinkt von der download-iso-Seite; enthält
+  Version, ISO/IMG-URLs, SHA256, Größe).
+  - `extract()`: `installations[0].version`.
+  - `extract_history()`: Release-Daten aus dem Atom-Feed
+    `tails.net/news/index.en.atom` ('Tails X.Y' + published).
+  - `list_downloads()`: ISO + IMG (~1.9 GB je) + beide `.sig`-
+    Signaturen + `tails-amd64-<v>.latest.json` als Hash-Beleg.
+  - `update_changelog()`: '## Tails <v> – <datum>' mit Link auf
+    die Release-Notes, inkrementell.
+- `newsbot.py`: `_checksum_map()` versteht jetzt auch das
+  Tails-`*.latest.json`-Format (installations -> target-files ->
+  url/sha256); `_is_checksum_file()` erkennt `.latest.json`
+  (wird pro Lauf refresht, Respin-sicher wie BlossomOS).
+- `tests/test_sites.py`: `TestTails`; `tests/test_newsbot.py`:
+  `test_latest_json_tails` + `_is_checksum_file`-Erweiterung.
+- `__version__` auf 1.27.0.
+
 ### 1.26.0 – 2026-11-18
 
 **Fix: veraltete Hash-Belege blockierten Downloads nach

@@ -226,6 +226,14 @@ class TestChecksum(unittest.TestCase):
                        json.dumps({"name": "B.iso", "sha256": h})})
         self.assertEqual(newsbot._checksum_map(d), {"B.iso": h.lower()})
 
+    def test_latest_json_tails(self):
+        d = self._dir({"tails-amd64-7.latest.json": json.dumps(
+            {"installations": [{"version": "7", "installation-paths": [
+                {"type": "iso", "target-files": [
+                    {"url": "https://x/t.iso", "sha256": "F" * 64}]}]}]})})
+        self.assertEqual(newsbot._checksum_map(d),
+                         {"t.iso": "f" * 64})
+
     def test_unbeteiligte_dateien_ignoriert(self):
         d = self._dir({"readme.txt": "a" * 64 + "  f.iso\n"})
         self.assertEqual(newsbot._checksum_map(d), {})
@@ -252,6 +260,7 @@ class TestChecksum(unittest.TestCase):
         self.assertTrue(newsbot._is_checksum_file("B.iso.isodata.json"))
         self.assertTrue(newsbot._is_checksum_file("SHA256SUMS"))
         self.assertTrue(newsbot._is_checksum_file("sha256sum.txt"))
+        self.assertTrue(newsbot._is_checksum_file("t.latest.json"))
         self.assertFalse(newsbot._is_checksum_file("f.iso"))
 
     def test_download_refresh(self):

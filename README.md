@@ -124,6 +124,7 @@ geloggt und übersprungen, ohne den Lauf abzubrechen.
 | `veracrypt.py` | neueste Version | GitHub-Daten | GitHub-Releases | Windows-Installer + sha256 |
 | `anytone_d890uv.py` | neueste FW-Version (2 Quellen) | Versionen | Seiten-Snapshots | alle Dateien |
 | `meshcore.py` | companion/repeater/room-server kombiniert | Releases (Datum) | Release-Notes + Blog-Posts | – (Flasher-Link) |
+| `tails.py` | neueste Version (latest.json) | Atom-Feed (Datum) | Release-Notes-Links | ISO + IMG + .sig + Hash-Beleg |
 
 ## Überwachungsmethoden
 

@@ -35,7 +35,7 @@ from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-__version__ = "1.26.0"
+__version__ = "1.27.0"
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
@@ -404,11 +404,13 @@ _CHECKSUM_NAME = re.compile(r"(?i)(sha\d|hash|checksum|sum)")
 
 def _is_checksum_file(name: str) -> bool:
     """Datei ist selbst eine Hash-Quelle (isodata.json,
-    sha256sum.txt, SHA256SUMS ...). Solche Dateien werden bei jedem
-    Lauf neu geladen, damit ein Upstream-Respin (gleicher Dateiname,
-    neuer Hash) nicht an einem veralteten Beleg scheitert."""
-    return name.endswith(".isodata.json") or bool(
-        _CHECKSUM_NAME.search(name))
+    latest.json, sha256sum.txt, SHA256SUMS ...). Solche Dateien
+    werden bei jedem Lauf neu geladen, damit ein Upstream-Respin
+    (gleicher Dateiname, neuer Hash) nicht an einem veralteten
+    Beleg scheitert."""
+    return (name.endswith(".isodata.json")
+            or name.endswith(".latest.json")
+            or bool(_CHECKSUM_NAME.search(name)))
 
 
 def _checksum_map(target_dir: Path) -> dict:
@@ -428,6 +430,20 @@ def _checksum_map(target_dir: Path) -> dict:
                 d = json.loads(p.read_text(encoding="utf-8"))
                 if d.get("name") and d.get("sha256"):
                     out[d["name"]] = d["sha256"].lower()
+            except Exception:
+                pass
+            continue
+        if p.name.endswith(".latest.json"):
+            # Tails-Format: installations -> installation-paths
+            # -> target-files [{url, sha256, size}]
+            try:
+                d = json.loads(p.read_text(encoding="utf-8"))
+                for inst in d.get("installations") or []:
+                    for path in inst.get("installation-paths") or []:
+                        for tf in path.get("target-files") or []:
+                            if tf.get("url") and tf.get("sha256"):
+                                fn = tf["url"].rsplit("/", 1)[-1]
+                                out[fn] = tf["sha256"].lower()
             except Exception:
                 pass
             continue
