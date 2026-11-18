@@ -100,6 +100,31 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 
 ## Changelog
 
+### 1.26.0 – 2026-11-18
+
+**Fix: veraltete Hash-Belege blockierten Downloads nach
+Upstream-Respin (BlossomOS).**
+
+- Problem: BlossomOS hat die ISO unter gleichem Dateinamen neu
+  gebaut (`BlossomOS-2026.11.15-x86_64.iso`, Hash `823904...` ->
+  `28b4ae...`). Der versionierte Hash-Beleg
+  `*.isodata.json` wurde wegen 'target.exists() -> skip' nie
+  aktualisiert - jeder ISO-Download scheiterte am alten Hash,
+  8x Retry-Schleife seit 16.11.
+- `_download_one(..., refresh=True)`: bestehende Datei wird neu
+  geladen und ersetzt, wenn der Inhalt abweicht (gleicher Inhalt
+  -> keine Aenderung/Rueckgabe False).
+- Neu `_is_checksum_file(name)`: Hash-Quellen (`*.isodata.json`,
+  `sha*`/`hash*`/`checksum*`/`sum*`) werden in
+  `download_releases()` + `run_dynamic_downloads()` automatisch
+  mit refresh=True geladen - Hash-Belege bleiben aktuell, ohne
+  dass Nutzdaten erneut geladen werden.
+- `tests/test_newsbot.py`: `test_is_checksum_file`,
+  `test_download_refresh` (Replace, unveraendert, ohne refresh).
+- Betroffene Dateien: `newsbot.py`, `tests/test_newsbot.py`,
+  `AGENTS.md`.
+- `__version__` auf 1.26.0.
+
 ### 1.25.0 – 2026-11-11
 
 **Feature: GitLab-Modul mit optionalem CVE-Filter (`cve_only`);

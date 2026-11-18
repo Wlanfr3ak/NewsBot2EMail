@@ -7,6 +7,7 @@ Alle Tests laufen offline - Netzwerkzugriffe werden gemockt.
 """
 
 import gzip
+import io
 import hashlib
 import json
 import os
@@ -246,6 +247,40 @@ class TestChecksum(unittest.TestCase):
             # Kein Hash vorhanden -> ok
             self.assertTrue(
                 newsbot._verify_download(site, tmp, "andere.iso", target))
+
+    def test_is_checksum_file(self):
+        self.assertTrue(newsbot._is_checksum_file("B.iso.isodata.json"))
+        self.assertTrue(newsbot._is_checksum_file("SHA256SUMS"))
+        self.assertTrue(newsbot._is_checksum_file("sha256sum.txt"))
+        self.assertFalse(newsbot._is_checksum_file("f.iso"))
+
+    def test_download_refresh(self):
+        """Hash-Quellen werden bei jedem Lauf neu geladen und bei
+        Abweichung ersetzt (Upstream-Respin-Szenario)."""
+        site = _site()
+        cfg = {"user_agent": "t", "request_timeout_seconds": 30}
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d) / "f.isodata.json"
+            target.write_bytes(b"alt")
+
+            def dl():
+                ctx = mock.MagicMock()
+                ctx.__enter__.return_value = io.BytesIO(b"neu")
+                return mock.patch("urllib.request.urlopen",
+                                  return_value=ctx)
+
+            with dl():
+                self.assertTrue(newsbot._download_one(
+                    site, cfg, "https://x/f.isodata.json", target,
+                    refresh=True))
+            self.assertEqual(target.read_bytes(), b"neu")
+            with dl():   # gleicher Inhalt -> keine Änderung
+                self.assertFalse(newsbot._download_one(
+                    site, cfg, "https://x/f.isodata.json", target,
+                    refresh=True))
+            # ohne refresh -> bestehende Datei bleibt unangetastet
+            self.assertFalse(newsbot._download_one(
+                site, cfg, "https://x/f.isodata.json", target))
 
 
 class TestHistory(unittest.TestCase):

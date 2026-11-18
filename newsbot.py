@@ -35,7 +35,7 @@ from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-__version__ = "1.25.0"
+__version__ = "1.26.0"
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
@@ -402,6 +402,15 @@ _HASH_ALGOS = {32: "md5", 40: "sha1", 64: "sha256", 128: "sha512"}
 _CHECKSUM_NAME = re.compile(r"(?i)(sha\d|hash|checksum|sum)")
 
 
+def _is_checksum_file(name: str) -> bool:
+    """Datei ist selbst eine Hash-Quelle (isodata.json,
+    sha256sum.txt, SHA256SUMS ...). Solche Dateien werden bei jedem
+    Lauf neu geladen, damit ein Upstream-Respin (gleicher Dateiname,
+    neuer Hash) nicht an einem veralteten Beleg scheitert."""
+    return name.endswith(".isodata.json") or bool(
+        _CHECKSUM_NAME.search(name))
+
+
 def _checksum_map(target_dir: Path) -> dict:
     """Dateiname -> erwarteter Hash, aus den Hash-Dateien im
     Download-Ordner (sha256sum.txt, SHA256SUMS, signed-hashes.txt,
@@ -461,13 +470,19 @@ def _verify_download(site: dict, tmp: Path, url_name: str,
 
 
 def _download_one(site: dict, cfg: dict, url: str, target: Path,
-                  unzip: bool = False) -> bool:
+                  unzip: bool = False, refresh: bool = False) -> bool:
     """Lädt eine Datei herunter (Stream in .part-Datei, dann Rename).
 
     unzip=True: die geladene Zip wird nicht behalten - das erste
     .iso-Mitglied (sonst erstes Mitglied) wird als 'target'
-    geschrieben, die Zip verworfen."""
-    if target.exists():
+    geschrieben, die Zip verworfen.
+
+    refresh=True: eine bereits vorhandene Datei wird erneut geladen
+    und ersetzt, wenn sich der Inhalt geändert hat (für
+    Hash-Quellen wie isodata.json/sha256sum.txt - Upstream kann
+    Artefakte unter gleichem Namen neu bauen)."""
+    existed = target.exists()
+    if existed and not refresh:
         return False
     target.parent.mkdir(parents=True, exist_ok=True)
     tmp = target.with_name(target.name + ".part")
@@ -500,6 +515,13 @@ def _download_one(site: dict, cfg: dict, url: str, target: Path,
             log.info("%-30s entpackt: %s (%s, %.1f MB)",
                      site["name"], target.name, member,
                      target.stat().st_size / 1_000_000)
+        elif existed:
+            if tmp.read_bytes() == target.read_bytes():
+                tmp.unlink()
+                return False
+            tmp.replace(target)
+            log.info("%-30s aktualisiert: %s", site["name"],
+                     target.name)
         else:
             tmp.rename(target)
             log.info("%-30s gespeichert: %s (%.1f MB)",
@@ -533,7 +555,8 @@ def download_releases(site: dict, cfg: dict, version: str) -> None:
         name = (filename or download_filename(url)).format(version=version)
         if unzip and name.lower().endswith(".zip"):
             name = name[:-4]  # Zip wird entpackt, Ziel ist der Inhalt
-        _download_one(site, cfg, url, target_dir / name, unzip=unzip)
+        _download_one(site, cfg, url, target_dir / name, unzip=unzip,
+                      refresh=_is_checksum_file(name))
 
 
 def run_dynamic_downloads(site: dict, cfg: dict, text: str) -> None:
@@ -548,8 +571,10 @@ def run_dynamic_downloads(site: dict, cfg: dict, text: str) -> None:
             if target_dir.is_dir() else set())
     items = site["list_downloads"](text, have, target_dir) or []
     for item in items:
-        _download_one(site, cfg, item["url"], target_dir / item["filename"],
-                      unzip=bool(item.get("unzip")))
+        _download_one(site, cfg, item["url"],
+                      target_dir / item["filename"],
+                      unzip=bool(item.get("unzip")),
+                      refresh=_is_checksum_file(item["filename"]))
 
 
 def run_site_hooks(site: dict, cfg: dict, state: dict,
