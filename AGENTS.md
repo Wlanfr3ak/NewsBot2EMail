@@ -100,6 +100,21 @@ python newsbot.py --test-mail     # SMTP-Zugang prüfen
 
 ## Changelog
 
+### 1.28.0 – 2026-11-26
+
+**Feature: globaler Schalter `downloads_enabled` (Deployment ohne
+Downloads).**
+
+- `config.json`: neue Top-Level-Option `downloads_enabled`
+  (Default `true`). Bei `false` werden in `run_site_hooks()`
+  sowohl `download_releases()` (DOWNLOADS-Templates) als auch
+  `run_dynamic_downloads()` (list_downloads-Hook) uebersprungen -
+  Checks, Changelog-Archiv und Mail-Alarmierung laufen normal.
+  Einsatz: zweite Instanz (z. B. LXC-Container), die nur archivieren
+  + alarmieren soll. In `config.example.json` dokumentiert.
+- `tests/test_newsbot.py`: `test_downloads_enabled_schalter`.
+- `__version__` auf 1.28.0.
+
 ### 1.27.0 – 2026-11-18
 
 **Feature: Tails-Modul.**

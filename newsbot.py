@@ -35,7 +35,7 @@ from email.message import EmailMessage
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-__version__ = "1.27.0"
+__version__ = "1.28.0"
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
@@ -613,12 +613,13 @@ def run_site_hooks(site: dict, cfg: dict, state: dict,
         except Exception as exc:
             log.warning("Changelog-Archiv für %s fehlgeschlagen: %s",
                         site["name"], exc)
-    if site.get("downloads"):
+    if site.get("downloads") and cfg.get("downloads_enabled", True):
         try:
             download_releases(site, cfg, version)
         except Exception as exc:
             log.warning("Downloads für %s fehlgeschlagen: %s", site["name"], exc)
-    if callable(site.get("list_downloads")):
+    if callable(site.get("list_downloads")) \
+            and cfg.get("downloads_enabled", True):
         try:
             if text is None:
                 # Seite unverändert (304) oder kein Body da - für

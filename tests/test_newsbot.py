@@ -291,6 +291,20 @@ class TestChecksum(unittest.TestCase):
             self.assertFalse(newsbot._download_one(
                 site, cfg, "https://x/f.isodata.json", target))
 
+    def test_downloads_enabled_schalter(self):
+        """downloads_enabled=false deaktiviert beide Download-Pfade."""
+        site = _site(downloads=["https://x/f.iso"],
+                     list_downloads=lambda *a: [])
+        state = {"sites": {"Testseite": {"value": "1.0"}}}
+        with mock.patch.object(newsbot, "download_releases") as dr,              mock.patch.object(newsbot, "run_dynamic_downloads") as rd:
+            newsbot.run_site_hooks(
+                site, {"downloads_enabled": False}, state)
+            dr.assert_not_called()
+            rd.assert_not_called()
+            newsbot.run_site_hooks(
+                site, {"downloads_enabled": True}, state)
+            dr.assert_called_once()
+
 
 class TestHistory(unittest.TestCase):
     def setUp(self):
