@@ -1,9 +1,202 @@
 # Changelog: GitLab
 
 Quelle: https://docs.gitlab.com/releases/
-Stand: 17.11.2026 02:38
+Stand: 26.11.2026 02:42
 
 ---
+
+## 19.6.2 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v19.6.2-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 19.5.9 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v19.5.9-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 19.4.11 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v19.4.11-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 19.3.10 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v19.3.10-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 19.2.11 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v19.2.11-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 19.1.11 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v19.1.11-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 19.0.12 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v19.0.12-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 18.11.15 – 2026-11-24
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-2-released/ (Tag v18.11.15-ee)
+
+Security-Fixes:
+- CVE-2026-119452 (Medium): Exposure of Sensitive Information issue in dependency proxy authentication impacts GitLab CE/EE
+- CVE-2026-132156 (Medium): Improper Validation of Specified Quantity in Input issue in on-call rotation length API impacts GitLab EE
+- CVE-2026-132822 (Medium): Allocation of Resources Without Limits or Throttling issue in Sentry error tracking client impacts GitLab CE/EE
+- CVE-2026-81336 (Medium): Improper Neutralization of Special Elements issue in Service Desk quick action redaction impacts GitLab CE/EE
+- CVE-2026-131867 (Medium): Exposure of Sensitive Information issue in Work Item REST API CI job token scope validation impacts GitLab CE/EE
+- CVE-2026-135221 (Medium): Server-Side Request Forgery issue in MCP server OAuth token endpoint handler impacts GitLab EE
+- CVE-2026-17194 (Medium): Use of Weak Hash issue in merge request approval reset mechanism impacts GitLab CE/EE
+- CVE-2026-132102 (Medium): Inefficient Regular Expression Complexity issue in dependency proxy route matching middleware impacts GitLab CE/EE
+- CVE-2026-16744 (Medium): Server-Side Request Forgery issue in cluster agent URL configuration validator impacts GitLab EE
+- CVE-2026-107633 (Medium): Incorrect Authorization issue in merge request approval policy enforcement impacts GitLab EE
+- CVE-2026-132794 (Medium): Incorrect Authorization issue in work items API impacts GitLab CE/EE
+- CVE-2026-129982 (Medium): Incorrect Authorization issue in batch suggestion apply API impacts GitLab CE/EE
+- CVE-2026-135636 (Low): Server-Side Request Forgery (SSRF) issue in remote Git endpoint validation impacts GitLab CE/EE
+- CVE-2026-105437
+- CVE-2026-129975
+
+## 19.6.1 – 2026-11-19
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-1-released/ (Tag v19.6.1-ee)
+
+Security-Fixes:
+- CVE-2026-132825 (Critical): CVE-2026-132825 (vulnerability in ruby)
+
+## 19.5.8 – 2026-11-19
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-1-released/ (Tag v19.5.8-ee)
+
+Security-Fixes:
+- CVE-2026-132825 (Critical): CVE-2026-132825 (vulnerability in ruby)
+
+## 19.4.10 – 2026-11-19
+
+Patch-Release: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-6-1-released/ (Tag v19.4.10-ee)
+
+Security-Fixes:
+- CVE-2026-132825 (Critical): CVE-2026-132825 (vulnerability in ruby)
+
+## 19.6.0 – 2026-11-18
+
+Patch-Release (Security-/Bugfixes) - Details: https://docs.gitlab.com/releases/ (Tag v19.6.0-ee)
 
 ## 19.5.6 – 2026-11-16
 

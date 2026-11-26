@@ -1,9 +1,473 @@
 # Changelog: PHP
 
 Quelle: https://www.php.net/ChangeLog-8.php
-Stand: 26.10.2026 06:53
+Stand: 19.11.2026 20:57
 
 ---
+
+## 8.5.13 – 2026-11-19 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-24184](https://github.com/php/php-src/issues/24184) (System ID not being reinitialized after an Apache graceful restart, potentially causing incompatible OPcache file cache entries to be reused).
+  - Fixed memory leak when an exception already contains the pending exception in its previous chain.
+  - Fixed bug [GH-23979](https://github.com/php/php-src/issues/23979) (Nullsafe operator must not flush delayed oplines of an enclosing function).
+  - Fixed memory manager keeping a block reallocated to exactly the size of the next smaller bin in its larger bin, which efree_size() then freed into the wrong one.
+  - Fixed bug [GH-24081](https://github.com/php/php-src/issues/24081) (User opcode handlers resume execution against a stale frame under ZEND_VM_KIND_TAILCALL).
+  - Fixed bug [GH-24218](https://github.com/php/php-src/issues/24218) (Invalid opcode for count() of a literal array without SCCP).
+  - Fix throwing behaviour with recursive arrays in VM.
+  - Fixed skipped catch block when switching fibers during exception unwinding (Nicolas Grekas)
+  - Fix escape analysis for objects implementing ArrayAccess.
+  - Fix UAF for resolved callable zval.
+  - Fix memory leak for nested HTTP calls.
+  - Fix function and constant imports in compile_to_ast and add support for grouping.
+  - Fixed bug [GH-24668](https://github.com/php/php-src/issues/24668) (zend_set_local_var() leaks the previous value of an existing CV).
+  - Fixed unmapping of an unrelated range when the aligned chunk mmap fails (Marti2203).
+  - Fixed AST printing dropping final on class constants and properties, and abstract on properties.
+  - Fixed AST export of readonly anonymous classes dropping the readonly modifier.
+  - Fixed memory leak of a duplicate named argument in new in initializer.
+  - Fixed bug [GH-25061](https://github.com/php/php-src/issues/25061) ($x = $x - 1 on null is optimized to PRE_DEC).
+  - Fixed first-class callables to static methods in trait constant expressions resolving to the method of the first using class and bypassing visibility checks.
+  - Fixed [GHSA-8mjj-2r7p-4hg2](https://github.com/php/php-src/security/advisories/GHSA-8mjj-2r7p-4hg2) (Use-after-free in magic method backtraces can lead to remote code execution). (CVE-2026-129474)
+  - Fixed [GHSA-2fjv-p558-g82m](https://github.com/php/php-src/security/advisories/GHSA-2fjv-p558-g82m) (Use-after-free via repopulation of last_fatal_error_backtrace global after shutdown). (CVE-2026-129182)
+- **CGI:**
+  - Fixed [GHSA-5j3f-64r7-f564](https://github.com/php/php-src/security/advisories/GHSA-5j3f-64r7-f564) (PHP-CGI out-of-bounds read and write during PATH_INFO correction). (CVE-2026-129538)
+- **CLI:**
+  - Fixed bug [GH-24697](https://github.com/php/php-src/issues/24697) (PHP_HTTP_PARSER_STRICT build option doesn't work).
+  - Fixed bug [GH-9670](https://github.com/php/php-src/issues/9670) (List -C and -q in the CLI help).
+- **COM:**
+  - Fixed bug [GH-25008](https://github.com/php/php-src/issues/25008) (com_event_sink() and com_print_typeinfo() crash resolving an event source with no loaded typelib).
+- **Curl:**
+  - Fix use-after-free of CURLOPT_STDERR stream on cloned curl handle.
+  - Fix UAF on clone due to callback data pointer mismatch.
+- **Date:**
+  - Fixed bug [GH-20503](https://github.com/php/php-src/issues/20503) (Assertion failure with ext/date DateInterval property hash construction).
+  - Fixed bug [GH-24350](https://github.com/php/php-src/issues/24350) (MINIT reads a stale external tz database after an in-process module restart).
+  - Fixed [GHSA-gr4f-wgx5-jpfv](https://github.com/php/php-src/security/advisories/GHSA-gr4f-wgx5-jpfv) (Timezone cache use-after-free can lead to remote code execution). (CVE-2026-129496)
+- **DBA:**
+  - Fixed bug [GH-24641](https://github.com/php/php-src/issues/24641) (ndbm backend never checks dbm_open() return value, NULL deref on first use after a failed open).
+- **DOM:**
+  - Fixed a use-after-free when reflected attribute setters replace an attribute whose child still has a live wrapper.
+  - Fix error paths in dom_xml_serializing_a_document_node().
+  - Fixed bug [GH-25118](https://github.com/php/php-src/issues/25118) (Dom\HTMLDocument::createFromString() crash on OOM).
+  - Fixed [GHSA-x8r7-mg3g-74hg](https://github.com/php/php-src/security/advisories/GHSA-x8r7-mg3g-74hg) (Double free during DOM XML serialization). (CVE-2026-129501)
+- **FFI:**
+  - Fixed bug [GH-24582](https://github.com/php/php-src/issues/24582) (Memory leaks in ext/ffi parser when finalize_type() bails out).
+- **Fileinfo:**
+  - Fixed bug [GH-24289](https://github.com/php/php-src/issues/24289) (finfo::file() reports the wrong argument number for an invalid $filename).
+- **FPM:**
+  - Fixed bug [GH-24229](https://github.com/php/php-src/issues/24229) (fcgi_close() passes shutdown() a literal 1, which is SHUT_RD in WASI).
+  - Fixed crash and stack memory disclosure in the worker output logging with a pool name longer than the message prefix buffer or log_limit.
+  - Fixed [GHSA-jm4m-qfqx-967m](https://github.com/php/php-src/security/advisories/GHSA-jm4m-qfqx-967m) (PHP-FPM epoll use-after-free can lead to local privilege escalation). (CVE-2026-129291)
+  - Fixed memory leaks of the _GET string on the status page error and HEAD request paths.
+  - Fixed use-after-free of the scoreboard copy when logging invalid status values.
+  - Fixed null pointer dereference in fpm_get_status() when the scoreboard copy fails.
+  - Fixed [GHSA-qc49-hpvq-g2w6](https://github.com/php/php-src/security/advisories/GHSA-qc49-hpvq-g2w6) (PHP-FPM request smuggling through an unread HTTP request body). (CVE-2026-129289)
+  - Fixed [GHSA-3mg3-cr28-46gc](https://github.com/php/php-src/security/advisories/GHSA-3mg3-cr28-46gc) (PHP-FPM status endpoint XSS via unescaped user and script fields). (CVE-2026-129292)
+- **FTP:**
+  - Fix double free in ext/ftp data_accept() on accept failure.
+- **GD:**
+  - Fixed imagetruecolortopalette() error message.
+- **Hash:**
+  - Fix GOST and Snefru digests of 512 MiB or more.
+- **Intl:**
+  - Fixed IntlDateFormatter parse functions truncating an $offset below INT_MIN.
+- **JSON:**
+  - Fixed json_encode() leaving the recursion guard set on objects with hooked properties after running out of memory while escaping a property name.
+  - Fixed json_encode() silently narrowing $depth values outside the int range, which wrapped to an unrelated depth.
+  - Fixed json_encode() continuing to encode after an array or object key failed to encode.
+- **LDAP:**
+  - Fix crash in ldap_exop_sync() when $response_data is omitted.
+- **MBString:**
+  - Fixed bug [GH-23958](https://github.com/php/php-src/issues/23958) (truncated encoding names resolving to full names).
+  - Fixed out-of-bounds read in php_mb_rfc1867_getword() on a multibyte lead byte at the end of a multipart field name.
+  - Fixed negative mbstring.regex_stack_limit and mbstring.regex_retry_limit on 32bit platforms.
+- **MySQLnd:**
+  - Fixed bug [GH-24293](https://github.com/php/php-src/issues/24293) (Segfault on connect with an empty password to a MariaDB PAM account).
+  - Fixed bug [GH-24609](https://github.com/php/php-src/issues/24609) (OK packets without an info message rejected on x32 builds).
+- **ODBC:**
+  - Fixed bug [GH-25036](https://github.com/php/php-src/issues/25036) (odbc_prepare() corrupts the heap when the driver cannot describe a parameter).
+- **Opcache:**
+  - Fixed bug [GH-24397](https://github.com/php/php-src/issues/24397) (Assertion failure when dumping JIT IR).
+  - Fixed tracing JIT returning a wrapped integer instead of a float on integer overflow after an integer was compared with a float or numeric-string literal.
+  - Fixed bug [GH-17626](https://github.com/php/php-src/issues/17626) (JIT corrupts an opline handler when blacklisting a root trace at the opcache.jit_max_root_traces limit, causing spurious "Too few arguments" errors and crashes).
+  - Fix type inference of ADD_ARRAY_UNPACK with integer keys.
+  - Fix too wide type inference for ASSIGN_DIM_OP.
+  - Fix OSS-Fuzz #568005340 (FETCH_DIM_FUNC_ARG partial conversion).
+  - Fix exception checks due to NAN warnings and object empty()'s.
+  - Fixed bug [GH-24270](https://github.com/php/php-src/issues/24270) (JIT loses the called scope of self:: and parent:: calls in closures).
+  - Fixed bug [GH-24337](https://github.com/php/php-src/issues/24337) (JIT: segfault when decrementing a non-numeric string property).
+  - Fixed bug [GH-24185](https://github.com/php/php-src/issues/24185) (Windows ZTS: random access violations with OPcache JIT in multi-process setups).
+  - Fix SIGFPE on LONG_MIN % -1 with a constant divisor.
+  - Fixed bug [GH-24388](https://github.com/php/php-src/issues/24388) (Tracing JIT: segfault when a trace runs out of side exits).
+  - Fixed bug [GH-24391](https://github.com/php/php-src/issues/24391) (JIT switch on constant null takes default instead of case 0).
+  - Fixed bug [GH-24206](https://github.com/php/php-src/issues/24206) (Tracing JIT loses loop-carried CV when its loop PHI is reloaded from memory).
+  - Fixed bug [GH-24386](https://github.com/php/php-src/issues/24386) (JIT: register operand must be loaded before the typed reference check).
+  - Fixed bug [GH-24437](https://github.com/php/php-src/issues/24437) (JIT: Fix OP_DATA read from an unwritten slot in zend_jit_assign_dim_op()).
+  - Fixed bug [GH-24398](https://github.com/php/php-src/issues/24398) (JIT: minimal JIT segfault when a hooked property is passed to a run-time-resolved function).
+  - Fixed bug [GH-24389](https://github.com/php/php-src/issues/24389) (Tracing JIT: type guard on entry of an inlined call exits with an uninitialized opline).
+  - Fixed use-after-free in JIT ASSIGN_DIM_OP when concatenating into an empty array element.
+  - Fixed bug [GH-24396](https://github.com/php/php-src/issues/24396) (Assertion failure in zend_jit_def_reg() "reg forwarding" with chained Pi nodes).
+  - Fixed JIT treating an array as packed after a string key write turned it into a hash.
+  - Fixed bug [GH-24436](https://github.com/php/php-src/issues/24436) (Tracing JIT: keep the SEND_VAL type guard after assigning to a reference).
+  - Fixed bug [GH-24745](https://github.com/php/php-src/issues/24745) (File cache loses attributes on constants on 32-bit builds).
+  - Fixed bug [GH-17733](https://github.com/php/php-src/issues/17733) (System entropy does not take into account function order, resulting in wrong functions possibly called in different configurations).
+  - Fixed bug [GH-24438](https://github.com/php/php-src/issues/24438) (Preserve indirect types in JIT side traces).
+  - Fixed bug [GH-24577](https://github.com/php/php-src/issues/24577) (CE-cache flag on interned class name visible before map_ptr offset).
+  - Fixed tracing JIT losing register-allocated CVs when an interrupt is handled at the end of a loop trace.
+  - Fixed bug [GH-24675](https://github.com/php/php-src/issues/24675) (function with >~1.7 MB of machine code corrupts JIT buffer accounting).
+  - Call orig_post_shutdown_cb().
+  - Fixed JIT segfault on switch over a string reference holding a non-string value.
+  - Fixed AArch64 JIT encoding of invalid logical immediates.
+  - Fixed JIT crashes when handling a VM interrupt with a stale saved opline in the tailcall VM.
+  - Fixed function JIT misinterpreting VM-enter results after an interrupt callback in the CALL and TAILCALL VMs.
+  - Fixed unsound shift_left_overflows range when shift wraps.
+  - Fixed bug [GH-23572](https://github.com/php/php-src/issues/23572) (Tracing JIT calls the wrong method for self::/parent:: static calls in trait methods shared by several classes).
+  - Fix block pass dropping ZEND_FAST_CALL OP2 definition.
+  - Fixed bug [GH-23626](https://github.com/php/php-src/issues/23626) (orphaned temporaries cause leaks and assertions).
+  - Fix preloaded functions JIT-compiled on load being overwritten after restart.
+  - Fix opcache.interned_strings_buffer being 0 in threads started later (ZTS).
+  - Fixed potential infinite recursion/hang (HYBRID/TAILCALL respectively) when zend_interrupt_function resets EG(vm_interrupt).
+  - Fix JIT losing the called scope of self::/parent:: calls in included files.
+  - Fixed preloaded functions not JIT-compiled again after OPcache restart.
+  - Fixed bug [GH-24988](https://github.com/php/php-src/issues/24988) (Incorrect opcode range check causes bugs with exceptions in function JIT).
+  - Fix opcache phar check.
+  - Fixed bug [GH-22216](https://github.com/php/php-src/issues/22216) (spurious opcache.memory_consumption warning on each new ZTS thread; the directive is also reported as 0 in worker threads).
+- **OpenSSL:**
+  - Fixed build and test compatibility with OpenSSL 4.0 and 4.1.
+  - Fixed bug [GH-24784](https://github.com/php/php-src/issues/24784) (openssl_pkcs7_read() and openssl_cms_read() overwrite certificates with CRLs).
+- **PDO:**
+  - Fixed invalid ATTR_ORACLE_NULLS values being accepted and truncated.
+  - Fixed a duplicate warning when ATTR_STATEMENT_CLASS is rejected on a persistent connection.
+  - Fixed constructor option errors naming argument #3 ($password) instead of argument #4 ($options).
+- **PDO_Firebird:**
+  - Fixed bug [GH-25006](https://github.com/php/php-src/issues/25006) (getColumnMeta() reads out of bounds for an out-of-range column index).
+- **PDO_PGSQL:**
+  - Fixed a use-after-free when a persistent connection receives a notice after the request that called Pdo\Pgsql::setNoticeCallback() has ended.
+- **PDO_SQLite:**
+  - Fixed bug [GH-24990](https://github.com/php/php-src/issues/24990) (Statement unusable after a failed execute()).
+- **Phar:**
+  - Fixed bug [GH-25093](https://github.com/php/php-src/issues/25093) (Phar::webPhar() redirect reads past the request URI).
+  - Fixed bug [GH-25089](https://github.com/php/php-src/issues/25089) (Heap buffer over-read via crafted alias size in zip-based phar).
+  - Fixed bug [GH-8469](https://github.com/php/php-src/issues/8469) (Phar::decompressFiles() and Phar::compressFiles() retain compressed contents after changing compression).
+  - Fixed bug [GH-24740](https://github.com/php/php-src/issues/24740) (Oversized tar metadata exhausts the memory limit).
+  - Fixed bug [GH-25090](https://github.com/php/php-src/issues/25090) (UAF in phar rename() of an entry with metadata).
+  - Fixed bug [GH-25091](https://github.com/php/php-src/issues/25091) (UAF in phar rename() when source and destination are equal).
+  - Fixed bug [GH-25092](https://github.com/php/php-src/issues/25092) (Double free in Phar::copy() on link and mounted entries).
+  - Fixed bug [GH-24531](https://github.com/php/php-src/issues/24531) (Crash when modifying a zip-based phar whose file was renamed).
+  - Fixed [GHSA-68fq-fh7h-f8gr](https://github.com/php/php-src/security/advisories/GHSA-68fq-fh7h-f8gr) (PHAR OpenSSL signature bypass via algorithm downgrade). (CVE-2026-128090)
+- **Phpdbg:**
+  - Fix wrong command names.
+  - Fixed bug [GH-22480](https://github.com/php/php-src/issues/22480) (Use-after-free when re-watching an already-watched variable).
+  - Fixed over-read when watching a packed array element.
+  - Fixed double free of watch element chains.
+- **POSIX:**
+  - Fixed posix_setrlimit() rejecting POSIX_RLIMIT_INFINITY on Solaris.
+- **Readline:**
+  - Fixed a crash in readline_info() when completion_append_character contains a non-ASCII byte.
+- **SAPI:**
+  - Fixed infinite loop in sapi_header_op() for headers of 4 GiB or more.
+- **SOAP:**
+  - Fixed [GHSA-q23r-hr55-xmpg](https://github.com/php/php-src/security/advisories/GHSA-q23r-hr55-xmpg) (SOAP information disclosure through malformed array dimensions). (CVE-2026-15353)
+  - Fixed [GHSA-4646-p932-gw34](https://github.com/php/php-src/security/advisories/GHSA-4646-p932-gw34) (SOAP use-after-free when processing DTD entity references). (CVE-2026-129506)
+- **Session:**
+  - Validate whole session ID instead of stopping at the first NUL byte.
+  - Fixed [GHSA-fm2m-fjf5-v3cp](https://github.com/php/php-src/security/advisories/GHSA-fm2m-fjf5-v3cp) (Partially overwritten session files can lead to remote code execution). (CVE-2026-126714)
+  - Fixed [GHSA-658j-r8rw-q6mx](https://github.com/php/php-src/security/advisories/GHSA-658j-r8rw-q6mx) (Session serializer mismatch can lead to remote code execution). (CVE-2026-115560)
+  - Fixed [GHSA-g3vh-838c-65v7](https://github.com/php/php-src/security/advisories/GHSA-g3vh-838c-65v7) (Use-after-free after interrupted session shutdown). (CVE-2026-129481)
+- **SPL:**
+  - Fixed bug [GH-24264](https://github.com/php/php-src/issues/24264) (Unwind/GracefulExit discarded in spl_iterators.c).
+- **Sockets:**
+  - Fixed bug [GH-24748](https://github.com/php/php-src/issues/24748) (socket_set_option() crashes with declared object properties).
+- **Standard:**
+  - Fixed memory leaks in checkdnsrr() and dns_check_record() on Windows.
+  - Fixed __unserialize() and __wakeup() being called for objects with a missing closing brace.
+  - Fixed bug [GH-24308](https://github.com/php/php-src/issues/24308) (Request shutdown calls closelog() even when syslog was not opened by PHP).
+  - Fixed password_get_info() and password_needs_rehash() accepting malformed bcrypt costs.
+  - Fixed proc_open() null descriptor not being inheritable on Windows.
+  - Don't share the unserialize() context with enum autoloaders.
+  - Fixed bug [GH-24399](https://github.com/php/php-src/issues/24399) (usleep() and time_nanosleep() ignore queued APCs on Windows).
+  - Fixed glob() not negating bracket expressions that start with "^".
+  - Fixed bug [GH-24552](https://github.com/php/php-src/issues/24552) (Case-insensitive substr_compare(), ksort() and krsort() are still locale-dependent).
+  - Fixed bug [GH-24605](https://github.com/php/php-src/issues/24605) (var_export() crashes on deeply nested arrays and objects).
+  - Fix use-after-free in Randomizer::shuffleArray() when the engine throws.
+  - Fixed [GHSA-f6gg-rchx-xw8j](https://github.com/php/php-src/security/advisories/GHSA-f6gg-rchx-xw8j) (Mixed-case HTTPS and FTPS URLs can expose data in plaintext). (CVE-2026-128064)
+  - Fixed [GHSA-mmf9-xm3v-hg2x](https://github.com/php/php-src/security/advisories/GHSA-mmf9-xm3v-hg2x) (Denial of service through folded HTTP response headers). (CVE-2026-127960)
+- **Streams:**
+  - Fixed bug [GH-24508](https://github.com/php/php-src/issues/24508) (HTTP wrapper leaks the dechunk filter when header parsing fails after Transfer-Encoding).
+  - Fixed bug [GH-24509](https://github.com/php/php-src/issues/24509) (HTTP wrapper leaks Location buffer on empty Location header).
+  - Fix out-of-bounds reads parsing ftp:// wrapper server replies.
+- **Tidy:**
+  - Fixed tidy_repair_string(), tidy_repair_file(), tidy::repairString() and tidy::repairFile() rejecting null for $encoding.
+- **URI:**
+  - Fixed bug [GH-25019](https://github.com/php/php-src/issues/25019) (Uri\Rfc3986\Uri rejects a port with leading zeros as out of range).
+  - Upgrade to uriparser 1.0.3. (CVE-2026-48841)
+  - Fixed [GHSA-mg3p-mxj9-g2mm](https://github.com/php/php-src/security/advisories/GHSA-mg3p-mxj9-g2mm) (Incorrect RFC 3986 URI serialization for oversized input). (CVE-2026-129438)
+- **Windows:**
+  - Fixed bug [GH-25009](https://github.com/php/php-src/issues/25009) (GetConsoleTitleW() buffer size passed in bytes).
+  - Fixed sapi_windows_cp_set() and sapi_windows_cp_conv() accepting a negative codepage on 32bit platforms.
+- **Zip:**
+  - Reject broken libzip versions 1.3.1, 1.7.0 and 1.12.0 during Windows configuration.
+  - Excluded libzip 1.12.0 due to a regression preventing additions and replacements in torrentzip archives.
+  - Fixed use-after-free when re-entering ZipArchive during destruction or a close warning, and rejected opening streams while closing.
+  - Fixed a use-after-free when a ZipArchive method that modifies the archive is called from a progress or cancel callback during close().
+- **Zlib:**
+  - Fixed use-after-free when an error handler removes a failing zlib.inflate filter ([GH-24176](https://github.com/php/php-src/issues/24176)).
+  - Fixed bug [GH-24533](https://github.com/php/php-src/issues/24533) (zlib.lib could not be found because zlib 1.3.2 CMake build does not emit it).
+
+## 8.4.28 – 2026-11-19 (Security Release)
+
+- **Core:**
+  - Fixed bug [GH-24184](https://github.com/php/php-src/issues/24184) (System ID not being reinitialized after an Apache graceful restart, potentially causing incompatible OPcache file cache entries to be reused).
+  - Fixed memory leak when an exception already contains the pending exception in its previous chain.
+  - Fixed bug [GH-23979](https://github.com/php/php-src/issues/23979) (Nullsafe operator must not flush delayed oplines of an enclosing function).
+  - Fixed memory manager keeping a block reallocated to exactly the size of the next smaller bin in its larger bin, which efree_size() then freed into the wrong one.
+  - Fixed bug [GH-24218](https://github.com/php/php-src/issues/24218) (Invalid opcode for count() of a literal array without SCCP).
+  - Fix throwing behaviour with recursive arrays in VM.
+  - Fixed skipped catch block when switching fibers during exception unwinding (Nicolas Grekas)
+  - Fix escape analysis for objects implementing ArrayAccess.
+  - Fix UAF for resolved callable zval.
+  - Fix memory leak for nested HTTP calls.
+  - Fixed pthread attribute leak in zend_call_stack_get_netbsd_pthread().
+  - Fixed bug [GH-24321](https://github.com/php/php-src/issues/24321) (ZTS: global_map_ptr_last survives zend_shutdown(), so an in-process engine restart keeps growing the map_ptr table).
+  - Fix function and constant imports in compile_to_ast and add support for grouping.
+  - Fixed bug [GH-24265](https://github.com/php/php-src/issues/24265) (Unwind/GracefulExit discarded in zend_fiber_execute()).
+  - Fixed bug [GH-24668](https://github.com/php/php-src/issues/24668) (zend_set_local_var() leaks the previous value of an existing CV).
+  - Fixed unmapping of an unrelated range when the aligned chunk mmap fails (Marti2203).
+  - Fixed bug [GH-24989](https://github.com/php/php-src/issues/24989) (Use-after-free in GC when an exception is thrown).
+  - Fixed bug [GH-24534](https://github.com/php/php-src/issues/24534) (Segfault in zend_try_early_bind when a parent class autoloads its cached child during linking).
+  - Fixed AST printing dropping final on class constants and properties, and abstract on properties.
+  - Fixed AST export of readonly anonymous classes dropping the readonly modifier.
+  - Fixed memory leak of a duplicate named argument in new in initializer.
+  - Fixed bug [GH-25061](https://github.com/php/php-src/issues/25061) ($x = $x - 1 on null is optimized to PRE_DEC).
+  - Fixed bug [GH-24480](https://github.com/php/php-src/issues/24480) (Finally block running a second time when a VM interrupt throws as the finally block returns to a "return" in its try block).
+- **CGI:**
+  - Fixed [GHSA-5j3f-64r7-f564](https://github.com/php/php-src/security/advisories/GHSA-5j3f-64r7-f564) (PHP-CGI out-of-bounds read and write during PATH_INFO correction). (CVE-2026-129538)
+- **CLI:**
+  - Fixed bug [GH-24697](https://github.com/php/php-src/issues/24697) (PHP_HTTP_PARSER_STRICT build option doesn't work).
+  - Fixed bug [GH-9670](https://github.com/php/php-src/issues/9670) (List -C and -q in the CLI help).
+  - Fixed crash and leak in the built-in server on repeated request headers.
+- **COM:**
+  - Fixed bug [GH-25008](https://github.com/php/php-src/issues/25008) (com_event_sink() and com_print_typeinfo() crash resolving an event source with no loaded typelib).
+- **Curl:**
+  - Fix use-after-free of CURLOPT_STDERR stream on cloned curl handle.
+  - Fix UAF on clone due to callback data pointer mismatch.
+- **Date:**
+  - Fixed bug [GH-20503](https://github.com/php/php-src/issues/20503) (Assertion failure with ext/date DateInterval property hash construction).
+  - Fixed bug [GH-24350](https://github.com/php/php-src/issues/24350) (MINIT reads a stale external tz database after an in-process module restart).
+  - Fixed [GHSA-gr4f-wgx5-jpfv](https://github.com/php/php-src/security/advisories/GHSA-gr4f-wgx5-jpfv) (Timezone cache use-after-free can lead to remote code execution). (CVE-2026-129496)
+- **DBA:**
+  - Fixed bug [GH-24641](https://github.com/php/php-src/issues/24641) (ndbm backend never checks dbm_open() return value, NULL deref on first use after a failed open).
+- **DOM:**
+  - Fixed a use-after-free when reflected attribute setters replace an attribute whose child still has a live wrapper.
+  - Fixed bug [GH-23352](https://github.com/php/php-src/issues/23352) (UAF reading an attribute value node retained across DOMDocument::adoptNode()).
+  - Fixed bug [GH-24260](https://github.com/php/php-src/issues/24260) (querySelectorAll() returns duplicate elements for selector lists).
+  - Fixed bug [GH-23334](https://github.com/php/php-src/issues/23334) (Use-after-free in php_dom_free_templated_content()).
+  - Fixed bug [GH-22077](https://github.com/php/php-src/issues/22077) (UAF in custom XPath function).
+  - Fixed bug [GH-22554](https://github.com/php/php-src/issues/22554) (use-after-free with XPath callback returning a node from a foreign document).
+  - Fixed DOMXPath crash wrapping a foreign node after a nodeset callback.
+  - Fix error paths in dom_xml_serializing_a_document_node().
+  - Fixed use-after-free on namespace axis results with a foreign-document XPath callback node.
+  - Fixed [GHSA-x8r7-mg3g-74hg](https://github.com/php/php-src/security/advisories/GHSA-x8r7-mg3g-74hg) (Double free during DOM XML serialization). (CVE-2026-129501)
+- **FFI:**
+  - Fixed bug [GH-24582](https://github.com/php/php-src/issues/24582) (Memory leaks in ext/ffi parser when finalize_type() bails out).
+- **FPM:**
+  - Fixed bug [GH-24229](https://github.com/php/php-src/issues/24229) (fcgi_close() passes shutdown() a literal 1, which is SHUT_RD in WASI).
+  - Fixed crash and stack memory disclosure in the worker output logging with a pool name longer than the message prefix buffer or log_limit.
+  - Fixed [GHSA-jm4m-qfqx-967m](https://github.com/php/php-src/security/advisories/GHSA-jm4m-qfqx-967m) (PHP-FPM epoll use-after-free can lead to local privilege escalation). (CVE-2026-129291)
+  - Fixed memory leaks of the _GET string on the status page error and HEAD request paths.
+  - Fixed use-after-free of the scoreboard copy when logging invalid status values.
+  - Fixed null pointer dereference in fpm_get_status() when the scoreboard copy fails.
+  - Fixed [GHSA-qc49-hpvq-g2w6](https://github.com/php/php-src/security/advisories/GHSA-qc49-hpvq-g2w6) (PHP-FPM request smuggling through an unread HTTP request body). (CVE-2026-129289)
+  - Fixed [GHSA-3mg3-cr28-46gc](https://github.com/php/php-src/security/advisories/GHSA-3mg3-cr28-46gc) (PHP-FPM status endpoint XSS via unescaped user and script fields). (CVE-2026-129292)
+- **Fileinfo:**
+  - Fixed bug [GH-24289](https://github.com/php/php-src/issues/24289) (finfo::file() reports the wrong argument number for an invalid $filename).
+- **FTP:**
+  - Fix double free in ext/ftp data_accept() on accept failure.
+- **GD:**
+  - Fixed imagetruecolortopalette() error message.
+- **Hash:**
+  - Fix GOST and Snefru digests of 512 MiB or more.
+- **Intl:**
+  - Fixed IntlDateFormatter parse functions truncating an $offset below INT_MIN.
+- **JSON:**
+  - Fixed json_encode() leaving the recursion guard set on objects with hooked properties after running out of memory while escaping a property name.
+  - Fixed json_encode() silently narrowing $depth values outside the int range, which wrapped to an unrelated depth.
+  - Fixed json_encode() continuing to encode after an array or object key failed to encode.
+- **LDAP:**
+  - Fix crash in ldap_exop_sync() when $response_data is omitted.
+- **MBString:**
+  - Fixed bug [GH-23958](https://github.com/php/php-src/issues/23958) (truncated encoding names resolving to full names).
+  - Fixed out-of-bounds read in php_mb_rfc1867_getword() on a multibyte lead byte at the end of a multipart field name.
+  - Fixed negative mbstring.regex_stack_limit and mbstring.regex_retry_limit on 32bit platforms.
+- **MySQLnd:**
+  - Fixed bug [GH-24293](https://github.com/php/php-src/issues/24293) (Segfault on connect with an empty password to a MariaDB PAM account).
+  - Fixed bug [GH-24609](https://github.com/php/php-src/issues/24609) (OK packets without an info message rejected on x32 builds).
+- **ODBC:**
+  - Fixed bug [GH-24736](https://github.com/php/php-src/issues/24736) (php_odbc_connstr_is_quoted() treats a value with no closing brace as quoted).
+  - Fixed bug [GH-25036](https://github.com/php/php-src/issues/25036) (odbc_prepare() corrupts the heap when the driver cannot describe a parameter).
+- **Opcache:**
+  - Fixed bug [GH-24397](https://github.com/php/php-src/issues/24397) (Assertion failure when dumping JIT IR).
+  - Fixed tracing JIT returning a wrapped integer instead of a float on integer overflow after an integer was compared with a float or numeric-string literal.
+  - Fixed bug [GH-20890](https://github.com/php/php-src/issues/20890) (Segfault in zval_undefined_cv with non-simple property hook with minimal tracing JIT).
+  - Fixed bug [GH-17626](https://github.com/php/php-src/issues/17626) (JIT corrupts an opline handler when blacklisting a root trace at the opcache.jit_max_root_traces limit, causing spurious "Too few arguments" errors and crashes).
+  - Fix type inference of ADD_ARRAY_UNPACK with integer keys.
+  - Fix too wide type inference for ASSIGN_DIM_OP.
+  - Fix OSS-Fuzz #568005340 (FETCH_DIM_FUNC_ARG partial conversion).
+  - Fixed bug [GH-24218](https://github.com/php/php-src/issues/24218) (Invalid opcode for count() of a literal array when SCCP is disabled).
+  - Fixed bug [GH-24337](https://github.com/php/php-src/issues/24337) (JIT: segfault when decrementing a non-numeric string property).
+  - Fix SIGFPE on LONG_MIN % -1 with a constant divisor.
+  - Fixed bug [GH-24388](https://github.com/php/php-src/issues/24388) (Tracing JIT: segfault when a trace runs out of side exits).
+  - Fixed bug [GH-24391](https://github.com/php/php-src/issues/24391) (JIT switch on constant null takes default instead of case 0).
+  - Fixed bug [GH-24206](https://github.com/php/php-src/issues/24206) (Tracing JIT loses loop-carried CV when its loop PHI is reloaded from memory).
+  - Fixed bug [GH-24386](https://github.com/php/php-src/issues/24386) (JIT: register operand must be loaded before the typed reference check).
+  - Fixed bug [GH-24437](https://github.com/php/php-src/issues/24437) (JIT: Fix OP_DATA read from an unwritten slot in zend_jit_assign_dim_op()).
+  - Fixed bug [GH-24398](https://github.com/php/php-src/issues/24398) (JIT: minimal JIT segfault when a hooked property is passed to a run-time-resolved function).
+  - Fixed bug [GH-24389](https://github.com/php/php-src/issues/24389) (Tracing JIT: type guard on entry of an inlined call exits with an uninitialized opline).
+  - Fixed use-after-free in JIT ASSIGN_DIM_OP when concatenating into an empty array element.
+  - Fixed bug [GH-24396](https://github.com/php/php-src/issues/24396) (Assertion failure in zend_jit_def_reg() "reg forwarding" with chained Pi nodes).
+  - Fixed JIT treating an array as packed after a string key write turned it into a hash.
+  - Fixed bug [GH-24436](https://github.com/php/php-src/issues/24436) (Tracing JIT: keep the SEND_VAL type guard after assigning to a reference).
+  - Fixed bug [GH-17733](https://github.com/php/php-src/issues/17733) (System entropy does not take into account function order, resulting in wrong functions possibly called in different configurations).
+  - Fixed bug [GH-24438](https://github.com/php/php-src/issues/24438) (Preserve indirect types in JIT side traces).
+  - Fixed bug [GH-24577](https://github.com/php/php-src/issues/24577) (CE-cache flag on interned class name visible before map_ptr offset).
+  - Fixed tracing JIT losing register-allocated CVs when an interrupt is handled at the end of a loop trace.
+  - Fixed bug [GH-24675](https://github.com/php/php-src/issues/24675) (function with >~1.7 MB of machine code corrupts JIT buffer accounting).
+  - Call orig_post_shutdown_cb().
+  - Fixed JIT segfault on switch over a string reference holding a non-string value.
+  - Fixed AArch64 JIT encoding of invalid logical immediates.
+  - Fixed unsound shift_left_overflows range when shift wraps.
+  - Fix block pass dropping ZEND_FAST_CALL OP2 definition.
+  - Fixed bug [GH-23626](https://github.com/php/php-src/issues/23626) (orphaned temporaries cause leaks and assertions).
+  - Fix preloaded functions JIT-compiled on load being overwritten after restart.
+  - Fix opcache.interned_strings_buffer being 0 in threads started later (ZTS).
+  - Fixed potential infinite recursion/hang (HYBRID/TAILCALL respectively) when zend_interrupt_function resets EG(vm_interrupt).
+  - Fixed preloaded functions not JIT-compiled again after OPcache restart.
+  - Fixed bug [GH-24988](https://github.com/php/php-src/issues/24988) (Incorrect opcode range check causes bugs with exceptions in function JIT).
+  - Fix opcache phar check.
+- **OpenSSL:**
+  - Fixed build and test compatibility with OpenSSL 4.0 and 4.1.
+  - Fixed bug [GH-24784](https://github.com/php/php-src/issues/24784) (openssl_pkcs7_read() and openssl_cms_read() overwrite certificates with CRLs).
+- **PDO:**
+  - Fixed invalid ATTR_ORACLE_NULLS values being accepted and truncated.
+  - Fixed a duplicate warning when ATTR_STATEMENT_CLASS is rejected on a persistent connection.
+- **PDO_Firebird:**
+  - Fixed bug [GH-25006](https://github.com/php/php-src/issues/25006) (getColumnMeta() reads out of bounds for an out-of-range column index).
+- **PDO_PGSQL:**
+  - Fixed a use-after-free when a persistent connection receives a notice after the request that called Pdo\Pgsql::setNoticeCallback() has ended.
+- **PDO_SQLite:**
+  - Fixed bug [GH-24990](https://github.com/php/php-src/issues/24990) (Statement unusable after a failed execute()).
+  - Fixed bug [GH-25021](https://github.com/php/php-src/issues/25021) (SQLite createFunction corrupts large integers).
+- **Phar:**
+  - Fixed bug [GH-25093](https://github.com/php/php-src/issues/25093) (Phar::webPhar() redirect reads past the request URI).
+  - Fixed bug [GH-25089](https://github.com/php/php-src/issues/25089) (Heap buffer over-read via crafted alias size in zip-based phar).
+  - Fixed bug [GH-8469](https://github.com/php/php-src/issues/8469) (Phar::decompressFiles() and Phar::compressFiles() retain compressed contents after changing compression).
+  - Fixed bug [GH-24740](https://github.com/php/php-src/issues/24740) (Oversized tar metadata exhausts the memory limit).
+  - Fixed bug [GH-25090](https://github.com/php/php-src/issues/25090) (UAF in phar rename() of an entry with metadata).
+  - Fixed bug [GH-25091](https://github.com/php/php-src/issues/25091) (UAF in phar rename() when source and destination are equal).
+  - Fixed bug [GH-25092](https://github.com/php/php-src/issues/25092) (Double free in Phar::copy() on link and mounted entries).
+  - Fixed bug [GH-24531](https://github.com/php/php-src/issues/24531) (Crash when modifying a zip-based phar whose file was renamed).
+  - Fixed [GHSA-68fq-fh7h-f8gr](https://github.com/php/php-src/security/advisories/GHSA-68fq-fh7h-f8gr) (PHAR OpenSSL signature bypass via algorithm downgrade). (CVE-2026-128090)
+- **Phpdbg:**
+  - Fix wrong command names.
+  - Fixed bug [GH-22480](https://github.com/php/php-src/issues/22480) (Use-after-free when re-watching an already-watched variable).
+  - Fixed over-read when watching a packed array element.
+  - Fixed double free of watch element chains.
+- **Readline:**
+  - Fixed a crash in readline_info() when completion_append_character contains a non-ASCII byte.
+- **SAPI:**
+  - Fixed infinite loop in sapi_header_op() for headers of 4 GiB or more.
+- **SOAP:**
+  - Fixed use of uninitialized func in do_request() on OOM bailout.
+  - Fixed [GHSA-q23r-hr55-xmpg](https://github.com/php/php-src/security/advisories/GHSA-q23r-hr55-xmpg) (SOAP information disclosure through malformed array dimensions). (CVE-2026-15353)
+  - Fixed [GHSA-4646-p932-gw34](https://github.com/php/php-src/security/advisories/GHSA-4646-p932-gw34) (SOAP use-after-free when processing DTD entity references). (CVE-2026-129506)
+- **Session:**
+  - Validate whole session ID instead of stopping at the first NUL byte.
+  - Fixed [GHSA-fm2m-fjf5-v3cp](https://github.com/php/php-src/security/advisories/GHSA-fm2m-fjf5-v3cp) (Partially overwritten session files can lead to remote code execution). (CVE-2026-126714)
+  - Fixed [GHSA-658j-r8rw-q6mx](https://github.com/php/php-src/security/advisories/GHSA-658j-r8rw-q6mx) (Session serializer mismatch can lead to remote code execution). (CVE-2026-115560)
+  - Fixed [GHSA-g3vh-838c-65v7](https://github.com/php/php-src/security/advisories/GHSA-g3vh-838c-65v7) (Use-after-free after interrupted session shutdown). (CVE-2026-129481)
+- **SimpleXML:**
+  - Fixed bug [GH-24488](https://github.com/php/php-src/issues/24488) (GC double-frees the SimpleXMLElement properties table).
+- **SPL:**
+  - Fixed bug [GH-24264](https://github.com/php/php-src/issues/24264) (Unwind/GracefulExit discarded in spl_iterators.c).
+- **Sockets:**
+  - Fixed bug [GH-24748](https://github.com/php/php-src/issues/24748) (socket_set_option() crashes with declared object properties).
+- **Standard:**
+  - Fixed memory leaks in checkdnsrr() and dns_check_record() on Windows.
+  - Fixed __unserialize() and __wakeup() being called for objects with a missing closing brace.
+  - Fixed bug [GH-24308](https://github.com/php/php-src/issues/24308) (Request shutdown calls closelog() even when syslog was not opened by PHP).
+  - Fixed bug [GH-24399](https://github.com/php/php-src/issues/24399) (usleep() and time_nanosleep() ignore queued APCs on Windows).
+  - Fixed chown() and lchown() failing to resolve user names in ZTS builds when getpwnam_r() needs a larger buffer.
+  - Fixed password_get_info() and password_needs_rehash() accepting malformed bcrypt costs.
+  - Fixed proc_open() null descriptor not being inheritable on Windows.
+  - Don't share the unserialize() context with enum autoloaders.
+  - Fixed bug [GH-24373](https://github.com/php/php-src/issues/24373) (serialize() called from a destructor during var_hash destruction reuses the outer var_hash).
+  - Fixed bug [GH-24552](https://github.com/php/php-src/issues/24552) (Case-insensitive substr_compare(), ksort() and krsort() are still locale-dependent).
+  - Fixed bug [GH-24605](https://github.com/php/php-src/issues/24605) (var_export() crashes on deeply nested arrays and objects).
+  - Fix use-after-free in Randomizer::shuffleArray() when the engine throws.
+  - Fixed [GHSA-f6gg-rchx-xw8j](https://github.com/php/php-src/security/advisories/GHSA-f6gg-rchx-xw8j) (Mixed-case HTTPS and FTPS URLs can expose data in plaintext). (CVE-2026-128064)
+  - Fixed [GHSA-mmf9-xm3v-hg2x](https://github.com/php/php-src/security/advisories/GHSA-mmf9-xm3v-hg2x) (Denial of service through folded HTTP response headers). (CVE-2026-127960)
+- **Streams:**
+  - Fixed bug [GH-24508](https://github.com/php/php-src/issues/24508) (HTTP wrapper leaks the dechunk filter when header parsing fails after Transfer-Encoding).
+  - Fixed bug [GH-24509](https://github.com/php/php-src/issues/24509) (HTTP wrapper leaks Location buffer on empty Location header).
+  - Fix out-of-bounds reads parsing ftp:// wrapper server replies.
+- **Tidy:**
+  - Fixed tidy_repair_string(), tidy_repair_file(), tidy::repairString() and tidy::repairFile() rejecting null for $encoding.
+- **Windows:**
+  - Fixed sapi_windows_cp_set() and sapi_windows_cp_conv() accepting a negative codepage on 32bit platforms.
+  - Fixed bug [GH-25009](https://github.com/php/php-src/issues/25009) (GetConsoleTitleW() buffer size passed in bytes).
+- **Zip:**
+  - Reject broken libzip versions 1.3.1, 1.7.0 and 1.12.0 during Windows configuration.
+  - Excluded libzip 1.12.0 due to a regression preventing additions and replacements in torrentzip archives.
+  - Fixed use-after-free when re-entering ZipArchive during destruction or a close warning, and rejected opening streams while closing.
+  - Fixed a use-after-free when a ZipArchive method that modifies the archive is called from a progress or cancel callback during close().
+- **Zlib:**
+  - Fixed use-after-free when an error handler removes a failing zlib.inflate filter ([GH-24176](https://github.com/php/php-src/issues/24176)).
+  - Fixed bug [GH-24533](https://github.com/php/php-src/issues/24533) (zlib.lib could not be found because zlib 1.3.2 CMake build does not emit it).
+
+## 8.3.37 – 2026-11-19 (Security Release)
+
+- **CGI:**
+  - Fixed [GHSA-5j3f-64r7-f564](https://github.com/php/php-src/security/advisories/GHSA-5j3f-64r7-f564) (PHP-CGI out-of-bounds read and write during PATH_INFO correction). (CVE-2026-129538)
+- **Date:**
+  - Fixed [GHSA-gr4f-wgx5-jpfv](https://github.com/php/php-src/security/advisories/GHSA-gr4f-wgx5-jpfv) (Timezone cache use-after-free can lead to remote code execution). (CVE-2026-129496)
+- **FPM:**
+  - Fixed [GHSA-qc49-hpvq-g2w6](https://github.com/php/php-src/security/advisories/GHSA-qc49-hpvq-g2w6) (PHP-FPM request smuggling through an unread HTTP request body). (CVE-2026-129289)
+  - Fixed [GHSA-3mg3-cr28-46gc](https://github.com/php/php-src/security/advisories/GHSA-3mg3-cr28-46gc) (PHP-FPM status endpoint XSS via unescaped user and script fields). (CVE-2026-129292)
+  - Fixed [GHSA-jm4m-qfqx-967m](https://github.com/php/php-src/security/advisories/GHSA-jm4m-qfqx-967m) (PHP-FPM epoll use-after-free can lead to local privilege escalation). (CVE-2026-129291)
+- **Phar:**
+  - Fixed [GHSA-68fq-fh7h-f8gr](https://github.com/php/php-src/security/advisories/GHSA-68fq-fh7h-f8gr) (PHAR OpenSSL signature bypass via algorithm downgrade). (CVE-2026-128090)
+- **Session:**
+  - Fixed [GHSA-fm2m-fjf5-v3cp](https://github.com/php/php-src/security/advisories/GHSA-fm2m-fjf5-v3cp) (Partially overwritten session files can lead to remote code execution). (CVE-2026-126714)
+  - Fixed [GHSA-658j-r8rw-q6mx](https://github.com/php/php-src/security/advisories/GHSA-658j-r8rw-q6mx) (Session serializer mismatch can lead to remote code execution). (CVE-2026-115560)
+  - Fixed [GHSA-g3vh-838c-65v7](https://github.com/php/php-src/security/advisories/GHSA-g3vh-838c-65v7) (Use-after-free after interrupted session shutdown). (CVE-2026-129481)
+- **SOAP:**
+  - Fixed [GHSA-q23r-hr55-xmpg](https://github.com/php/php-src/security/advisories/GHSA-q23r-hr55-xmpg) (SOAP information disclosure through malformed array dimensions). (CVE-2026-15353)
+  - Fixed [GHSA-4646-p932-gw34](https://github.com/php/php-src/security/advisories/GHSA-4646-p932-gw34) (SOAP use-after-free when processing DTD entity references). (CVE-2026-129506)
+- **Standard:**
+  - Fixed [GHSA-f6gg-rchx-xw8j](https://github.com/php/php-src/security/advisories/GHSA-f6gg-rchx-xw8j) (Mixed-case HTTPS and FTPS URLs can expose data in plaintext). (CVE-2026-128064)
+  - Fixed [GHSA-mmf9-xm3v-hg2x](https://github.com/php/php-src/security/advisories/GHSA-mmf9-xm3v-hg2x) (Denial of service through folded HTTP response headers). (CVE-2026-127960)
+
+## 8.2.36 – 2026-11-19 (Security Release)
+
+- **CGI:**
+  - Fixed [GHSA-5j3f-64r7-f564](https://github.com/php/php-src/security/advisories/GHSA-5j3f-64r7-f564) (PHP-CGI out-of-bounds read and write during PATH_INFO correction). (CVE-2026-129538)
+- **Date:**
+  - Fixed [GHSA-gr4f-wgx5-jpfv](https://github.com/php/php-src/security/advisories/GHSA-gr4f-wgx5-jpfv) (Timezone cache use-after-free can lead to remote code execution). (CVE-2026-129496)
+- **FPM:**
+  - Fixed [GHSA-qc49-hpvq-g2w6](https://github.com/php/php-src/security/advisories/GHSA-qc49-hpvq-g2w6) (PHP-FPM request smuggling through an unread HTTP request body). (CVE-2026-129289)
+  - Fixed [GHSA-3mg3-cr28-46gc](https://github.com/php/php-src/security/advisories/GHSA-3mg3-cr28-46gc) (PHP-FPM status endpoint XSS via unescaped user and script fields). (CVE-2026-129292)
+  - Fixed [GHSA-jm4m-qfqx-967m](https://github.com/php/php-src/security/advisories/GHSA-jm4m-qfqx-967m) (PHP-FPM epoll use-after-free can lead to local privilege escalation). (CVE-2026-129291)
+- **Phar:**
+  - Fixed [GHSA-68fq-fh7h-f8gr](https://github.com/php/php-src/security/advisories/GHSA-68fq-fh7h-f8gr) (PHAR OpenSSL signature bypass via algorithm downgrade). (CVE-2026-128090)
+- **Session:**
+  - Fixed [GHSA-fm2m-fjf5-v3cp](https://github.com/php/php-src/security/advisories/GHSA-fm2m-fjf5-v3cp) (Partially overwritten session files can lead to remote code execution). (CVE-2026-126714)
+  - Fixed [GHSA-658j-r8rw-q6mx](https://github.com/php/php-src/security/advisories/GHSA-658j-r8rw-q6mx) (Session serializer mismatch can lead to remote code execution). (CVE-2026-115560)
+- **SOAP:**
+  - Fixed [GHSA-q23r-hr55-xmpg](https://github.com/php/php-src/security/advisories/GHSA-q23r-hr55-xmpg) (SOAP information disclosure through malformed array dimensions). (CVE-2026-15353)
+  - Fixed [GHSA-4646-p932-gw34](https://github.com/php/php-src/security/advisories/GHSA-4646-p932-gw34) (SOAP use-after-free when processing DTD entity references). (CVE-2026-129506)
+- **Standard:**
+  - Fixed [GHSA-f6gg-rchx-xw8j](https://github.com/php/php-src/security/advisories/GHSA-f6gg-rchx-xw8j) (Mixed-case HTTPS and FTPS URLs can expose data in plaintext). (CVE-2026-128064)
+  - Fixed [GHSA-mmf9-xm3v-hg2x](https://github.com/php/php-src/security/advisories/GHSA-mmf9-xm3v-hg2x) (Denial of service through folded HTTP response headers). (CVE-2026-127960)
 
 ## 8.5.12 – 2026-10-22 (Security Release)
 

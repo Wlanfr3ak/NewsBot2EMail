@@ -1,9 +1,37 @@
 # Changelog: Parted Magic
 
 Quelle: https://partedmagic.com/news/
-Stand: 18.11.2026 02:53
+Stand: 24.11.2026 09:15
 
 ---
+
+## Parted Magic is becoming Erase Station
+
+Parted Magic is getting a new name: Erase Station. The company behind it is still Parted Magic LLC, and the same people make it.
+
+### Why the new name
+
+Parted Magic started nearly 20 years ago as a free disk partitioning CD. In 2013 it became a paid product, and since then people have bought it for Erase, the drive erasing program we wrote.
+
+The name never caught up. “Parted” sounds like partitioning, so most websites still describe Parted Magic as a partition program, and AI chatbots repeat what those websites say. Ask about Parted Magic and you will usually hear about partition tools. Erase rarely comes up.
+
+Many of those pages also call Parted Magic free, open source, or legal to share. None of that is true. Erase and the other programs we write are ours and are not open source, and a license is for one organization only. The open-source parts it includes, such as the Linux kernel, keep their own licenses, the GPL included.
+
+Erase is what people use it for. It wipes hard drives, SSDs, NVMe and SAS drives, and eMMC and SD cards, several at a time. It uses the drive’s own erase command where the drive has one, checks the result, and writes a certificate for every drive.
+
+Erase Station says what it does. The other tools stay on it: partitioning, cloning, data rescue and the rest.
+
+### What changes this week
+
+This week the website and the store change to the new name and move to erasestation.com. Links to partedmagic.com keep working and take you to the same page on the new site.
+
+Your account and everything you bought stay as they are. After the move you may need to sign in again.
+
+The ISO changes with the next release. 26.11 still says Parted Magic on screen. Erase Station 26.12, in December, is the first release with the new name. The USB Installer apps are getting the new name now.
+
+### If something breaks
+
+Moving a website and a store can leave a broken link or page for a short time. If a page, a download or a payment does not work, email sales@partedmagic.com with the page you were on. That address keeps working.
 
 ## Parted Magic 26.11_3 – 2026-11
 
@@ -551,7 +579,7 @@ uid Patrick Verner <sales@partedmagic.com>
 
 Check that fingerprint against what you imported before you trust a signature it made.
 
-Get the key from https://partedmagic.com/store/GPG-KEY, or from install/GPG-KEY inside the ISO, or from the block printed below. Then:
+Get the key from https://erasestation.com/store/GPG-KEY, or from install/GPG-KEY inside the ISO, or from the block printed below. Then:
 
 gpg --import GPG-KEY
 gpg --verify pmagic_26.09.iso.asc pmagic_26.09.iso
@@ -648,7 +676,7 @@ What you get is a dashboard on your own network showing every session you have e
 
 It runs on your own hardware and network, and nothing is sent to us. It keeps working whether or not you still buy from us. You can watch a bench of machines from your phone while they run.
 
-If you erase drives for other people, the report server gives you a record you can hand to an auditor. Details are on the Secure Erase page, and a real evidence pack, with the verifier, is published at partedmagic.com/verify so you can check one yourself before setting anything up.
+If you erase drives for other people, the report server gives you a record you can hand to an auditor. Details are on the Secure Erase page, and a real evidence pack, with the verifier, is published at erasestation.com/verify so you can check one yourself before setting anything up.
 
 ## August 11, 2026
 
@@ -696,6 +724,6 @@ The Mount GUI and the file manager it is paired with were both written from scra
 
 Feedback on all of this helps, and it shapes what gets built. Bug reports, notes on how you use Parted Magic, and even word that something works as expected are all useful.
 
-News entries prior to Parted Magic 2026_03_20 are archived at https://partedmagic.com/news.txt
+News entries prior to Parted Magic 2026_03_20 are archived at https://erasestation.com/news.txt
 
 <div

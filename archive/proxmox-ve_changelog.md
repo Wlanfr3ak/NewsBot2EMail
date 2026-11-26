@@ -1,9 +1,813 @@
 # Changelog: Proxmox VE
 
 Quelle: https://pve.proxmox.com/wiki/Roadmap
-Stand: 24.09.2026 06:16
+Stand: 26.11.2026 02:42
 
 ---
+
+## 9.3 – 2026-11-25
+
+Released 25. November 2026: See [Downloads](https://pve.proxmox.com/wiki/Downloads)
+
+- Based on Debian Trixie (13.8)
+
+- Latest 7.0 Kernel as the stable default
+
+- Kernel 7.3 as option
+
+- QEMU 11.1
+
+- LXC 7.0
+
+- ZFS 2.4
+
+- Ceph Tentacle 20.2.5
+
+- Ceph Umbrella 21.2.0
+
+### Highlights
+
+- Guided setup of shared LVMs and cluster-wide multipath management.
+Proxmox VE can now configure shared LVM and multipath on all nodes of a cluster.
+This allows users to centrally manage shared LVMs on iSCSI, Fibre Channel and NVMe over Fabrics in the new SAN view.
+The new SAN view under Datacenter → SAN shows the path and usage state for LUNs on every node and provides a guided setup to create shared LVMs and multipath overrides.
+
+- Structured views for the System Log, the API Access Log, and the APT History.
+The System Log panel now shows journal entries color-coded by priority, highlighting node reboots, and can be filtered by various properties.
+The new API Access Log panel under Node → System shows the API requests to a node, allowing to filter by various properties.
+The new APT History panel under Node → Updates lists past package transactions with their changes, status, and shows the relevant package changelogs.
+
+- Improvements to SDN zones and fabrics.
+WireGuard fabrics now report the status of their interfaces and peers.
+Simple zones can now use a dedicated VRF to isolate their routing table with the option of adding custom static routes
+
+- HA maintenance mode management via the web interface.
+The HA maintenance mode can now be configured in the web interface under Datacenter → HA.
+To enable or disable the HA maintenance mode, select the lrm entry of a node and choose the desired action in the "Node Maintenance" menu.
+
+- Setup the management network on a bond or VLAN during installation.
+The GUI, TUI, and automated installers now provide options to set up the management network on a bond, on a VLAN, or on both.
+
+- Web interface support for custom storage plugins.
+Storages of third-party storage plugins can now be added and edited in the web interface and are listed in the "Add" menu under Datacenter → Storage.
+
+- Unique guest identities for Virtual Machines and Containers.
+Each guest now has a unique guest identifier that stays the same across migrations, snapshot rollbacks, backups and restores.
+This allows backup software and other tools to reliably recognize the same guest, even if the VMID changes or is migrated to another cluster.
+
+- Snapshots as volume chains are production ready.
+Introduced as a technology preview in Proxmox VE 9.0, snapshots as volume chains are now ready for production use on thick-provisioned LVM.
+Enable the feature via the "Allow Snapshots as Volume-Chain" option under the advanced settings when adding a storage or when editing an existing LVM storage.
+
+- Ceph Umbrella 21.2 is available as a technology preview.
+Notable upstream changes include a new, optimized I/O path for erasure coding, hardened CephX authentication with a new default cipher and online key rotation for daemons, and an optional backup mechanism for the monitor database.
+See the [upstream release notes](https://docs.ceph.com/en/latest/releases/umbrella/) for more details.
+Users can upgrade from Ceph Tentacle to Umbrella by [following the upgrade guide](https://pve.proxmox.com/wiki/Ceph_Tentacle_to_Umbrella).
+
+- Opt-in Linux kernel 7.3, based directly on the upstream stable branch.
+This reduces the delay of upstream fixes to Proxmox VE and issues found by Proxmox and the community apply directly to the code that upstream maintains.
+
+- Nested notification match rules.
+Notification match rules can now be nested and combined within a single notification matcher rule.
+This allows users to specify more advanced notification matcher rules in a compact and readable fashion.
+For example, a single notification matcher rule can match on backup notifications that are sent during business hours or have a high enough severity.
+
+- Proxmox Offline Mirror 0.8.0 with snapshot pruning and snapshot aliases.
+Each mirror now maintains a last symlink to its most recent snapshot, and old snapshots can be pruned using the retention options known from Proxmox Backup Server.
+Snapshot creation downloads files that fail its checks again automatically, can download packages in parallel, and needs considerably less memory for large packages.
+
+### Changelog Overview
+#### Enhancements in the web interface (GUI)
+
+- Structured views for the System Log, the API Access Log, and the APT History.
+The System Log panel now shows journal entries color-coded by priority, highlighting node reboots, and can be filtered by various properties.
+The new API Access Log panel under Node → System shows the API requests that reached a node with filters for various properties.
+The new APT History panel under Node → Updates lists past package transactions with their changes, status, and shows the relevant package changelogs.
+
+- The web interface now shows a notice with a "Reload UI" button once a newer version of its packages is installed.
+
+- The cluster join dialog now points out if the cluster runs a different Proxmox VE version than the joining node.
+
+- Add new translations for Bengali, Greek, Irish, Lao, and Mongolian.
+
+- Improved translations, among others:
+Czech
+
+- French
+
+- Georgian
+
+- German
+
+- Italian
+
+- Japanese
+
+- Korean
+
+- Polish
+
+- Portuguese (Brazil)
+
+- Simplified Chinese
+
+- Spanish
+
+- Swedish
+
+- Traditional Chinese
+
+- The consent text in the datacenter options now has to be base64 encoded, as the login window only displays base64-encoded consent texts anyway.
+This only affects consent texts set via the API or CLI, as the web interface always encodes them. A consent text that is not base64 encoded is ignored, and a warning is logged whenever the datacenter configuration is read. To fix this, set the consent text again in the web interface.
+
+- Fix the IP addresses in the Status panel of a container being cut off if its title wraps into a second line.
+
+- HTML-encode API results before rendering in various components as additional hardening against XSS ([PSA-2026-00044-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-868981)).
+
+- Improve the URL parameter validation in the xterm.js console page ([PSA-2026-00075-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874567)).
+
+- Prevent a privileged attacker to inject arbitrary content in the consent text modal ([PSA-2026-00078-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874571)).
+
+- The disk usage columns of resource lists, for example, under Datacenter → Search, are now empty for VMs instead of showing 0.
+
+#### Virtual machines (KVM/QEMU)
+
+- Mitigate intermittent freezes of VMs running Windows 11/2022/2025 with Virtualization-based Security (VBS) on Intel hosts ([issue 7825](https://bugzilla.proxmox.com/show_bug.cgi?id=7825)).
+Such VMs using the CPU type host could freeze for a limited amount of time, while the VM summary showed 100% CPU usage.
+Only VMs with machine version 11.0 or 11.0+pve1 are affected. For these VMs, the machine version has to be manually set to 11.0+pve2 or newer, which takes effect on the next start of the VM.
+New Windows VMs automatically use an unaffected machine version.
+
+- Improve support for VMs running on the aarch64 (ARM) architecture
+Reject the unsupported TPM 1.2 for aarch64-based VMs.
+
+- Use the tpm-tis-device device on aarch64-based VMs.
+
+- Make aarch64-based guests fallback to a KVM-usable CPU model.
+
+- Honor the pre-enrolled-keys setting of the EFI disk for aarch64-based VMs.
+
+- Use the virtio-gpu-gl instead of the virtio-vga device  on aarch64-based hosts.
+
+- Fix an issue where the libraries libGL and libEGL could not be found on aarch64-based hosts.
+
+- Fix issues when tablet or keyboard devices were hot-plugged or hot-unplugged on aarch64-based guests.
+
+- Improve several aspects in the handling of VM snapshots.
+Fix an issue where the savevm-end cleanup loop after a snapshot was skipped ([issue 7697](https://bugzilla.proxmox.com/show_bug.cgi?id=7697)).
+
+- Fix issues where removing snapshots from a VM failed under certain conditions ([issue 8071](https://bugzilla.proxmox.com/show_bug.cgi?id=8071), [issue 8092](https://bugzilla.proxmox.com/show_bug.cgi?id=8092)).
+
+- Avoid to create a orphaned vmstate volume if creating a snapshot with RAM fails ([issue 8030](https://bugzilla.proxmox.com/show_bug.cgi?id=8030)).
+
+- Mention the snapshot where a local CDROM is referenced in the migration error message ([issue 4012](https://bugzilla.proxmox.com/show_bug.cgi?id=4012)).
+
+- Prevent an endless loop if a snapshot fails during the after-unfreeze phase of the snapshot ([issue 8331](https://bugzilla.proxmox.com/show_bug.cgi?id=8331)).
+
+- Ensure the snapshot-commit target is large enough when removing an external snapshot for a running VM ([issue 7094](https://bugzilla.proxmox.com/show_bug.cgi?id=7094)).
+
+- Fix an issue where an disk could not be removed if a disk was moved or hot-unplugged in a deleted snapshot ([issue 7705](https://bugzilla.proxmox.com/show_bug.cgi?id=7705)).
+
+- Improve several aspects for VMs using the cloud-init feature.
+Prevent a VM start from hanging due to a removed cloud-init image on a ZFS storage ([issue 8076](https://bugzilla.proxmox.com/show_bug.cgi?id=8076)).
+
+- Prevent users with the VM.Config.Network privilege to change cloud-init options unrelated to the network settings ([PSA-2026-00071-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-873394)).
+
+- Ensure that the cloud-init cipassword option is redacted when querying the VM configuration of a specific snapshot ([PSA-2026-00069-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-873392)).
+
+- Ensure that a user has the correct storage access privileges for a storage referenced in the cloud-init cicustom option ([PSA-2026-00070-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-873393)).
+
+- Improve several aspects for VMs using the QEMU guest agent feature.
+Prevent stale QEMU guest agent responses from failing succeeding commands ([issue 8355](https://bugzilla.proxmox.com/show_bug.cgi?id=8355)).
+
+- Prevent excessive memory usage from a malicious guest agent implementation in a VM ([PSA-2026-00073-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-873396)).
+
+- Prevent excessive memory usage by the QEMU guest agent by limiting its allowed response size ([PSA-2026-00072-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-873395)).
+
+- Allow to synchronize the guest clock via the QEMU guest agent after operations that leave it behind ([issue 5032](https://bugzilla.proxmox.com/show_bug.cgi?id=5032)).
+
+- Fix an issue where saving the guest agent settings of a VM would disable the agent if it was set to on or yes, instead of 1 via qm set --agent on.
+
+- Improve several aspects for managing CPU models and flags.
+Include Hyper-V enlightenment flags in the supported CPU flags matrix ([issue 7981](https://bugzilla.proxmox.com/show_bug.cgi?id=7981)).
+
+- The CPU flag selector now has an Off/Default/On button per flag, and its columns can be sorted, for example, by state.
+
+- The name of a new custom CPU model is now checked in the same way in the web interface, as in the API, providing more direct feedback on a wrong entry.
+
+- Improve several aspects of network-related operations for VMs.
+Drop empty running-nets-host-mtu option to avoid confusing error message ([issue 8354](https://bugzilla.proxmox.com/show_bug.cgi?id=8354)).
+
+- Fix an issue where hot-plugging or re-plugging a NIC on a bridge with MAC learning disabled caused the VM to lose connectivity ([issue 6490](https://bugzilla.proxmox.com/show_bug.cgi?id=6490)).
+
+- Improve several permissions checks for VM-related operations.
+Ensure that users have the correct tag permission when creating a VM with tags.
+
+- Allow users, which are part of a resource pool with the VM.PowerMgmt privilege, to start a VM on creation.
+
+- Disable the host UDP tunnel offload feature by default for new VMs to prevent connectivity issues for some guest network setups ([issue 7627](https://bugzilla.proxmox.com/show_bug.cgi?id=7627)).
+The new per-NIC host-tunnel option allows re-enabling the host UDP tunnel offload feature.
+
+- Improve the control socket and client handling in qmeventd.
+
+- Do not shows a disk usage of 0% for VMs in the web interface as it is not available for them.
+
+- The number of CPU sockets in the processor settings of a VM is no longer limited by the web interface.
+
+- Make the boot order editor in the web interface point out that PXE boot with OVMF requires a VirtIO RNG device.
+
+- Allow to skip freezing and thawing a guest's filesystem during replication with the new skip-freeze-fs option ([issue 1964](https://bugzilla.proxmox.com/show_bug.cgi?id=1964)).
+
+- Enforce case-insensitivity on new tags added by creating a new VM ([issue 7480](https://bugzilla.proxmox.com/show_bug.cgi?id=7480)).
+
+- Fix an issue where suspending VMs in bulk could cause spurious timeouts ([issue 6424](https://bugzilla.proxmox.com/show_bug.cgi?id=6424)).
+
+- Fix an issue where importing OVA or VM disks was aborted because of locking issues ([issue 7743](https://bugzilla.proxmox.com/show_bug.cgi?id=7743)).
+
+- Fix an issue where qmeventd crashes under certain conditions when stopping VMs ([issue 7654](https://bugzilla.proxmox.com/show_bug.cgi?id=7654)).
+
+- Fix an issue in the web interface where VMs with a pinned machine version such as 10.0 were allowed to only have 5 USB ports instead of 14 USB ports.
+
+- Fix an issue where a non-PVE-managed volume could not be removed from the VM ([issue 7828](https://bugzilla.proxmox.com/show_bug.cgi?id=7828)).
+
+- Increase the timeout for resizing VM volumes to allow these to succeed on slower disks ([issue 7598](https://bugzilla.proxmox.com/show_bug.cgi?id=7598)).
+
+- Restore the QEMU PNG support to allow storing QEMU Monitor screendumps as PNG files ([issue 7722](https://bugzilla.proxmox.com/show_bug.cgi?id=7722)).
+
+- Allow to bind custom NUMA nodes to host nodes 10 and higher when hugepages are enabled ([issue 6907](https://bugzilla.proxmox.com/show_bug.cgi?id=6907)).
+
+- Prevent a qmstart task to hang indefinitely by applying a sensible timeout to the task ([issue 7590](https://bugzilla.proxmox.com/show_bug.cgi?id=7590)).
+
+- Avoid showing a confusing error when executing qm config for VMs during a live import ([issue 8120](https://bugzilla.proxmox.com/show_bug.cgi?id=8120)).
+
+- Warn users when a version of the VirtIO driver ISO is attached to a VM, which is known to be problematic ([issue 7801](https://bugzilla.proxmox.com/show_bug.cgi?id=7801)).
+
+- Prevent a privileged attacker to overwrite arbitrary host paths with a specially crafted VMA file ([PSA-2026-00067-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-873039)).
+
+- Restrict the QEMU HMP commands gpa2hpa, gpa2hva, and i to root ([PSA-2026-00074-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-873397)).
+
+- Prevent a privileged attacker to inject arbitrary arguments into a command executed on the Proxmox VE or a iSCSI target host ([PSA-2026-00088-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-875369), [PSA-2026-00100-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-6#post-875546)).
+
+- Prevent users with the Sys.Incoming privilege to inject arbitrary values in parts of the QEMU command line on a remote migration target ([PSA-2026-00039-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-865583)).
+
+- Improve the user-facing documentation of various VM-related operations.
+
+- Improve the user-facing log messages for various VM-related operations.
+Log the running QEMU package version when starting a VM.
+
+- Display a warning when detaching a disk on a storage that no longer exists.
+The disk is removed from the VM configuration and not kept as an unused disk. Previously, this happened without any notice.
+A warning is now also displayed if the owner of a detached volume cannot be determined due to a storage error.
+
+#### Containers (LXC)
+
+- Improved support for container distributions:
+Fix setting up the network of openEuler containers, which failed because openEuler does not ship /etc/redhat-release.
+
+- Fix setting up Ubuntu 26.10 containers, which no longer ship /etc/lsb-release, by reading the version from /etc/os-release.
+
+- Mask the sys-kernel-config.mount and sys-kernel-debug.mount units of Fedora templates, which cannot work in a container and failed on startup.
+
+- Fix an issue where containers created from the Fedora 42 template seemed to hang on their first boot ([issue 6392](https://bugzilla.proxmox.com/show_bug.cgi?id=6392)).
+
+- Debian containers that use Debian's own ifupdown2 package now get SLAAC configured with the manual method, as this ifupdown2 version fails on the auto method. The kernel then performs SLAAC with its default settings.
+
+- Improve the handling of failed container creations and restores:
+Fix an issue where the VMID was released early when the cleanup of a creation or restore failed.
+
+- Fix several issues with the SDN IPAM entries of containers created or restored with network options.
+
+- Fix an issue where a failed creation or restore of a container to an unused VMID removed a firewall configuration that existed for that VMID before.
+
+- Fix an issue where a restore from a local backup archive could fail after it had already destroyed the existing container, if the archive was removed in the meantime, for example by a prune job.
+
+- Fix an issue where a creation or restore of a container to an unused VMID that failed before it started, for example because of a lock timeout, left a locked, empty configuration that kept the VMID taken.
+
+- Fix an issue where a restore over an existing container that failed before the container was destroyed, removed the configuration and firewall configuration of the existing container and left its volumes unreferenced.
+
+- Fix an issue where the cleanup of a failed creation, restore or clone could remove the firewall configuration of a guest that another node had created with the freed VMID in the meantime, leaving that guest without its firewall rules.
+
+- Improvements to remote migration of containers:
+Log failed tunnel commands in the task log of the target as well.
+
+- Fix an issue where a failed remote migration of a container left a locked configuration on the target, which blocked the VMID there.
+This happened if preparing the migration failed on the source, if the source did not connect to the target within 5 minutes, or if the connection closed before the source sent the container configuration. In the latter case, the volumes transferred so far were also left behind.
+
+- Fix an issue where a privileged container migrated to another cluster got an empty unprivileged entry in its configuration, which caused a warning whenever the configuration was read.
+
+- Drop configuration keys that are not part of the schema, as for VMs.
+Keys like net32 or net01, which the API rejects but manual edits or restored backups could add, set up an additional network interface without rules of the nftables-based firewall. A running container keeps such an interface until it is restarted.
+
+- Prevent destroying a container template while a linked clone still uses one of its base volumes.
+Previously, the template's volumes could be partially deleted before the destruction failed.
+
+- Release the IPAM addresses of a network interface that is removed from a running container, and stop the DHCP client of a host-managed interface.
+Previously, the addresses stayed allocated, even after the container was destroyed.
+
+- The mknod feature is no longer marked as experimental.
+
+- The status API endpoints now always return cpus as a number ([issue 8162](https://bugzilla.proxmox.com/show_bug.cgi?id=8162)).
+
+- Allow removing mount points and unused volumes on a storage that no longer exists.
+
+- Prevent a privileged attacker to reconfigure NICs to otherwise inaccessible bridges or VNets ([PSA-2026-00095-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-875382)).
+
+- Fix an issue where containers failed to start because the path of their init binary was resolved incorrectly ([issue 7380](https://bugzilla.proxmox.com/show_bug.cgi?id=7380)).
+
+- Fix resolving the supplementary groups of OCI images whose user and group databases use CRLF line endings.
+
+- Fix an issue where the root password and SSH public keys given when restoring a container were silently ignored ([issue 7164](https://bugzilla.proxmox.com/show_bug.cgi?id=7164)).
+
+- Prevent a malicious OCI image to delete arbitrary files and directories outside of the target rootfs during OCI template extraction ([PSA-2026-00094-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-875381)).
+
+- Allow converting containers with volumes on LVM storages to templates. Such templates support full clones, but not linked clones.
+
+- Fix a race condition where an attacker with access to a running container could mount attacker-controlled directories over host paths ([PSA-2026-00082-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874778)).
+
+- Fix device passthrough failing with "Device ... does not exist" for privileged containers whose OS type has no matching LXC configuration ([issue 7667](https://bugzilla.proxmox.com/show_bug.cgi?id=7667)).
+
+- Require users to have the VM.PowerMgmt privilege when a container is started as part of its creation or a rollback to a snapshot ([PSA-2026-00035-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-3#post-864233)).
+
+- Reject line feeds in OCI container image configuration options to prevent malicious OCI images to inject arbitrary lines in the generated LXC configuration ([PSA-2026-00046-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-869058)).
+
+- Fix an issue where configuration changes could get lost when a container shut down or rebooted from the inside, crashed, or was stopped by a backup in stop mode.
+
+- Fix an issue where reassigning a volume to a protected container removed it from the source container, but did not add it to the target, leaving the volume unreferenced ([issue 7148](https://bugzilla.proxmox.com/show_bug.cgi?id=7148)).
+
+- Restoring a container now warns if it uses a recent systemd version and may need the nesting feature, as already done when creating or cloning a container.
+
+- Fix an issue where users without the VM.Config.Options privilege could not read the configuration or pending changes of a container with the env option set ([issue 8237](https://bugzilla.proxmox.com/show_bug.cgi?id=8237)).
+
+- Fix an issue where changing only the backup or replicate flag of a mount point or the root disk of a running container stayed pending until the next start of the container.
+
+- Improve the hardening for container restore operations.
+
+#### HA Manager
+
+- HA maintenance mode management via the web interface ([issue 6144](https://bugzilla.proxmox.com/show_bug.cgi?id=6144)).
+The HA maintenance mode can now be configured in the web interface under Datacenter → HA.
+To enable or disable the HA maintenance mode, select the lrm entry of a node and choose the desired action in the "Node Maintenance" menu.
+
+- Add support for negative node affinity rules, which declare nodes an HA resource must not or should not run on.
+This is helpful in cases, where there are more allowed nodes for HA resources than there are nodes to avoid.
+
+- Improve the LRM's performance of completing HA resource commands for nodes with many HA resources.
+
+- Improve load balancing accounting by using the host memory usage for Virtual Machines ([issue 7974](https://bugzilla.proxmox.com/show_bug.cgi?id=7974)).
+
+- Fix an issue where the issuing of some HA resource commands was delayed ([issue 8240](https://bugzilla.proxmox.com/show_bug.cgi?id=8240)).
+
+- Fix an issue where HA resource migrations did not migrate with conntrack state, if requested ([issue 7053](https://bugzilla.proxmox.com/show_bug.cgi?id=7053)).
+
+- Fix an issue where a node is left in the maintenance state after the maintenance request has been lifted ([issue 6084](https://bugzilla.proxmox.com/show_bug.cgi?id=6084)).
+
+- Fix an issue where the LRM in maintenance mode could exit on a transient read error.
+
+- Fix an issue where maintenance requests were ignored while the node was just shut down or rebooted with the shutdown policy migrate.
+
+- Fix an issue where an empty crs option in datacenter.cfg caused every iteration of the HA Manager to fail.
+
+#### General improvements for virtual guests
+
+- Check that the target node can parse the guest configuration before migrating a VM or container within the cluster.
+Previously, a target node running an older version could ignore or drop settings it did not know. Examples are the ms-cert option of an EFI disk ([issue 7341](https://bugzilla.proxmox.com/show_bug.cgi?id=7341)), or the keepattrs option of a container mount point, which then was not mounted on the target.
+If the target cannot parse the configuration, the migration is now aborted. The check can be skipped with the new skip-config-check option, or by clearing "Config Check" in the migrate dialog, at the risk of dropped or ignored settings.
+
+- Allow destroying guests with disks or mount points on a storage that no longer exists ([issue 3711](https://bugzilla.proxmox.com/show_bug.cgi?id=3711)).
+Storage errors when removing the volumes of a guest now produce a warning, and the destruction continues.
+A template is still not destroyed if a linked clone uses one of its base volumes.
+
+- qm disk resize and pct resize now exit with an error if resizing fails.
+Since resizing runs as a task, both commands reported success once the task was started, even if resizing failed afterwards.
+
+- Ensure that users have the correct storage privileges for volumes, which are added as unused volumes to a guest ([PSA-2026-00040-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-865584)).
+
+- Prevent a privileged attacker to overwrite arbitrary existing guests when restoring guests ([PSA-2026-00084-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874863)).
+
+- Enforce stricter privilege checks for outgoing remote migration API requests ([PSA-2026-00085-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874864)).
+
+- Ensure that the storage of a hookscript is activated before executing it ([issue 7408](https://bugzilla.proxmox.com/show_bug.cgi?id=7408)).
+
+#### Improved management for Proxmox VE clusters
+
+- Nested notification match rules.
+Notification match rules can now be nested and combined within a single notification matcher rule.
+This allows users to specify more advanced notification matcher rules in a compact and readable fashion.
+For example, a single notification matcher rule can match on backup notifications that are sent during business hours or have a high enough severity.
+The matcher editor in the web interface now shows the rules as a tree, where rules can be reordered and moved between groups using drag and drop.
+Additionally, a new notification matcher rule type allows to only match if only one of its sub-rules matches.
+
+- Unique guest identities for Virtual Machines and Containers ([issue 7846](https://bugzilla.proxmox.com/show_bug.cgi?id=7846)).
+Each guest now has a unique guest identifier that stays the same across migrations, snapshot rollbacks, backups and restores.
+This allows backup software and other tools to reliably recognize the same guest, even if the VMID changes or is migrated to another cluster.
+Creating or cloning a guest assigns a new uid. Configuration changes, migrations, snapshot rollbacks, backups and restores keep it, also under a different VMID or in another cluster, as long as no other guest in the cluster uses it.
+Existing guests get their identity the first time a node running Proxmox VE 9.3 writes their configuration, for example, on a configuration change, a backup or a migration.
+Each cluster and standalone node also gets a random cluster ID, stored in /etc/pve/cluster-id and returned by the /cluster/status API endpoint. Combined with the uid, it allows telling apart guests with the same uid in different clusters.
+Restoring a backup over an existing guest is now refused if the backup belongs to another guest, for example, after a VMID was reused. To restore such a backup anyway, set the new allow-identity-mismatch option, or select "Allow restoring a backup of another guest" in the restore window. The force option alone is not sufficient.
+The uid is shown in the tooltip of an info button in the header of the Status panel of a guest, which opens a window with the full identity. It is also available in the guest configuration and via the status/current and /cluster/resources API endpoints.
+
+- Notifications are now sent by the new pve-notify-worker service.
+Processes that send a notification now add it to a queue on the local node, from which the service sends it.
+This way, slow or unreachable notification targets no longer block the sender, such as the HA Manager.
+Messages about sending a notification are now logged to the journal of pve-notify-worker instead of the task log.
+
+- Optionally avoid reusing the VMIDs of removed guests ([issue 4369](https://bugzilla.proxmox.com/show_bug.cgi?id=4369)).
+By default, the lowest free VMID is suggested for new guests, so the VMIDs of removed guests are reused. This can be undesirable, for example, if external backup or monitoring systems identify guests by their VMID.
+With the new "Unique" setting under Datacenter → Options → Next Free Guest ID, only VMIDs that have never been in use are suggested. For this, the VMID of every guest is now recorded on creation and destruction in /etc/pve/virtual-guest/used-guest-ids, regardless of the setting. VMIDs of guests removed before the upgrade are not known and may still be suggested.
+With the new "Enforce" setting, the range and the "Unique" setting are a hard limit, instead of only affecting the suggested VMID. New guests can then only use VMIDs from the range, which is 100 to 999999 by default, and, with "Unique", only VMIDs that have never been in use. Operations on existing guests, such as destroying them or restoring a backup over them, are not restricted.
+
+- Improvements to the cluster certificate authority (CA):
+Renew the CA certificate automatically before it expires.
+The CA certificate is valid for 10 years and was not renewed so far. Close to its expiry, node certificates were renewed every day, and with less than two weeks left, no new node certificate could be issued, breaking SPICE and clients that verify the nodes against the CA.
+The CA certificate is now renewed with the same key once it would expire within the two-year lifetime of a node certificate. Existing node certificates stay valid, and clients that trust the previous CA certificate keep working until it expires.
+The renewal is done by pvecm updatecerts, which runs on every start of pveproxy and with the daily update. It logs by when clients that trust the previous CA certificate need the renewed /etc/pve/pve-root-ca.pem.
+
+- Add the keyUsage extension to existing CA certificates.
+Strict TLS clients, such as Python 3.13 and newer and tools based on it like Ansible, reject CA certificates without this extension. Such CA certificates are renewed once after the upgrade. Clients that trust the CA keep working, and importing the renewed certificate allows strict clients to verify the nodes.
+
+- Replace the CA key and certificate with the new pvecm ca rotate command, for example if the key was exposed.
+Every online node issues itself a new node certificate. Nodes that could not be reached are listed and get a new certificate on the next start of pveproxy or with the daily update.
+Unlike with the renewal, clients need to replace the previous CA certificate with the new one in their trust store.
+
+- Improve reliability, error handling, and performance of pmxcfs:
+Fix an issue where writes to /etc/pve could hang indefinitely while the node was not joined to the cluster file system group, for example while rejoining after network issues ([issue 8325](https://bugzilla.proxmox.com/show_bug.cgi?id=8325)).
+A hanging write could block all operations waiting for the same lock. Such writes now fail instead.
+
+- Report writes whose cluster-wide outcome is uncertain (for example, if the node loses its cluster connection while a write is already in flight and other nodes may still have applied it) as an I/O error (EIO) and log the affected path, instead of failing with EBUSY or a misleading error.
+This could happen, for example, if the node loses its cluster connection while a write is in progress. Previously, such writes failed as if they had not happened, or with a misleading error.
+
+- Allow responses larger than 1 MiB to local requests, for example for the list of guests or their current metrics.
+In very large clusters with many thousands of guests, such requests could exceed this limit and fail.
+
+- Rejoin the cluster file system CPG group immediately on a new Corosync connection after leaving it (such as after a failed resync), avoiding both a six-second rejoin delay and stale callbacks from the previous connection.
+
+- Fix an issue where messages to the cluster log were rejected at random, depending on data left over from earlier requests of the same process. On some nodes, a large share of the messages could be affected.
+
+- Fix an issue where stale locks, for example of the HA stack or of replication, did not expire after 120 seconds as intended, because their age was reset whenever the lock table was rebuilt, for example on startup or during a resynchronization.
+
+- Fix an issue where a node could consider itself synchronized after a failed database transaction, without having applied the updates it received.
+
+- Fix an issue where a manually edited guest configuration with control characters or invalid UTF-8 in a property such as tags could cause the /cluster/resources API endpoint to fail, which the web interface uses for the resource tree.
+
+- Keep the previous list of cluster nodes if reading it from the Corosync configuration fails midway, for example during a configuration reload, instead of using an incomplete list.
+If reading the list fails when connecting to Corosync, it is now retried a few seconds later. Previously, the nodes were not known until the next change of the Corosync configuration.
+
+- Report a failed connection to pmxcfs as an error. Previously, callers could mistake it for an empty response or for a file that does not exist.
+
+- Speed up listing large directories and collecting the updates for a resynchronization.
+
+- Fix rare crashes when reading a file that was enlarged with truncate without writing data to it, and when renaming an entry onto itself through a path with repeated slashes. A failed rename, for example of a non-empty directory, no longer removes the destination.
+
+- Reduce log noise during cluster communication issues by logging each failed message send only once, and only the first send that is refused while the node is not joined.
+
+- Harden the local IPC interface of pmxcfs, which is accessible to processes in the www-data group. For example, read-only clients could read private files through paths with repeated slashes, and a client that did not read its responses could crash pmxcfs.
+
+- Harden the communication between cluster nodes against malformed messages, and no longer send uninitialized memory to all nodes with every status update.
+
+- Fix edge cases when reading guest configuration properties and the cluster status.
+
+- Log failures to create directories for metrics (RRD) data.
+
+- Fix an issue in the "Next Free Guest ID" setting in the Datacenter Options where the upper boundary of the range could be equal to the lower boundary, resulting in no guest ID being suggested or, if enforce was enabled, every guest ID being denied.
+
+- Fix the status of all nodes turning gray in the web interface if an external metric server configured for TCP is unreachable ([issue 4130](https://bugzilla.proxmox.com/show_bug.cgi?id=4130)).
+
+#### Backup/Restore
+
+- Honor the bandwidth limit for container backups to Proxmox Backup Server. Previously, the limit only applied to backups to file-based storages.
+
+- Backup providers now receive the unique ID and the registration time of the guest, and the ID of the cluster, as guest-uid, guest-rtime and cluster-id.
+
+- Container restores from backup providers now call the provider methods as documented.
+Previously, the storage ID was passed as an additional argument, so providers that declare the documented method signatures could not restore containers. Providers that read the second argument of the container restore init and cleanup methods as storage ID need to be adapted.
+
+- Require users to have the Sys.Modify privilege to stop running backups ([PSA-2026-00042-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-866076)).
+
+- Allow to disable notification emails for manual guest backups ([issue 5713](https://bugzilla.proxmox.com/show_bug.cgi?id=5713)).
+
+#### Storage
+
+- Guided setup of shared LVMs and cluster-wide multipath management.
+Proxmox VE can now configure shared LVM and multipath on all nodes of a cluster.
+This allows users to centrally manage shared LVMs on iSCSI, Fibre Channel and NVMe over Fabrics in the new SAN view.
+The new SAN view under Datacenter → SAN shows the path and usage state for LUNs on every node and provides a guided setup to create shared LVMs and multipath overrides.
+iSCSI storages now have a Multipath option, which makes the nodes of the storage combine the paths to each LUN of the target into one multipath device.
+The "Add" menu under Datacenter → Storage now opens a wizard, whose first step lists all storage types and the guided setups for shared LVM.
+
+- New storage type for NVMe over Fabrics subsystems.
+The new NVMe over Fabrics storage type lets each node of the storage connect to an NVMe subsystem through every configured portal.
+The native NVMe multipath of the kernel combines the paths into one device per namespace and reconnects lost paths automatically.
+The new NVMe over Fabrics panel under Node → SAN lists the controllers of the node, one per connected portal, with their state and storage.
+
+- Web interface support for custom storage plugins.
+Storages of third-party storage plugins can now be added and edited in the web interface and are listed in the "Add" menu under Datacenter → Storage.
+The editor is generated from the property schemas of the plugin, so existing plugins are supported without changes, regardless of their storage API version.
+We encourage plugin authors to take a look at the [new chapter in our storage plugin development guide](https://pve.proxmox.com/wiki/Storage_Plugin_Development:_Writing_a_Storage_Plugin_for_SSHFS) to learn how to fully leverage the new UI capabilities. All details can be found in our [storage API changelog](https://git.proxmox.com/?p=pve-storage.git;a=blob;f=ApiChangeLog;hb=HEAD).
+
+- Graduate snapshots as volume chains out of technology preview.
+Remove the technology preview warning from the storage dialogs and from the LVM storage documentation.
+The snapshot-as-volume-chain option remains opt-in. For LVM storages it can be enabled on existing storages, affects newly created volumes, and cannot be disabled while qcow2 volumes exist on the storage.
+
+- Allow to restrict storages to volumes for a specific guest type and purpose.
+
+- Improve the handling of loading third-party storage plugins.
+
+- Improve the error message for invalid LVM names ([issue 7077](https://bugzilla.proxmox.com/show_bug.cgi?id=7077)).
+
+- Reject volume allocation requests if the filename does not match with the format parameter ([issue 7811](https://bugzilla.proxmox.com/show_bug.cgi?id=7811)).
+
+- Prevent the parent directory from being pruned as the last file in a content directory is removed ([issue 6969](https://bugzilla.proxmox.com/show_bug.cgi?id=6969)).
+
+- Ensure that new LVM thinpools are allocated with enough spare disk space for lvconvert --repair ([issue 6915](https://bugzilla.proxmox.com/show_bug.cgi?id=6915)).
+
+- Fix an issue where a guest stayed locked while its removed volumes on an LVM storage were wiped in the background ([issue 8286](https://bugzilla.proxmox.com/show_bug.cgi?id=8286)).
+With "Wipe Removed Volumes" or "Discard Removed Volumes" enabled, the background worker that wipes or discards removed volumes kept the lock of the guest until it was done. For example, after destroying a VM, creating a new VM with the same VMID failed with a lock timeout until the wipe was finished.
+The same applies to the workers that clean up after rolling back or deleting snapshots as volume chains, and after failed imports. For example, after restoring a backup over an existing VM with such snapshots, the VM could not be changed or started until the cleanup was done.
+
+- Prevent privileged attackers to inject arbitrary arguments into a tar invocation with a malicious OVA file name ([PSA-2026-00052-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-871499)).
+
+- Prevent a privileged attacker to leak arbitrary file contents of paths ending in .vmx from a configured ESXi instance ([PSA-2026-00066-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-872724)).
+
+- Keep the original volume during a LVM snapshot rollback if allocating the new one fails for storages with snapshot as a volume chain ([issue 7295](https://bugzilla.proxmox.com/show_bug.cgi?id=7295)).
+
+- Allow LVM storages to discard removed volumes, so that thin-provisioned backing storage, such as a SAN LUN, can reclaim their space ([issue 7339](https://bugzilla.proxmox.com/show_bug.cgi?id=7339)).
+Previously, removing a volume did not free its space on thin-provisioned backing storage. Setting issue_discards in the LVM configuration could free it, but removing large volumes could then fail, because the discards hit the timeout of the cluster-wide storage lock.
+The new "Discard Removed Volumes" option (on-volume-remove discard=1) issues discard (TRIM) requests for a volume before it is removed, outside of the storage lock. Setting the option is refused if a backing device of the volume group does not support discard.
+If "Wipe Removed Volumes" is enabled as well, each range of the volume is zeroed out and then discarded, so the whole volume does not have to be allocated with zeroes on the backing storage first.
+
+- Prevent to show a confusing error message when restoring from backups, whose filenames deviate from the standard naming convention ([issue 8169](https://bugzilla.proxmox.com/show_bug.cgi?id=8169)).
+
+- Prevent a privileged attacker to initiate unintended actions on a PBS backup group with type host, but a numerical backup ID ([PSA-2026-00053-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-871500)).
+
+- The content panel of a storage now shows the guest that owns each disk image or container volume, with an action to open the volume in the hardware or resources panel of the guest.
+
+- Resizing a qcow2 disk on an LVM storage with snapshots as volume chains no longer fails if the logical volume is already large enough, for example, after a manual resize. A warning is logged instead.
+
+#### Ceph
+
+- New Ceph Umbrella 21.2 available as technology preview.
+Ceph Umbrella can be installed for testing via pveceph install or the installation wizard in the web interface.
+When installing Ceph on a new node of a cluster that already runs Ceph Umbrella, the installation wizard now detects the running release and preselects it.
+Users can upgrade from Ceph Tentacle to Umbrella by [following the upgrade guide](https://pve.proxmox.com/wiki/Ceph_Tentacle_to_Umbrella).
+See the [upstream release notes](https://docs.ceph.com/en/latest/releases/umbrella/) for more details.
+
+- Guided Ceph Service Key Rotation helper.
+
+- Allow pausing the PG autoscaler for all pools by setting the noautoscale OSD flag.
+Ceph Umbrella doubles the default number of placement groups (PGs) per OSD that the PG autoscaler aims for. As soon as an upgraded manager is active, the autoscaler may start splitting the PGs of pools with autoscaling enabled, while daemons of both versions are still running. Setting the flag during the upgrade prevents this.
+The flag can be set and cleared via "Manage Global Flags" in the OSD panel of the web interface, which also shows whether it is currently set, as Ceph does not raise a health warning for it.
+
+- Fix an empty "Min. Size" field when editing a Ceph pool.
+
+- Restart Ceph daemons one at a time, either all OSDs of a node or all daemons of a type in the cluster.
+Each restart waits until Ceph reports that the daemon can be stopped safely and that it is back up, and the run aborts if the cluster health degrades. OSDs are set to noout while they restart.
+The OSD panel has a new "Bulk Restart OSDs" button, which can also limit the restart to OSDs that run an outdated version. The monitor, manager and metadata server lists have a new "Cluster-wide Bulk Restart" button. An interrupted OSD restart can be resumed via the API.
+
+- Ensure that only relevant command options can be passed to the Ceph installation binary ([PSA-2026-00079-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874572)).
+
+- The Ceph configuration database view now shows the "Mask" column if any entry uses a mask ([issue 6948](https://bugzilla.proxmox.com/show_bug.cgi?id=6948)).
+
+- pveceph install now defaults to the newest Ceph release running in the cluster, and the installation wizard preselects it ([issue 8011](https://bugzilla.proxmox.com/show_bug.cgi?id=8011)).
+
+- Creating a Ceph monitor whose release is older than the cluster requires is now refused, as such a monitor never joins the quorum.
+
+- Destroying a Ceph monitor that never joined the quorum now cleans it up fully, so that it can be created again, also if it is the second monitor of the cluster.
+
+#### Access control
+
+- Configure a cluster-wide policy for API tokens ([issue 7805](https://bugzilla.proxmox.com/show_bug.cgi?id=7805)).
+Compliance standards such as PCI DSS, SOC 2 or ISO 27001 often require credentials with a limited lifetime.
+The new "API Token Policy" under Datacenter → Options can require an expiration date for new tokens, limit their maximum lifetime, disallow extending the expiration date of existing tokens, and require privilege separation.
+The policy is checked when a token is created or updated, and only for the settings that change. Existing tokens stay valid, even if they do not conform to the policy.
+Optionally, tokens created without an expiration date get the maximum lifetime instead of being rejected. This helps with tools that are not aware of the policy, such as the remote wizard of Proxmox Datacenter Manager.
+The token dialogs in the web interface take the policy into account, for example, by pre-filling a compliant expiration date.
+In a cluster, only configure the policy once all nodes are upgraded. Nodes running an older version ignore the policy, and changing the datacenter options on such a node removes it.
+
+- Improve the handling of SDN-related ACL paths when the SDN config is applied ([issue 7520](https://bugzilla.proxmox.com/show_bug.cgi?id=7520)).
+If a SDN resource is removed from the SDN config, the relevant SDN resource ACL paths are pruned.
+If a VNet is moved, the relevant VNet ACL paths are migrated to reflect the change.
+
+- Prevent a privileged attacker to create a user that impersonates another user in the same realm ([PSA-2026-00081-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874776)).
+
+- Ensure that only users with the required Pool.Audit privilege can query information about a specific pool ([PSA-2026-00076-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874568)).
+
+- Ensure that privileged attackers cannot change the password of existing users while disabling the user at the same time ([PSA-2026-00050-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-870411)).
+
+#### Firewall & Software Defined Networking
+
+- VRF support for SDN zones and fabrics.
+Simple zones can now use a dedicated virtual routing and forwarding (VRF) to isolate their routes from the host and from other zones.
+OSPF and BGP fabrics can now run inside the VRF of a simple zone with a dedicated VRF.
+Static routes can now be configured for Simple zones in the new "Static Routes" tab of a zone.
+Host network interfaces can now be assigned to a VRF via the new "VRF" field in the network panel of a node.
+
+- Status reporting for WireGuard fabrics
+Selecting a WireGuard fabric in the resource tree now shows the status of its interfaces and peers, as for the other fabric protocols.
+For each WireGuard interface, the panel shows its state, public key and listen port.
+For each peer, the panel shows its endpoint, interface, public key, allowed IPs, the time of the latest handshake, and the amount of data sent and received.
+
+- Graduate the nftables-based proxmox-firewall out of technology preview.
+The nftables backend remains opt-in (Node → Firewall → Options → nftables, or nftables: 1 in /etc/pve/nodes/<node>/host.fw), while the iptables-based pve-firewall stays the default. Running guests need to be restarted after switching firewall backends.
+
+- Allow adding SDN VNets to resource pools ([issue 7294](https://bugzilla.proxmox.com/show_bug.cgi?id=7294)).
+Permissions on a pool then also apply to its VNets. For example, a single permission on the pool can allow users to connect the network devices of their guests to the VNets of the pool.
+VNets are added via Add → VNet in the "Members" panel of a pool, optionally limited to a specific VLAN tag. Unlike guests, a VNet can be a member of several pools.
+
+- Users with the SDN.Allocate privilege on an SDN path, for example, via the PVESDNAdmin role, can now view and change the permissions on that path.
+As with VM.Allocate, Datastore.Allocate and Pool.Allocate on their paths, they can only grant or revoke a subset of their own privileges.
+
+- pve-sdn-commit now takes the SDN lock when committing the configuration at boot, so it cannot conflict with an SDN apply started on another node. If this fails, the configuration is still applied on the node, but the unit is marked as failed.
+
+- Rules and options that iptables cannot apply are now rejected or skipped individually, instead of failing the update of the whole ruleset.
+Source and destination addresses that iptables cannot parse, such as 192.0.2.0/24:1, are now rejected ([issue 6992](https://bugzilla.proxmox.com/show_bug.cgi?id=6992)). CIDRs with an invalid prefix length in aliases and IP sets are now also rejected when reading the configuration ([issue 8261](https://bugzilla.proxmox.com/show_bug.cgi?id=8261)).
+
+- An alias that resolves to 0.0.0.0/0 can no longer be added to an IP set, as iptables rejects such an entry ([issue 5535](https://bugzilla.proxmox.com/show_bug.cgi?id=5535)).
+
+- Interface names longer than the 15 bytes the kernel allows, in rules or of guest network devices, now only skip the affected rule or guest interface.
+
+- Rules with direction forward that set an interface are now rejected, as such rules are not possible.
+
+- For ICMP rules, the destination port field now only accepts a single ICMP type of the address family of the protocol. Numeric types with a leading zero are rejected, as iptables reads them as octal numbers.
+
+- The API now rejects log rate limits and SYN flood protection settings that iptables cannot apply. For such values in manually edited configurations, the defaults are used instead.
+
+- Writing the firewall configuration no longer fails because of a rule with an invalid type. Previously, two such rules made it impossible to delete either of them via the API or web interface.
+
+- Improvements to the iptables-based pve-firewall:
+Protocol, service, and ethertype names are now taken from the new proxmox-firewall-data package, which proxmox-firewall uses as well, and protocols are passed to iptables as numbers. Previously, they were read from the files of the netbase package of the host, so an update of it that removed a name could break existing rules.
+
+- Service names used as ports are now resolved to their port number, so names that are only defined for another protocol, like bootps for TCP, work as well ([issue 7227](https://bugzilla.proxmox.com/show_bug.cgi?id=7227)). Rules with ports for UDP-Lite can now be applied, too ([issue 6318](https://bugzilla.proxmox.com/show_bug.cgi?id=6318)) ([issue 7584](https://bugzilla.proxmox.com/show_bug.cgi?id=7584)).
+
+- Fix an issue where an error in a security group, for example a reference to a group whose name is longer than the allowed 18 characters, left guests that reference the group without any filtering.
+
+- Fix an issue where an IP set that contains both an alias with host bits, such as 192.0.2.5/24, and an entry for the same network blocked all firewall updates on the node.
+Such entries are now merged as the kernel stores them. Sets that contain an entry with host bits are also no longer recreated on every update.
+
+- The configured SYN_RECV timeout of the SYN flood protection (nf_conntrack_tcp_timeout_syn_recv) is now applied correctly.
+
+- Errors while compiling the rules and the complete error output of a failed ruleset update are now logged to the system log.
+
+- Improvements to the ARP filter of guests with the IP filter enabled:
+Fix an issue where an alias in an ipfilter-netX IP set left the guest without any ebtables rules, including its MAC and ARP source filters.
+Aliases in these sets are now resolved, and invalid entries are skipped with a warning that names the guest.
+
+- Entries excluded with "!" (nomatch) in ipfilter-netX IP sets are now honored, and the most specific entry decides, as for the IP set itself. Previously, ARP from excluded addresses was accepted.
+
+- A container with the IPv4 address set to manual no longer keeps the ebtables ruleset of the node from being updated if the IP filter is enabled for it.
+
+- Fix the ARP filter of containers whose IP filter is enabled by an ipfilter-netX set instead of the ipfilter option.
+ARP from the configured address of the container was dropped unless the set listed it, while its IP traffic was allowed. With an empty set, ARP was not filtered at all. The ARP filter now applies to the same interfaces and addresses as the IP filter.
+
+- Improvements to the nftables-based proxmox-firewall:
+Fix the SYN flood protection of the host, which made nftables reject the whole ruleset if enabled. A rate or burst of 0 now uses the defaults, as with pve-firewall.
+
+- Fix an issue where a rule with a macro that covers both IPv4 and IPv6, like Ping, and a source or destination of one address family also matched traffic of the other family. For example, a rule accepting Ping from 192.0.2.1 also accepted ICMPv6 echo requests from any source.
+
+- The rules of a VNet now also apply to traffic from guests to the host if the VNet is in a VRF, as the VNets of EVPN zones are.
+
+- Fix several issues that kept the daemon from applying changes to the firewall configuration. It then kept the ruleset it had applied last, and after a reboot, only loaded the static base ruleset. The causes were: ([issue 7584](https://bugzilla.proxmox.com/show_bug.cgi?id=7584)).
+Guests with a network device model unknown to proxmox-firewall, such as e1000e ([issue 7584](https://bugzilla.proxmox.com/show_bug.cgi?id=7584)), with a net31 device, or with an invalid net key.
+Rules with the ICMPv6 type reject-route.
+An SDN running configuration or IPAM state that cannot be parsed.
+Firewall configuration files of VNets with an invalid name.
+Host and datacenter rules with an interface name longer than 15 bytes, for example an alternative name that only exists on some nodes.
+
+- Fix an issue where rules referencing the IPAM IP set of a guest were skipped if no SDN configuration had been applied, even though the IP set itself was created.
+
+- Fix an issue where changes to the firewall configuration were no longer applied after the daemon exited unexpectedly, until the service was restarted manually. The daemon is now restarted automatically after 5 seconds.
+
+- If the management IP addresses of the node cannot be determined, the daemon no longer crashes, and the error now points to the local_network alias, which avoids this lookup.
+
+- Updating the ruleset now fails, keeping the previous one, if /etc/pve is not mounted. Previously, if it was unmounted while the configuration was read, the ruleset could be generated without the firewall configuration of some guests and VNets.
+
+- Improvements to the firewall logger.
+
+- Reject line feeds in the comment fields for Firewall aliases, groups, rules or IPSets ([issue 7818](https://bugzilla.proxmox.com/show_bug.cgi?id=7818), [PSA-2026-00034-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-3#post-864232)).
+
+- Reject line feeds in relevant Firewall API parameters ([PSA-2026-00047-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-4#post-870404)).
+
+- Drop all ARP of a guest whose IP filter allows no IPv4 address in the iptables-based pve-firewall, so that it cannot poison the ARP caches of other hosts.
+
+- Fix the IPAM panel showing the entries of a subnet that exists in several zones in the first of these zones only.
+
+- Fix several issues of the WireGuard fabric node editor. For example, a listen port already in use was proposed for a new interface, and invalid values were replaced by previous ones on saving. Interfaces with invalid values are now marked.
+
+- Fix out-of-bounds reads and writes in the firewall logger for long log entries and truncated packets, which could leak memory into the firewall log.
+
+- Prevent privileged users from injecting arbitrary lines in the network configuration file /etc/network/interfaces using the network configuration API ([PSA-2026-00077-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-874570)).
+
+- Enforce stricter permission checks on various SDN API endpoints ([PSA-2026-00092-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-875379)).
+This requires users to have the SDN.Use or SDN.Allocate privilege on DNS and IPAM plugins, controllers, fabrics, route maps and prefix lists to reference them.
+
+- Prevent a privileged attacker to add route maps to inject arbitrary lines into the generated FRR configuration ([PSA-2026-00093-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-875380)).
+
+- Improve the validation for various SDN-related configuration options.
+
+- Fix editing a fabric node with an interface that has an IPv6 address.
+
+- Fix an API error when adding an interface with an IPv6 address to a BGP fabric.
+
+- The endpoint of a WireGuard fabric node can now be selected from the IP addresses configured on the node.
+
+- Fix the help buttons of the BGP and IS-IS controller dialogs pointing to the EVPN documentation ([issue 7460](https://bugzilla.proxmox.com/show_bug.cgi?id=7460)).
+
+- Fix FRR not finding the VTEP address of VXLAN interfaces that have no local IP address.
+
+- Various improvements to ifupdown2:
+Updating the configuration of a VXLAN or VLAN interface, for example adding a remote IP, no longer interrupts its traffic unless the change requires re-creating the interface. ([issue 8299](https://bugzilla.proxmox.com/show_bug.cgi?id=8299))
+
+- Removing an IPv6 remote IP from a VXLAN interface now also stops traffic from being flooded to that peer. ([issue 8117](https://bugzilla.proxmox.com/show_bug.cgi?id=8117))
+
+- A bond now comes up even if its primary interface or one of its members is missing. ([issue 8130](https://bugzilla.proxmox.com/show_bug.cgi?id=8130))
+
+- A bond no longer changes its MAC address on the first reload after boot.
+
+- VXLAN interfaces can now use the Group Based Policy extension with the new vxlan-gbp option.
+
+#### Improved management of Proxmox VE nodes
+
+- Proxmox Offline Mirror now includes snapshot pruning, snapshot aliases and lower memory usage ([issue 4379](https://bugzilla.proxmox.com/show_bug.cgi?id=4379), [issue 5863](https://bugzilla.proxmox.com/show_bug.cgi?id=5863)).
+Each mirror now maintains a last symlink to its most recent snapshot, providing a stable path for APT sources and scripts ([issue 4379](https://bugzilla.proxmox.com/show_bug.cgi?id=4379)). Snapshots can additionally be given persistent names.
+Old snapshots can be pruned using the retention options known from Proxmox Backup Server, such as --keep-last or --keep-daily ([issue 5863](https://bugzilla.proxmox.com/show_bug.cgi?id=5863)). Named snapshots and the most recent snapshot are protected from pruning.
+The new size verification mode detects truncated files at little cost. Snapshot creation now downloads damaged files again instead of failing, which also repairs older snapshots that share them.
+Packages can be downloaded in parallel, and downloaded files are no longer held in memory as a whole, so memory usage no longer grows with the size of the largest package.
+The changes between two snapshots can now be listed on a package level.
+Some command line options, the JSON output of the snapshot list, and the handling of concurrent operations on the same mirror have changed (see [Known Issues & Breaking Changes](#9.3-known-issues)).
+
+- Allow configuring IPv4 forwarding for host network interfaces.
+Interfaces that receive routed traffic, for example, the uplinks of an SDN zone with a dedicated VRF, need IPv4 forwarding enabled, which ifupdown2 does not do for all interfaces by default.
+The new "IPv4 Forwarding" option (ip-forward) of host network interfaces can be set to "Enabled", "Disabled" or "Default", where forwarding follows the defaults of the interface. When an interface is put into a VRF in the web interface, enabling forwarding is suggested.
+
+- The system report now includes custom QEMU CPU models.
+
+- The DNS panel of a node now shows all search domains ([issue 6357](https://bugzilla.proxmox.com/show_bug.cgi?id=6357)).
+
+- The bulk action windows now show tags in the style configured in the datacenter options ([issue 6348](https://bugzilla.proxmox.com/show_bug.cgi?id=6348)).
+
+- pveversion -v now lists the version of the proxmox-enterprise-support-keyring package.
+
+- New installations exclude NBD devices via the global LVM filter, so that volume groups on disks mapped via NBD do not clash with those of the host.
+
+- Reject Mako template tags in the ovs_options of network interfaces, as ifupdown2 renders /etc/network/interfaces as a Mako template if python3-mako is installed.
+
+#### Installation ISO
+
+- Setup the management network on a bond or VLAN during installation ([issue 2164](https://bugzilla.proxmox.com/show_bug.cgi?id=2164)).
+The GUI, TUI, and automated installers now provide options to set up the management network on a bond, on a VLAN, or on both.
+Previously, the management network could only be set up on a single untagged interface, and bonds or VLANs had to be configured manually after the installation.
+The bond is created as bond0 with the bridge vmbr0 on top, and its members, mode, hash policy and primary interface can be configured.
+The automated installer supports the new answer file sections [network.bond] and [network.vlan]. A VLAN can only be set with source = "from-answer".
+Bond members can be given by their MAC addresses or selected with udev property filters. This allows using one answer file for a set of identical servers.
+
+- Support installations on networks that are only reachable with a VLAN tag.
+Previously, the installation environment received no DHCP lease on such networks. The installer could then not propose network settings, and the automated installer could neither fetch its answer file over HTTP nor send the post-installation webhook.
+Setting the proxmox-vlan kernel parameter to the VLAN tag makes the installation environment use that VLAN for DHCP and IPv6 router advertisements.
+The GUI and TUI installers preselect this tag for the management network, and the automated installer uses it with the from-dhcp network source.
+For automated installations, the tag can also be stored in the ISO with the new --vlan-id option of proxmox-auto-install-assistant prepare-iso. The kernel parameter takes precedence.
+
+- Each installation now gets its own NVMe host NQN and host ID.
+
+- The network configuration written by the installer now follows the layout of the Proxmox VE network API.
+
+- With filter-match = "all" in the answer file, a device now only matches if it has all filtered udev properties.
+
+- The automated installer no longer follows HTTP redirects for POST requests, so the answer URL must point to the final endpoint.
+
+- Fix fetching the answer file and sending the post-installation webhook with a certificate fingerprint to URLs with an IPv6 address.
+
+- Fix fetching the answer file via HTTP on systems with network links without an Ethernet MAC address, such as InfiniBand.
+
+- Disabling interface name pinning in the answer file with enabled = false no longer pins all interfaces to the default names.
+
+- With interface name pinning and a static network configuration, the post-installation webhook now marks the management interface and sends its address.
+
+- proxmox-auto-install-assistant and proxmox-chroot now exit with an error status if a command fails, for example, if validate-answer finds an invalid answer file.
+
+- proxmox-chroot can now prepare the chroot of ZFS installations and of Btrfs installations on multiple disks, and can be used from the debug shell before the installer has started.
+
+- The GUI and TUI installers now fill in the gateway and DNS server from the default route of the selected management interface, and the TUI also an address of that interface.
+
+- The keyboard variant selected during installation is now also set for the console of the installed system.
+
+- Fix fetching the answer file via HTTP on systems whose firmware reports DMI attributes that are not valid UTF-8 ([issue 8020](https://bugzilla.proxmox.com/show_bug.cgi?id=8020)).
+
+- Keep secrets out of installation logs and files.
+
+- Various smaller fixes to the GUI and TUI installers.
+
+#### Notable changes
+
+- Improvements to the documentation.
+
+- Fix and improve various issues found in the Perl HTTP server used by Proxmox VE ([PSA-2026-00089-1](https://forum.proxmox.com/threads/proxmox-virtual-environment-security-advisories.149331/page-5#post-875370)).
+
+- Fix an issue where ACME account registration with External Account Binding (EAB) against HashiCorp Vault PKI failed ([issue 7749](https://bugzilla.proxmox.com/show_bug.cgi?id=7749)).
+
+### Known Issues & Breaking Changes
+#### Stricter validation of firewall rules
+The firewall API now rejects some rules that it accepted before, regardless of the firewall implementation: ICMP rules with a list, a range, a service name, or a number with a leading zero as ICMP type in the destination port field, and references to security groups with names longer than 18 characters. With the default iptables-based pve-firewall, such rules in existing configurations are now reported as invalid when the configuration is parsed, and skipped. On the other hand, some rules that had no effect with pve-firewall before now apply. Examples of this are ICMP rules for protocol ipv6-icmp with an ICMP type, and the rules of guests that were left without filtering because of an error in a referenced security group. Such guests now get their other rules and their default policy applied, which can block traffic that passed before. After upgrading, check the system log for warnings about skipped rules.
+
+#### Growing existing iSCSI LUNs requires a manual rescan
+Activating an iSCSI storage with existing sessions now only scans for newly added LUNs instead of running a full iscsiadm --rescan across every existing LUN path, avoiding periodic ALUA kernel log floods and request-queue freezes during disk revalidation. New LUNs are still discovered automatically, but growing an existing iSCSI LUN now requires running iscsiadm -m session --rescan (or per-path device/rescan) on each node, matching Fibre Channel. An explicit rescan trigger in Proxmox VE to simplify this workflow is planned for a future update.
 
 ## 9.2 – 2026-05-21
 
@@ -8575,7 +9379,7 @@ Including:
 
 First public release: 15.4.2008
 
-Retrieved from "[https://pve.proxmox.com/mediawiki/index.php?title=Roadmap&oldid=12640](https://pve.proxmox.com/mediawiki/index.php?title=Roadmap&oldid=12640)"
+Retrieved from "[https://pve.proxmox.com/mediawiki/index.php?title=Roadmap&oldid=12681](https://pve.proxmox.com/mediawiki/index.php?title=Roadmap&oldid=12681)"
 
 		[Category](https://pve.proxmox.com/wiki/Special:Categories):
 - [Installation](https://pve.proxmox.com/wiki/Category:Installation)
